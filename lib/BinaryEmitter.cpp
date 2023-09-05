@@ -6,11 +6,13 @@
 #include <iostream>
 #include <stdexcept>
 
+#ifdef DEBUG
+#include "Debug.h"
+#endif
 std::pair<int, std::string> parseOffsetReg(const std::string &input) {
   std::string numStr, identifier;
 
   size_t i = 0;
-  // 数字の部分を解析
   while (i < input.size() && (std::isdigit(input[i]) || input[i] == '-')) {
     numStr.push_back(input[i]);
     i++;
@@ -31,10 +33,20 @@ std::pair<int, std::string> parseOffsetReg(const std::string &input) {
   return {num, identifier};
 }
 
+std::optional<std::bitset<5>> findReg(const std::string &RegStr) {
+  if (auto RI = GPRegs.find(RegStr); RI != GPRegs.end())
+    return RI->second;
+  assert(false && "invalid register name");
+  return std::nullopt;
+}
+
+// TODO: move this to support and debug only
+
 void BinaryEmitter::emitBinary(std::ostream &os) {
   while (AP.parseLine()) {
     auto &Toks = AP.getTokens();
     auto &Mnemo = Toks[0];
+    unsigned Inst = 0;
     if (auto IT = ITypeKinds.find(Mnemo); IT != ITypeKinds.end()) {
       assert((Toks.size() == 4 || Toks.size() == 3) && "Wrong token number");
 
@@ -44,10 +56,7 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
 
       std::bitset<5> Rd, Rs1;
       std::bitset<12> Imm;
-      if (auto RI = GPRegs.find(Toks[1]); RI != GPRegs.end())
-        Rd = RI->second;
-      else
-        assert(false && "invalid register name for rd");
+      Rd = *findReg(Toks[1]);
 
       // handle offset for loads
       if (Toks.size() == 3) {
@@ -58,10 +67,7 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
         Rs1 = std::bitset<5>(OffReg.second);
         Imm = OffReg.first;
       } else {
-        if (auto RI = GPRegs.find(Toks[2]); RI != GPRegs.end())
-          Rs1 = RI->second;
-        else
-          assert(false && "invalid register name for rs1");
+        Rs1 = *findReg(Toks[2]);
         Imm = stoi(Toks[3]);
       }
 
@@ -70,10 +76,9 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
         Imm |= 1 << 10;
 
       // TODO: move this to constructor?
-      unsigned Inst = (Imm.to_ulong() << 20) | (Rs1.to_ulong() << 15) |
-                      (Funct3.to_ulong() << 12) | (Rd.to_ulong() << 7) |
-                      Opcode.to_ulong();
-      os.write(reinterpret_cast<char *>(&Inst), 4);
+      Inst = (Imm.to_ulong() << 20) | (Rs1.to_ulong() << 15) |
+             (Funct3.to_ulong() << 12) | (Rd.to_ulong() << 7) |
+             Opcode.to_ulong();
     } else if (auto IT = RTypeKinds.find(Mnemo); IT != RTypeKinds.end()) {
       assert(Toks.size() == 4 && "Wrong token number");
 
@@ -84,30 +89,24 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
 
       std::bitset<5> Rd, Rs1, Rs2;
 
-      if (auto RI = GPRegs.find(Toks[1]); RI != GPRegs.end())
-        Rd = RI->second;
-      else
-        assert(false && "invalid register name for rd");
-
-      if (auto RI = GPRegs.find(Toks[2]); RI != GPRegs.end())
-        Rs1 = RI->second;
-      else
-        assert(false && "invalid register name for rs1");
-
-      if (auto RI = GPRegs.find(Toks[3]); RI != GPRegs.end())
-        Rs2 = RI->second;
-      else
-        assert(false && "invalid register name for rs2");
+      Rd = *findReg(Toks[1]);
+      Rs1 = *findReg(Toks[2]);
+      Rs2 = *findReg(Toks[3]);
 
       // TODO: move this to constructor?
-      unsigned Inst = (Funct7.to_ulong() << 25) | (Rs2.to_ulong() << 20) |
-                      (Rs1.to_ulong() << 15) | (Funct3.to_ulong() << 12) |
-                      (Rd.to_ulong() << 7) | Opcode.to_ulong();
-      os.write(reinterpret_cast<char *>(&Inst), 4);
+      Inst = (Funct7.to_ulong() << 25) | (Rs2.to_ulong() << 20) |
+             (Rs1.to_ulong() << 15) | (Funct3.to_ulong() << 12) |
+             (Rd.to_ulong() << 7) | Opcode.to_ulong();
 
     } else {
       std::cerr << Mnemo << "\n";
       assert(false && "unimplemented!");
     }
+
+// TODO: create DEBUGEXPR MACRO to shorten this
+#ifdef DEBUG
+    debugInst(Toks, Inst);
+#endif
+    os.write(reinterpret_cast<char *>(&Inst), 4);
   }
 }

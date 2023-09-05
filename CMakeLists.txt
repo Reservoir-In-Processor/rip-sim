@@ -13,7 +13,6 @@ endif()
 # TODO switch on off by CMAKE option
 message(STATUS "build on ${CMAKE_SYSTEM_NAME}, ${CMAKE_SYSTEM_PROCESSOR}")
 
-# You can disable SANITIZE by cmake -DSANITIZE=OFF ..
 option(SANITIZE "Enable sanitize options" ON)
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
@@ -26,6 +25,10 @@ if (SANITIZE)
   if (NOT APPLE) # apple clang doesn't have leak sanitizer
     set(CMAKE_CXX_FLAGS "-fsanitize=leak ${CMAKE_CXX_FLAGS}")
   endif()
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG)
 endif()
 
 add_custom_target(build ALL)

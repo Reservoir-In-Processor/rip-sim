@@ -44,14 +44,14 @@ TEST(BinaryEmitterTest, ITypes) {
   BE.emitBinary(OSS);
   std::string Bin = OSS.str();
   // TODO: debug byte util
-  int cnt = 0;
-  for (char c : Bin) {
-    std::cerr << std::hex << std::setw(2) << std::setfill('0')
-              << (0xff & static_cast<unsigned char>(c)) << ' ';
-    ++cnt;
-    if (cnt % 4 == 0)
-      std::cerr << "\n";
-  }
+  // int cnt = 0;
+  // for (char c : Bin) {
+  //   std::cerr << std::hex << std::setw(2) << std::setfill('0')
+  //             << (0xff & static_cast<unsigned char>(c)) << ' ';
+  //   ++cnt;
+  //   if (cnt % 4 == 0)
+  //     std::cerr << "\n";
+  // }
 
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }

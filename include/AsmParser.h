@@ -29,10 +29,13 @@ public:
     while (std::getline(Is, line)) {
       if (line.find(':') != std::string::npos) {
         std::string lab = line.substr(0, line.find(':'));
+#ifdef DEBUG
         std::cerr << "parsed label = " << lab << "\n";
+#endif
         Labels.insert({lab, PC});
         continue;
       }
+      // TODO: see whether it's compressed or not.
       PC += 4;
     }
     Is.clear();
