@@ -88,3 +88,21 @@ TEST(BinaryEmitterTest, RType) {
 
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
+
+TEST(BinaryEmitterTest, UType) {
+  auto ss = std::stringstream("lui x16, 2\n"
+                              "auipc x16, 2\n");
+  unsigned char Expected[] = {
+      0x37, 0x28, 0x00, 0x00, // lui x16, 2
+      0x17, 0x28, 0x00, 0x00, // auipc x16, 2
+  };
+
+  BinaryEmitter BE(ss);
+  std::ostringstream OSS;
+  BE.emitBinary(OSS);
+  std::string Bin = OSS.str();
+
+  EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
+}
+
+// TODO: add label jump
