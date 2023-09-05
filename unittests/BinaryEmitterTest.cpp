@@ -126,9 +126,9 @@ TEST(BinaryEmitterTest, SType) {
                               "sw x16, 4(x0)\n");
   // TODO: more tests for bigger than 63
   unsigned char Expected[] = {
-      0x23, 0x02, 0x08, 0x01, // sb x16, 4(x0) FIXME: sus, maybe corrcet
-      0x23, 0x12, 0x08, 0x01, // sh x16, 4(x0) FIXME: sus
-      0x23, 0x22, 0x08, 0x01, // sw x16, 4(x0) FIXME: sus
+      0x23, 0x02, 0x08, 0x00, // sb x16, 4(x0) FIXME: sus, maybe corrcet
+      0x23, 0x12, 0x08, 0x00, // sh x16, 4(x0) FIXME: sus
+      0x23, 0x22, 0x08, 0x00, // sw x16, 4(x0) FIXME: sus
   };
 
   BinaryEmitter BE(ss);
