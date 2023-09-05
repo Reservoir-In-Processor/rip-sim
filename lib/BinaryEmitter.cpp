@@ -103,7 +103,6 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       Inst = (Funct7.to_ulong() << 25) | (Rs2.to_ulong() << 20) |
              (Rs1.to_ulong() << 15) | (Funct3.to_ulong() << 12) |
              (Rd.to_ulong() << 7) | Opcode.to_ulong();
-
     } else if (auto IT = UTypeKinds.find(Mnemo); IT != UTypeKinds.end()) {
       assert(Toks.size() == 3 && "Wrong token number for U-Type Inst.");
       UJType UTemp = IT->second;
@@ -111,15 +110,19 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       std::bitset<5> Rd = *findReg(Toks[1]);
       std::bitset<20> Imm = stoi(Toks[2]);
       Inst = (Imm.to_ulong() << 12) | (Rd.to_ulong() << 7) | Opcode.to_ulong();
-
     } else if (auto IT = JTypeKinds.find(Mnemo); IT != JTypeKinds.end()) {
       assert(Toks.size() == 3 && "Wrong token number for J-Type Inst.");
       UJType UTemp = IT->second;
       std::bitset<7> Opcode = UTemp.getOpcode();
       std::bitset<5> Rd = *findReg(Toks[1]);
-      // TODO: encode wierd
-      std::bitset<20> Imm = stoi(Toks[2]);
-      assert(false && "unimplemented!");
+      std::bitset<21> Imm = stoi(Toks[2]);
+      unsigned M0 = 0b100000000000000000000;
+      unsigned M1 = 0b000000000011111111110;
+      unsigned M2 = 0b000000000100000000000;
+      unsigned M3 = 0b011111111000000000000;
+      unsigned ImmS = Imm.to_ulong();
+      Inst = ((ImmS & M0) << 31) | ((ImmS & M1) << 20) | ((ImmS & M2) << 19) |
+             ((ImmS & M3 << 12)) | (Rd.to_ulong() << 7) | Opcode.to_ulong();
     } else if (auto IT = STypeKinds.find(Mnemo); IT != STypeKinds.end()) {
       assert(false && "unimplemented!");
     } else if (auto IT = BTypeKinds.find(Mnemo); IT != BTypeKinds.end()) {

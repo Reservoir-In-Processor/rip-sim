@@ -105,4 +105,18 @@ TEST(BinaryEmitterTest, UType) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
-// TODO: add label jump
+TEST(BinaryEmitterTest, JType) {
+  auto ss = std::stringstream("jal x18, 12\n");
+  // TODO: more tests for weird imm encoding
+  unsigned char Expected[] = {
+      0x6f, 0x09, 0xc0, 0x00, // jal x18, 12
+  };
+
+  BinaryEmitter BE(ss);
+  std::ostringstream OSS;
+  BE.emitBinary(OSS);
+  std::string Bin = OSS.str();
+
+  EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
+}
+// TODO: test label jump
