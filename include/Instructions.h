@@ -40,18 +40,18 @@ const std::map<std::string, ISBType> ITypeKinds = {
 };
 
 const std::map<std::string, ISBType> STypeKinds = {
+    {"sb", {"sb", 0b000, 0b0100011}},
+    {"sh", {"sh", 0b001, 0b0100011}},
+    {"sw", {"sw", 0b010, 0b0100011}},
+};
+
+const std::map<std::string, ISBType> BTypeKinds = {
     {"beq", {"beq", 0b000, 0b1100011}}, // Branch EQual
     {"bne", {"bne", 0b001, 0b1100011}},
     {"blt", {"blt", 0b100, 0b1100011}}, // Branch Less Than
     {"bge", {"bge", 0b101, 0b1100011}},
     {"bltu", {"bltu", 0b110, 0b1100011}},
     {"bgeu", {"bgeu", 0b111, 0b1100011}},
-};
-
-const std::map<std::string, ISBType> BTypeKinds = {
-    {"sb", {"sb", 0b000, 0b0100011}},
-    {"sh", {"sh", 0b001, 0b0100011}},
-    {"sw", {"sw", 0b010, 0b0100011}},
 };
 
 class RType {

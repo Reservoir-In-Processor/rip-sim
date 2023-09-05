@@ -119,4 +119,24 @@ TEST(BinaryEmitterTest, JType) {
 
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
+
+TEST(BinaryEmitterTest, SType) {
+  auto ss = std::stringstream("sb x16, 4(x0)\n"
+                              "sh x16, 4(x0)\n"
+                              "sw x16, 4(x0)\n");
+  // TODO: more tests for bigger than 63
+  unsigned char Expected[] = {
+      0x23, 0x02, 0x08, 0x01, // sb x16, 4(x0) FIXME: sus, maybe corrcet
+      0x23, 0x12, 0x08, 0x01, // sh x16, 4(x0) FIXME: sus
+      0x23, 0x22, 0x08, 0x01, // sw x16, 4(x0) FIXME: sus
+  };
+
+  BinaryEmitter BE(ss);
+  std::ostringstream OSS;
+  BE.emitBinary(OSS);
+  std::string Bin = OSS.str();
+
+  EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
+}
+
 // TODO: test label jump

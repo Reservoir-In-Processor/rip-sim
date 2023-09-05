@@ -120,11 +120,28 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       unsigned M1 = 0b000000000011111111110;
       unsigned M2 = 0b000000000100000000000;
       unsigned M3 = 0b011111111000000000000;
-      unsigned ImmS = Imm.to_ulong();
-      Inst = ((ImmS & M0) << 31) | ((ImmS & M1) << 20) | ((ImmS & M2) << 19) |
-             ((ImmS & M3 << 12)) | (Rd.to_ulong() << 7) | Opcode.to_ulong();
+      unsigned ImmU = Imm.to_ulong();
+      Inst = ((ImmU & M0) << 31) | ((ImmU & M1) << 20) | ((ImmU & M2) << 19) |
+             ((ImmU & M3 << 12)) | (Rd.to_ulong() << 7) | Opcode.to_ulong();
     } else if (auto IT = STypeKinds.find(Mnemo); IT != STypeKinds.end()) {
-      assert(false && "unimplemented!");
+      assert(Toks.size() == 3 && "Wrong token number for S-Type Inst.");
+      ISBType STemp = IT->second;
+      std::bitset<3> Funct3 = STemp.getFunct3();
+      std::bitset<7> Opcode = STemp.getOpcode();
+
+      std::bitset<5> Rs1, Rs2;
+      std::bitset<12> Imm;
+
+      Rs1 = *findReg(Toks[1]);
+      auto OffReg = parseOffsetReg(Toks[2]);
+      Rs2 = std::bitset<5>(OffReg.second);
+      Imm = OffReg.first;
+      unsigned M0 = 0b111111100000;
+      unsigned M1 = 0b000000011111;
+      unsigned ImmU = Imm.to_ulong();
+      Inst = ((ImmU & M0) << 25) | (Rs2.to_ulong() << 20) |
+             (Rs1.to_ulong() << 15) | (Funct3.to_ulong() << 12) |
+             ((ImmU & M1) << 7) | Opcode.to_ulong();
     } else if (auto IT = BTypeKinds.find(Mnemo); IT != BTypeKinds.end()) {
       assert(false && "unimplemented!");
     } else {
