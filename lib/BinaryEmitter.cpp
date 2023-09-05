@@ -9,7 +9,8 @@
 #ifdef DEBUG
 #include "Debug.h"
 #endif
-std::pair<int, std::string> parseOffsetReg(const std::string &input) {
+// move this to Instructions
+static std::pair<int, std::string> parseOffsetReg(const std::string &input) {
   std::string numStr, identifier;
 
   size_t i = 0;
@@ -33,7 +34,7 @@ std::pair<int, std::string> parseOffsetReg(const std::string &input) {
   return {num, identifier};
 }
 
-std::optional<std::bitset<5>> findReg(const std::string &RegStr) {
+static std::optional<std::bitset<5>> findReg(const std::string &RegStr) {
   if (auto RI = GPRegs.find(RegStr); RI != GPRegs.end())
     return RI->second;
   assert(false && "invalid register name");
