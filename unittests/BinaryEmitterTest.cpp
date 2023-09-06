@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <cstring>
 
 // https://github.com/d0iasm/rvemu/blob/07994c5261f69a130b6abcea70ba1ed0e2c9bbaf/tests/rv32i.rs#L11-L13
 TEST(BinaryEmitterTest, RV32I_ITypes) {

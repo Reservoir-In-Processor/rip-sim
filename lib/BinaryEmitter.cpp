@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
+#include <optional>
 
 #ifdef DEBUG
 #include "Debug.h"
