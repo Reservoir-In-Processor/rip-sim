@@ -28,8 +28,7 @@ jobs:
 
     - name: Assemble Test
       run: |
-        cd tests
-        make test
+        make -C tests test
 
     - name: Run valgrind
-      run: valgrind --leak-check=full --error-exitcode=1 ./your_program
+      run: valgrind --leak-check=full --error-exitcode=1 build/asmkheiv tests/addi.s
