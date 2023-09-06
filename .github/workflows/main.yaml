@@ -26,8 +26,10 @@ jobs:
         cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
         ninja -Cbuild unittests
 
-    - name: Build and Test
+    - name: Assemble Test
       run: |
         cd tests
         make test
 
+    - name: Run valgrind
+      run: valgrind --leak-check=full --error-exitcode=1 ./your_program
