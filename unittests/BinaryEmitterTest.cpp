@@ -127,8 +127,8 @@ TEST(BinaryEmitterTest, RV32I_JType) {
 TEST(BinaryEmitterTest, RV32I_SType) {
   auto ss = std::stringstream("sb x16, 4(x0)\n"
                               "sh x16, 4(x0)\n"
-                              "sw x16, 4(x0)\n");
-  // TODO: more tests for bigger than 63
+                              "sw x16, 4(x0)\n"
+                              "sw x16, -1336(x0)\n");
   unsigned char Expected[] = {
       // https://luplab.gitlab.io/rvcodecjs/#q=sb+x16,+4(x0)&abi=false&isa=AUTO
       0x23, 0x02, 0x00, 0x01, // sb x16, 4(x0)
@@ -136,6 +136,7 @@ TEST(BinaryEmitterTest, RV32I_SType) {
       0x23, 0x12, 0x00, 0x01, // sh x16, 4(x0)
       // https://luplab.gitlab.io/rvcodecjs/#q=sw+x16,+4(x0)&abi=false&isa=AUTO
       0x23, 0x22, 0x00, 0x01, // sw x16, 4(x0)
+      0x23, 0x24, 0x00, 0xad, // sw x16, -1336(x0)
   };
 
   BinaryEmitter BE(ss);
@@ -152,7 +153,8 @@ TEST(BinaryEmitterTest, RV32I_BType) {
                               "blt x16, x17, -8\n"
                               "bge x16, x17, 12\n"
                               "bltu x16, x17, 12\n"
-                              "bgeu x16, x17, 12\n");
+                              "bgeu x16, x17, 12\n"
+                              "bgeu x16, x17, -1366\n");
   unsigned char Expected[] = {
       0x63, 0x06, 0x18, 0x01, // beq x16, x17, 12
       0x63, 0x16, 0x18, 0x01, // bne x16, x17, 12
@@ -161,6 +163,7 @@ TEST(BinaryEmitterTest, RV32I_BType) {
       0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
       0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
       0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
+      0xe3, 0x75, 0x18, 0xab, // bgeu x16, x17, -1366
   };
 
   BinaryEmitter BE(ss);
