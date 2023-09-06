@@ -1,4 +1,5 @@
 # Detect all assembly files in the tests directory.
+SHELL := /bin/bash
 ASSEMBLY_FILES := $(wildcard *.s)
 CLANG_BIN_FILES := $(patsubst %.s, %-clang.bin, $(ASSEMBLY_FILES))
 OBJ_FILES := $(patsubst %.s, %.o, $(ASSEMBLY_FILES))
@@ -11,8 +12,12 @@ all: $(CLANG_BIN_FILES) $(BIN_FILES)
 test: all
 	@for file in $(ASSEMBLY_FILES); do \
 		echo "Comparing $$file output..."; \
-		cmp $$(basename $$file .s)-clang.bin $$(basename $$file .s).bin; \
+		if ! cmp -s $$(basename $$file .s)-clang.bin $$(basename $$file .s).bin; then \
+			echo "binary differ for $$file"; \
+			diff -y <(hexdump $$(basename $$file .s)-clang.bin) <(hexdump $$(basename $$file .s).bin); \
+		fi; \
 	done
+
 
 %-clang.bin: %.o
 	llvm-objcopy -O binary $< $@

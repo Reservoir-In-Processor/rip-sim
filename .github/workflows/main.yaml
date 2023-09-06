@@ -30,5 +30,8 @@ jobs:
       run: |
         make -C tests test
 
-    - name: Run valgrind
-      run: valgrind --leak-check=full --error-exitcode=1 build/asmkheiv tests/addi.s
+    # FIXME: valgrind with clnag-14 seems like few problems exist.
+    # https://github.com/google/sanitizers/issues/856
+    # https://hg.mozilla.org/integration/autoland/rev/192810f500b5
+    # - name: Run valgrind
+    #   run: valgrind --leak-check=full --error-exitcode=1 build/asmkheiv tests/addi.s
