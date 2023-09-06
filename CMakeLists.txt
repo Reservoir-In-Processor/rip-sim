@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.25)
 project(asmkheiv CXX)
 set (CMAKE_CXX_COMPILER /usr/bin/clang++ CACHE PATH "" FORCE)
 
