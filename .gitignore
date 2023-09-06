@@ -3,6 +3,6 @@
 *~
 **/.DS_Store
 **/.vscode
-**/.bin
+**/*.bin
 .cache
 /build*
