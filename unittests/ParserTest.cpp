@@ -64,3 +64,4 @@ TEST(ParserTest, LoadStore) {
   EXPECT_EQ(LoadHalf[1], "x18");
   EXPECT_EQ(LoadHalf[2], "4(x0)");
 }
+// TODO: directive

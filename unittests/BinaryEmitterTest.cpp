@@ -5,7 +5,7 @@
 #include <string>
 
 // https://github.com/d0iasm/rvemu/blob/07994c5261f69a130b6abcea70ba1ed0e2c9bbaf/tests/rv32i.rs#L11-L13
-TEST(BinaryEmitterTest, ITypes) {
+TEST(BinaryEmitterTest, RV32I_ITypes) {
   auto ss = std::stringstream("addi, x16, x0, 5\n"
                               "addi, x17, x0, 3\n"
                               "slti x17, x16, -2\n"
@@ -56,7 +56,7 @@ TEST(BinaryEmitterTest, ITypes) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
-TEST(BinaryEmitterTest, RType) {
+TEST(BinaryEmitterTest, RV32I_RType) {
   auto ss = std::stringstream("add x2, x3, x4\n"
                               "sub x2, x3, x4\n"
                               "sll x18, x16, x17\n"
@@ -89,7 +89,7 @@ TEST(BinaryEmitterTest, RType) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
-TEST(BinaryEmitterTest, UType) {
+TEST(BinaryEmitterTest, RV32I_UType) {
   auto ss = std::stringstream("lui x16, 2\n"
                               "auipc x16, 2\n");
   unsigned char Expected[] = {
@@ -105,11 +105,14 @@ TEST(BinaryEmitterTest, UType) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
-TEST(BinaryEmitterTest, JType) {
-  auto ss = std::stringstream("jal x18, 12\n");
-  // TODO: more tests for weird imm encoding
+TEST(BinaryEmitterTest, RV32I_JType) {
+  auto ss = std::stringstream("jal x18, 12\n"
+                              "jal x18, 699050\n");
   unsigned char Expected[] = {
+      // https://luplab.gitlab.io/rvcodecjs/#q=jal+x18,+12&abi=false&isa=AUTO
       0x6f, 0x09, 0xc0, 0x00, // jal x18, 12
+      // https://luplab.gitlab.io/rvcodecjs/#q=jal+x18,+699050&abi=false&isa=RV32I
+      0x6f, 0xa9, 0xba, 0x2a, // jal x18, 699050
   };
 
   BinaryEmitter BE(ss);
@@ -120,15 +123,18 @@ TEST(BinaryEmitterTest, JType) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
-TEST(BinaryEmitterTest, SType) {
+TEST(BinaryEmitterTest, RV32I_SType) {
   auto ss = std::stringstream("sb x16, 4(x0)\n"
                               "sh x16, 4(x0)\n"
                               "sw x16, 4(x0)\n");
   // TODO: more tests for bigger than 63
   unsigned char Expected[] = {
-      0x23, 0x02, 0x08, 0x00, // sb x16, 4(x0) FIXME: sus, maybe corrcet
-      0x23, 0x12, 0x08, 0x00, // sh x16, 4(x0) FIXME: sus
-      0x23, 0x22, 0x08, 0x00, // sw x16, 4(x0) FIXME: sus
+      // https://luplab.gitlab.io/rvcodecjs/#q=sb+x16,+4(x0)&abi=false&isa=AUTO
+      0x23, 0x02, 0x00, 0x01, // sb x16, 4(x0)
+      // https://luplab.gitlab.io/rvcodecjs/#q=sh+x16,+4(x0)&abi=false&isa=AUTO
+      0x23, 0x12, 0x00, 0x01, // sh x16, 4(x0)
+      // https://luplab.gitlab.io/rvcodecjs/#q=sw+x16,+4(x0)&abi=false&isa=AUTO
+      0x23, 0x22, 0x00, 0x01, // sw x16, 4(x0)
   };
 
   BinaryEmitter BE(ss);
@@ -139,4 +145,28 @@ TEST(BinaryEmitterTest, SType) {
   EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
 }
 
+TEST(BinaryEmitterTest, RV32I_BType) {
+  auto ss = std::stringstream("beq x16, x17, 12\n"
+                              "bne x16, x17, 12\n"
+                              "blt x16, x17, -8\n"
+                              "bge x16, x17, 12\n"
+                              "bltu x16, x17, 12\n"
+                              "bgeu x16, x17, 12\n");
+  unsigned char Expected[] = {
+      0x63, 0x06, 0x18, 0x01, // beq x16, x17, 12
+      0x63, 0x16, 0x18, 0x01, // bne x16, x17, 12
+      // https://luplab.gitlab.io/rvcodecjs/#q=blt+x16,+x17,+-8&abi=false&isa=AUTO
+      0xe3, 0x4c, 0x18, 0xff, // blt x16, x17, -8
+      0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
+      0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
+      0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
+  };
+
+  BinaryEmitter BE(ss);
+  std::ostringstream OSS;
+  BE.emitBinary(OSS);
+  std::string Bin = OSS.str();
+
+  EXPECT_EQ(std::memcmp(Bin.data(), Expected, sizeof(Expected)), 0);
+}
 // TODO: test label jump

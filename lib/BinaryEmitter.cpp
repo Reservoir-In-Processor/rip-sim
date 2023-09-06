@@ -41,8 +41,6 @@ static std::optional<std::bitset<5>> findReg(const std::string &RegStr) {
   return std::nullopt;
 }
 
-// TODO: move this to support and debug only
-
 void BinaryEmitter::emitBinary(std::ostream &os) {
   while (AP.parseLine()) {
     auto &Toks = AP.getTokens();
@@ -52,7 +50,7 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       assert((Toks.size() == 4 || Toks.size() == 3) &&
              "Wrong token number I-Type Inst.");
       // TODO: IInst : Instruction
-      // IInst(StrArg0, StrArg1, StrArg2, StrArg3)
+      // IInst(ISBType, StrArg0, StrArg1, StrArg2, StrArg3)
       // IInst->emitBinary(ostream)
       // IInst->dumpHex(ostream)
       // IInst->dumpBin(ostream)
@@ -71,10 +69,12 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
         assert((Mnemo == "lb" || Mnemo == "lh" || Mnemo == "lw" ||
                 Mnemo == "lbu" || Mnemo == "lhu") &&
                "invarid offset(reg) notation except loads");
+        // op rd, offset(rs1)
         auto OffReg = parseOffsetReg(Toks[2]);
         Rs1 = std::bitset<5>(OffReg.second);
         Imm = OffReg.first;
       } else {
+        // op rd,rs1,imm
         Rs1 = *findReg(Toks[2]);
         Imm = stoi(Toks[3]);
       }
@@ -122,8 +122,10 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       unsigned M2 = 0b000000000100000000000;
       unsigned M3 = 0b011111111000000000000;
       unsigned ImmU = Imm.to_ulong();
-      Inst = ((ImmU & M0) << 31) | ((ImmU & M1) << 20) | ((ImmU & M2) << 19) |
-             ((ImmU & M3 << 12)) | (Rd.to_ulong() << 7) | Opcode.to_ulong();
+      // FIXME: fold?
+      Inst = (((ImmU & M0) >> 20) << 31) | (((ImmU & M1) >> 1) << 21) |
+             (((ImmU & M2) >> 11) << 20) | (((ImmU & M3) >> 12) << 12) |
+             (Rd.to_ulong() << 7) | Opcode.to_ulong();
     } else if (auto IT = STypeKinds.find(Mnemo); IT != STypeKinds.end()) {
       assert(Toks.size() == 3 && "Wrong token number for S-Type Inst.");
       ISBType STemp = IT->second;
@@ -132,19 +134,39 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
 
       std::bitset<5> Rs1, Rs2;
       std::bitset<12> Imm;
-
-      Rs1 = *findReg(Toks[1]);
+      // sb/h/w rs2,offset(rs1)
+      Rs2 = *findReg(Toks[1]);
       auto OffReg = parseOffsetReg(Toks[2]);
-      Rs2 = std::bitset<5>(OffReg.second);
+      Rs1 = std::bitset<5>(OffReg.second);
       Imm = OffReg.first;
       unsigned M0 = 0b111111100000;
       unsigned M1 = 0b000000011111;
       unsigned ImmU = Imm.to_ulong();
-      Inst = ((ImmU & M0) << 25) | (Rs2.to_ulong() << 20) |
+      Inst = (((ImmU & M0) >> 5) << 25) | (Rs2.to_ulong() << 20) |
              (Rs1.to_ulong() << 15) | (Funct3.to_ulong() << 12) |
              ((ImmU & M1) << 7) | Opcode.to_ulong();
     } else if (auto IT = BTypeKinds.find(Mnemo); IT != BTypeKinds.end()) {
-      assert(false && "unimplemented!");
+      ISBType BTemp = IT->second;
+      std::bitset<3> Funct3 = BTemp.getFunct3();
+      std::bitset<7> Opcode = BTemp.getOpcode();
+
+      std::bitset<5> Rs1, Rs2;
+      Rs1 = *findReg(Toks[1]);
+      // TODO: handle label branch
+      Rs2 = *findReg(Toks[2]);
+
+      std::bitset<13> Imm;
+      unsigned M0 = 0b1000000000000;
+      unsigned M1 = 0b0011111100000;
+      unsigned M2 = 0b0000000011110;
+      unsigned M3 = 0b0100000000000;
+      Imm = stoi(Toks[3]);
+      unsigned ImmU = Imm.to_ulong();
+      // FIXME: am I wrong?
+      Inst = (((ImmU & M0) >> 12) << 31) | (((ImmU & M1) >> 5) << 25) |
+             (Rs2.to_ulong() << 20) | (Rs1.to_ulong() << 15) |
+             (Funct3.to_ulong() << 12) | (((ImmU & M2) >> 1) << 8) |
+             (((ImmU & M3) >> 11) << 7) | Opcode.to_ulong();
     } else {
       std::cerr << Mnemo << "\n";
       assert(false && "unimplemented!");
