@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
+    # FIXME: if the speed become problem, better to create original image.
     - name: Install Dependencies
       run: |
         sudo apt-get update
