@@ -17,6 +17,7 @@ test: all
 			diff -y <(hexdump $$(basename $$file .s)-clang.bin) <(hexdump $$(basename $$file .s).bin); \
 		fi; \
 	done
+	rm -f $(BIN_FILES) $(OBJ_FILES) $(CLANG_BIN_FILES)
 
 
 %-clang.bin: %.o
