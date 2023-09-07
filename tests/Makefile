@@ -19,6 +19,14 @@ test: all
 	done
 	rm -f $(BIN_FILES) $(OBJ_FILES) $(CLANG_BIN_FILES)
 
+gen: all
+	@for file in $(ASSEMBLY_FILES); do \
+		echo "Comparing $$file output..."; \
+		if ! cmp -s $$(basename $$file .s)-clang.bin $$(basename $$file .s).bin; then \
+			echo "binary differ for $$file"; \
+			diff -y <(hexdump $$(basename $$file .s)-clang.bin) <(hexdump $$(basename $$file .s).bin); \
+		fi; \
+	done
 
 %-clang.bin: %.o
 	llvm-objcopy -O binary $< $@
