@@ -35,14 +35,16 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 add_custom_target(build ALL)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
 
 include_directories(include)
 add_subdirectory(lib)
 
-add_executable(asmkheiv main.cpp)
-target_link_libraries(asmkheiv asm)
+
+add_subdirectory(tools)
+
 
 
 include(FetchContent)
@@ -60,14 +62,12 @@ add_subdirectory(unittests)
 
 add_custom_target(unittests
   COMMAND ctest --test-dir ./unittests/ --output-on-failure 
-  DEPENDS asmkheiv ${ALL_TESTS}
+  DEPENDS ${ALL_TESTS}
 )
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-# TODO: put some tests on build di
-add_custom_target(run
-  COMMAND ./asmkheiv ../tests/addi.s
-  DEPENDS asmkheiv
-  )
 
-add_custom_target(format find . -name '*.cpp' -o -name '*.h' | xargs clang-format -i WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+add_custom_target(test
+  COMMAND make -C ../tests test
+  DEPENDS asmkheiv simkheiv
+)

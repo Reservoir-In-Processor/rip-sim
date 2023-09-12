@@ -1,6 +1,6 @@
 #ifndef BINARYEMITTER_H
 #define BINARYEMITTER_H
-#include "AsmParser.h"
+#include "Assembler/AsmParser.h"
 #include <string>
 
 class BinaryEmitter {

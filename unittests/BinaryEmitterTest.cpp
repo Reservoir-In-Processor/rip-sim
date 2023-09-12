@@ -1,12 +1,12 @@
-#include "BinaryEmitter.h"
+#include "Assembler/BinaryEmitter.h"
+#include <cstring>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <map>
 #include <string>
-#include <cstring>
 
 // https://github.com/d0iasm/rvemu/blob/07994c5261f69a130b6abcea70ba1ed0e2c9bbaf/tests/rv32i.rs#L11-L13
-TEST(BinaryEmitterTest, RV32I_ITypes) {
+TEST(BinaryEmitterTest, RV32I_IType) {
   auto ss = std::stringstream("addi, x16, x0, 5\n"
                               "addi, x17, x0, 3\n"
                               "slti x17, x16, -2\n"

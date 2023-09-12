@@ -2,9 +2,14 @@
 #define REGISTERS_H
 
 #include <bitset>
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
+#include <iomanip>
+#include <iostream>
 #include <map>
 #include <string>
-const std::map<std::string, std::bitset<5>> GPRegs = {
+const std::map<std::string, std::bitset<5>> GPRegMap = {
     {"x0", 0},   {"zero", 0}, {"x1", 1},   {"ra", 1},   {"x2", 2},  {"sp", 2},
     {"x3", 3},   {"gp", 3},   {"x4", 4},   {"tp", 4},   {"x5", 5},  {"t0", 5},
     {"x6", 6},   {"t1", 6},   {"x7", 7},   {"t2", 7},   {"x8", 8},  {"s0", 8},
@@ -16,5 +21,60 @@ const std::map<std::string, std::bitset<5>> GPRegs = {
     {"s7", 23},  {"x24", 24}, {"s8", 24},  {"x25", 25}, {"s9", 25}, {"x26", 26},
     {"s10", 26}, {"x27", 27}, {"s11", 27}, {"x28", 28}, {"t3", 28}, {"x29", 29},
     {"t4", 29},  {"x30", 30}, {"t5", 30},  {"x31", 31}, {"t6", 31}};
+
+static const std::string ABI[32] = {
+    "zero", " ra ", " sp ", " gp ", " tp ", " t0 ", " t1 ", " t2 ",
+    " s0 ", " s1 ", " a0 ", " a1 ", " a2 ", " a3 ", " a4 ", " a5 ",
+    " a6 ", " a7 ", " s2 ", " s3 ", " s4 ", " s5 ", " s6 ", " s7 ",
+    " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
+};
+
+using Reg = std::int32_t;
+const unsigned RegNum = 32;
+class GPRegisters {
+private:
+  Reg Regs[RegNum];
+
+public:
+  GPRegisters(const GPRegisters &) = delete;
+  GPRegisters &operator=(const GPRegisters &) = delete;
+
+  GPRegisters() : Regs{0} {}
+  GPRegisters(std::initializer_list<std::pair<unsigned, Reg>> init_list)
+      : Regs{0} {
+    for (const auto &p : init_list) {
+      assert(p.first < RegNum && "Register index out of bounds.");
+      Regs[p.first] = p.second;
+    }
+  }
+  Reg &operator[](unsigned index) {
+    assert(index < RegNum && "Index out of bounds");
+    return Regs[index];
+  }
+
+  const Reg &operator[](unsigned index) const {
+    assert(index < RegNum && "Index out of bounds");
+    return Regs[index];
+  }
+
+  const Reg &operator[](std::string name) const {
+    auto IT = GPRegMap.find(name);
+    assert(IT != GPRegMap.end() && "No such registers.");
+    return Regs[(IT->second).to_ulong()];
+  }
+
+  void dump() {
+    for (unsigned i = 0; i < 32; ++i) {
+      char ValStr[10];
+      std::snprintf(ValStr, sizeof(ValStr), "0x%04x", Regs[i]);
+      std::cerr << 'x' << std::left << std::setw(2) << std::setfill(' ') << i
+                << "(" << ABI[i] << ")"
+                << ":=" << std::right << std::setw(18) << std::setfill(' ')
+                << ValStr << ", ";
+      if (i % 4 == 3)
+        std::cerr << '\n';
+    }
+  }
+};
 
 #endif

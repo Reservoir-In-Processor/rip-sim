@@ -1,4 +1,4 @@
-#include "AsmParser.h"
+#include "Assembler/AsmParser.h"
 #include <gtest/gtest.h>
 
 // Demonstrate some basic assertions.

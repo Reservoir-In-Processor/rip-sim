@@ -21,14 +21,18 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang llvm cmake ninja-build valgrind
 
-    - name: Build and unit tests
+    - name: Build
       run: |
         cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+        ninja -Cbuild
+
+    - name: Run unit tests
+      run: |
         ninja -Cbuild unittests
 
     - name: Assemble Test
       run: |
-        make -C tests test
+        ninja -Cbuild test
 
     # FIXME: valgrind with clnag-14 seems like few problems exist.
     # https://github.com/google/sanitizers/issues/856

@@ -1,11 +1,11 @@
 // TODO: implement method in this
-#include <AsmParser.h>
+#include <Assembler/AsmParser.h>
 
 std::vector<std::string> AsmParser::parseLineInner(const std::string &str) {
   std::vector<std::string> result;
   std::string temp;
   std::stringstream local_ss(str);
-  // TODO: handle comment
+  // TODO: handle comment, directive
   while (std::getline(local_ss, temp, ',')) {
     std::stringstream item_ss(temp);
     std::string item;
