@@ -55,7 +55,7 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
 
     // TODO: create DEBUGEXPR MACRO to shorten this
 #ifdef DEBUG
-      debugInst(Toks, InstT->getVal());
+    debugInstOnAsm(Toks, InstT->getVal());
 #endif
     InstT->emitBinary(os);
     InstT.reset();

@@ -32,7 +32,7 @@ jobs:
 
     - name: Assemble Test
       run: |
-        ninja -Cbuild test
+        ninja -Cbuild asmtest
 
     # FIXME: valgrind with clnag-14 seems like few problems exist.
     # https://github.com/google/sanitizers/issues/856

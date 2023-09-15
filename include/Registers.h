@@ -1,6 +1,7 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
+#include "Simulator/Memory.h"
 #include <bitset>
 #include <cassert>
 #include <cstdint>
@@ -39,13 +40,22 @@ public:
   GPRegisters(const GPRegisters &) = delete;
   GPRegisters &operator=(const GPRegisters &) = delete;
 
-  GPRegisters() : Regs{0} {}
+  GPRegisters() : Regs{0} {
+    // The stack pointer is set in the default maximum mamory size + the start
+    // address of dram.
+    Regs[2] = DRAM_BASE + DRAM_SIZE;
+  }
   GPRegisters(std::initializer_list<std::pair<unsigned, Reg>> init_list)
       : Regs{0} {
     for (const auto &p : init_list) {
       assert(p.first < RegNum && "Register index out of bounds.");
+      assert(p.first != 2 &&
+             "The stack pointer sp = x2 is set for end of the dram.");
       Regs[p.first] = p.second;
     }
+    // The stack pointer is set in the default maximum mamory size + the start
+    // address of dram.
+    Regs[2] = DRAM_BASE + DRAM_SIZE;
   }
   Reg &operator[](unsigned index) {
     assert(index < RegNum && "Index out of bounds");
@@ -74,6 +84,7 @@ public:
       if (i % 4 == 3)
         std::cerr << '\n';
     }
+    std::cerr << '\n';
   }
 };
 

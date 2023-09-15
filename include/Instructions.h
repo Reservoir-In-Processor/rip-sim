@@ -45,7 +45,6 @@ static const std::optional<std::bitset<5>> findReg(const std::string &RegStr) {
 }
 
 } // namespace
-using PC = unsigned;
 class Instruction {
   unsigned Val;
 
@@ -55,28 +54,8 @@ public:
   void emitBinary(std::ostream &os) {
     os.write(reinterpret_cast<char *>(&Val), 4);
   }
-
-  void dumpHex() {
-    std::cerr << "Hex(LE): ";
-    for (int i = 0; i < sizeof(Val); ++i) {
-      unsigned char byte = (Val >> (i * 8)) & 0xFF;
-      std::cerr << std::hex << std::setw(2) << std::setfill('0')
-                << static_cast<int>(byte) << ' ';
-    }
-    std::cerr << "\n\n";
-  }
-
-  void dumpBin() {
-    std::bitset<32> binaryValue(Val);
-    std::cerr << "Binary(BE): ";
-    for (int i = 0; i < 32; ++i) {
-      std::cerr << ((binaryValue >> (31 - i)).to_ulong() & 1);
-      if (i % 8 == 7)
-        std::cerr << ' ';
-    }
-  }
   virtual void pprint(std::ostream &) = 0;
-  virtual void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) = 0;
+  virtual void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) = 0;
   virtual ~Instruction() {}
 };
 namespace {
@@ -102,7 +81,7 @@ private:
   std::bitset<12> Imm;
 
 public:
-  /// This is expected to be used on asm.
+  /// Encoding
   IInstruction(const ISBType &IT, const std::vector<std::string> &Toks)
       : IT(IT) {
     Rd = *findReg(Toks[1]);
@@ -140,18 +119,36 @@ public:
            (IT.getFunct3().to_ulong() << 12) | (this->Rd.to_ulong() << 7) |
            IT.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    assert(false && "unimplemented!");
-    std::cerr << IT.getMnemo() << "\n";
-    std::cerr << "TODO: pretty print for \n";
+
+  void pprint(std::ostream &os) override {
+    if (IT.getMnemo() == "lb" || IT.getMnemo() == "lh" ||
+        IT.getMnemo() == "lw" || IT.getMnemo() == "lbu" ||
+        IT.getMnemo() == "lhu")
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
+    else
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << ABI[Rs1.to_ulong()] << " " << std::dec << signExtend(Imm);
+    os << " := ";
+
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
-      if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+      if (i == 12 || i == 17 || i == 20 || i == 25)
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
+
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      std::cerr << std::hex << std::setw(2) << std::setfill('0')
+                << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &P, GPRegisters &GPRegs, Memory &M, CustomRegisters &) override;
+  void exec(Address &P, GPRegisters &GPRegs, Memory &M,
+            CustomRegisters &) override;
 };
 
 class RInstruction : public Instruction {
@@ -161,7 +158,7 @@ private:
   std::bitset<5> Rd, Rs1, Rs2;
 
 public:
-  /// This is expected to be used on asm.
+  /// Encoding
   RInstruction(const RType &RT, const std::vector<std::string> &Toks) : RT(RT) {
     Rd = *findReg(Toks[1]);
     Rs1 = *findReg(Toks[2]);
@@ -170,20 +167,38 @@ public:
            (Rs1.to_ulong() << 15) | (RT.getFunct3().to_ulong() << 12) |
            (Rd.to_ulong() << 7) | RT.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    std::cerr << RT.getMnemo() << "\n";
-    std::cerr << "TODO: clean \n";
+
+  RInstruction(const RType &RT, const unsigned Rd, const unsigned Rs1,
+               const unsigned Rs2)
+      : RT(RT), Rd(Rd), Rs1(Rs1), Rs2(Rs2) {
+    // FIXME: rename member as _XX?
+    setVal((RT.getFunct7().to_ulong() << 25) | (this->Rs2.to_ulong() << 20) |
+           (this->Rs1.to_ulong() << 15) | (RT.getFunct3().to_ulong() << 12) |
+           (this->Rd.to_ulong() << 7) | RT.getOpcode().to_ulong());
+  }
+
+  void pprint(std::ostream &os) override {
+    os << RT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+       << ABI[Rs1.to_ulong()] << " " << ABI[Rs2.to_ulong()];
+    os << " := ";
+
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
       if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
-    assert(false && "unimplemented!");
+
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      os << std::hex << std::setw(2) << std::setfill('0')
+         << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) override {
-    assert(false && "unimplemented!");
-  }
+  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
 };
 
 class UInstruction : public Instruction {
@@ -202,20 +217,35 @@ public:
     setVal((Imm.to_ulong() << 12) | (Rd.to_ulong() << 7) |
            UT.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    std::cerr << UT.getMnemo() << "\n";
-    std::cerr << "TODO: clean \n";
+
+  UInstruction(const UJType &UT, const unsigned Rd, const unsigned Imm)
+      : UT(UT), Rd(Rd), Imm(Imm) {
+    // FIXME: rename member as _XX?
+    setVal((this->Imm.to_ulong() << 12) | (this->Rd.to_ulong() << 7) |
+           UT.getOpcode().to_ulong());
+  }
+  void pprint(std::ostream &os) override {
+    os << UT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
+       << signExtend(Imm);
+    os << " := ";
+
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
-      if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+      if (i == 20 || i == 25)
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
-    assert(false && "unimplemented!");
+
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      os << std::hex << std::setw(2) << std::setfill('0')
+         << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) override {
-    assert(false && "unimplemented!");
-  }
+  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
 };
 
 class JInstruction : public Instruction {
@@ -226,7 +256,7 @@ private:
   std::bitset<21> Imm;
 
 public:
-  /// This is expected to be used on asm.
+  /// Encoding
   JInstruction(const UJType &JT, const std::vector<std::string> &Toks)
       : JT(JT) {
     unsigned M0 = 0b100000000000000000000;
@@ -240,20 +270,38 @@ public:
            (((ImmU & M2) >> 11) << 20) | (((ImmU & M3) >> 12) << 12) |
            (Rd.to_ulong() << 7) | JT.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    std::cerr << JT.getMnemo() << "\n";
-    std::cerr << "TODO: clean \n";
+
+  JInstruction(const UJType &JT, const unsigned Rd, const unsigned Imm)
+      : JT(JT), Rd(Rd), Imm(Imm) {
+    unsigned M0 = 0b100000000000000000000;
+    unsigned M1 = 0b000000000011111111110;
+    unsigned M2 = 0b000000000100000000000;
+    unsigned M3 = 0b011111111000000000000;
+    setVal((((Imm & M0) >> 20) << 31) | (((Imm & M1) >> 1) << 21) |
+           (((Imm & M2) >> 11) << 20) | (((Imm & M3) >> 12) << 12) | (Rd << 7) |
+           JT.getOpcode().to_ulong());
+  }
+  void pprint(std::ostream &os) override {
+    os << JT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
+       << signExtend(Imm);
+    os << " :=";
+
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
-      if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+      if (i == 20 || i == 25)
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
-    assert(false && "unimplemented!");
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      os << std::hex << std::setw(2) << std::setfill('0')
+         << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) override {
-    assert(false && "unimplemented!");
-  }
+  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
 };
 
 class SInstruction : public Instruction {
@@ -264,7 +312,7 @@ private:
   std::bitset<12> Imm;
 
 public:
-  /// This is expected to be used on asm.
+  /// Encoding.
   SInstruction(const ISBType &ST, const std::vector<std::string> &Toks)
       : ST(ST) {
 
@@ -280,20 +328,40 @@ public:
            (Rs1.to_ulong() << 15) | (ST.getFunct3().to_ulong() << 12) |
            ((ImmU & M1) << 7) | ST.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    std::cerr << ST.getMnemo() << "\n";
-    std::cerr << "TODO: clean \n";
+
+  SInstruction(const ISBType &ST, const unsigned Rs1, const unsigned Rs2,
+               const unsigned Imm)
+      : ST(ST), Rs1(Rs1), Rs2(Rs2), Imm(Imm) {
+    // FIXME: rename member as _XX?
+    unsigned M0 = 0b111111100000;
+    unsigned M1 = 0b000000011111;
+    setVal((((Imm & M0) >> 5) << 25) | (this->Rs2.to_ulong() << 20) |
+           (this->Rs1.to_ulong() << 15) | (ST.getFunct3().to_ulong() << 12) |
+           ((Imm & M1) << 7) | ST.getOpcode().to_ulong());
+  }
+
+  void pprint(std::ostream &os) override {
+    os << ST.getMnemo() << " " << ABI[Rs2.to_ulong()] << " "
+       << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
+    os << " :=";
+
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
       if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
-    assert(false && "unimplemented!");
+
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      os << std::hex << std::setw(2) << std::setfill('0')
+         << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) override {
-    assert(false && "unimplemented!");
-  }
+  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
 };
 
 class BInstruction : public Instruction {
@@ -324,20 +392,42 @@ public:
            (BT.getFunct3().to_ulong() << 12) | (((ImmU & M2) >> 1) << 8) |
            (((ImmU & M3) >> 11) << 7) | BT.getOpcode().to_ulong());
   }
-  void pprint(std::ostream &) override {
-    std::cerr << BT.getMnemo() << "\n";
-    std::cerr << "TODO: clean \n";
+
+  BInstruction(const ISBType &BT, const unsigned Rs1, const unsigned Rs2,
+               const unsigned Imm)
+      : BT(BT), Rs1(Rs1), Rs2(Rs2), Imm(Imm) {
+    // FIXME: rename member as _XX?
+    unsigned M0 = 0b1000000000000;
+    unsigned M1 = 0b0011111100000;
+    unsigned M2 = 0b0000000011110;
+    unsigned M3 = 0b0100000000000;
+
+    setVal((((Imm & M0) >> 12) << 31) | (((Imm & M1) >> 5) << 25) |
+           (this->Rs2.to_ulong() << 20) | (this->Rs1.to_ulong() << 15) |
+           (BT.getFunct3().to_ulong() << 12) | (((Imm & M2) >> 1) << 8) |
+           (((Imm & M3) >> 11) << 7) | BT.getOpcode().to_ulong());
+  }
+
+  void pprint(std::ostream &os) override {
+    os << BT.getMnemo() << " " << ABI[Rs1.to_ulong()] << " "
+       << ABI[Rs2.to_ulong()] << std::dec << signExtend(Imm);
+    os << " :=";
     unsigned V = getVal();
     for (int i = 0; i < 32; ++i) {
       if (i == 7 || i == 12 || i == 17 || i == 20 || i == 25)
-        std::cerr << ' ';
-      std::cerr << (V >> (31 - i) & 1);
+        os << ' ';
+      os << (V >> (31 - i) & 1);
     }
-    assert(false && "unimplemented!");
+    os << "(BIN) = ";
+    for (unsigned long i = 0; i < sizeof(V); ++i) {
+      unsigned char byte = (V >> (i * 8)) & 0xFF;
+      os << std::hex << std::setw(2) << std::setfill('0')
+         << static_cast<int>(byte) << ' ';
+    }
+    os << "(HEX LE)";
+    os << "\n";
   }
-  void exec(PC &, GPRegisters &, Memory &, CustomRegisters &) override {
-    assert(false && "unimplemented!");
-  }
+  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
 };
 
 #endif

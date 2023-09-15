@@ -3,6 +3,7 @@ enable_testing()
 set(ALL_TESTS "")
 file(GLOB TEST_SOURCES *.cpp)
 include(GoogleTest)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittests)
 foreach(TEST_SRC ${TEST_SOURCES})
     
     get_filename_component(TEST_NAME ${TEST_SRC} NAME_WE)

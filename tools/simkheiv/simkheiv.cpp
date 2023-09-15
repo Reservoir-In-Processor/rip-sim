@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   std::string BaseNoExt = FileName.substr(0, FileName.find_last_of('.'));
   auto Files = std::ifstream(FileName);
   Simulator Sim(Files);
-  Sim.exec();
+  Sim.execFromDRAMBASE();
   Sim.dumpGPRegs();
 
   return 0;

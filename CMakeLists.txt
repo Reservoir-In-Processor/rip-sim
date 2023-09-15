@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.25)
+# cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.16)
 project(asmkheiv CXX)
 # FIXME: this seems bad...
-set (CMAKE_CXX_COMPILER /usr/bin/clang++ CACHE PATH "" FORCE)
+# set (CMAKE_CXX_COMPILER /usr/bin/clang++ CACHE PATH "" FORCE)
 
 set(CMAKE_CXX_FLAGS "-Wall -march=native -fPIC  ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_STANDARD 20)
@@ -45,14 +46,21 @@ add_subdirectory(lib)
 
 add_subdirectory(tools)
 
-
-
+enable_testing()
 include(FetchContent)
+
+if(${CMAKE_VERSION} VERSION_LESS "3.25")
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+else()
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
   DOWNLOAD_EXTRACT_TIMESTAMP true
 )
+endif()
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
@@ -67,7 +75,7 @@ add_custom_target(unittests
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 
-add_custom_target(test
+add_custom_target(asmtest
   COMMAND make -C ../tests test
   DEPENDS asmkheiv simkheiv
 )
