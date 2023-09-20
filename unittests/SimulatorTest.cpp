@@ -383,3 +383,39 @@ TEST(SimulatorTest, JAL) {
       << "PC"
       << ", expected: " << EXPECTED_PC << ", got: " << Sim.getPC();
 }
+
+TEST(SimulatorTest, ZERO1) {
+  const unsigned char BYTES[] = {
+      0x13, 0x00, 0x50, 0x00, // addi, x0, x0, 5
+  };
+
+  const GPRegisters EXPECTED = {};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, ZERO2) {
+  const unsigned char BYTES[] = {
+      0x6f, 0x00, 0xc0, 0x00, // jal x0, 12
+  };
+
+  const GPRegisters EXPECTED = {};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}

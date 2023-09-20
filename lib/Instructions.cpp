@@ -4,28 +4,28 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
   std::string Mnemo = IT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "addi") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] + ImmI;
+    GPRegs.write(Rd.to_ulong(), GPRegs[Rs1.to_ulong()] + ImmI);
     PC += 4;
   } else if (Mnemo == "slti") {
-    GPRegs[Rd.to_ulong()] = (signed)GPRegs[Rs1.to_ulong()] < ImmI;
+    GPRegs.write(Rd.to_ulong(), (signed)GPRegs[Rs1.to_ulong()] < ImmI);
     PC += 4;
   } else if (Mnemo == "sltiu") {
-    GPRegs[Rd.to_ulong()] = (unsigned)GPRegs[Rs1.to_ulong()] < (unsigned)ImmI;
+    GPRegs.write(Rd.to_ulong(),
+                 (unsigned)GPRegs[Rs1.to_ulong()] < (unsigned)ImmI);
     PC += 4;
   } else if (Mnemo == "xori") {
-    GPRegs[Rd.to_ulong()] = (unsigned)GPRegs[Rs1.to_ulong()] ^ ImmI;
+    GPRegs.write(Rd.to_ulong(), (unsigned)GPRegs[Rs1.to_ulong()] ^ ImmI);
     PC += 4;
   } else if (Mnemo == "ori") {
-    GPRegs[Rd.to_ulong()] =
-        (unsigned)GPRegs[Rs1.to_ulong()] | ImmI; // FIXME: sext?
+    // FIXME: sext?
+    GPRegs.write(Rd.to_ulong(), (unsigned)GPRegs[Rs1.to_ulong()] | ImmI);
     PC += 4;
   } else if (Mnemo == "andi") {
-    GPRegs[Rd.to_ulong()] =
-        (unsigned)GPRegs[Rs1.to_ulong()] & ImmI; // FIXME: sext?
+    GPRegs.write(Rd.to_ulong(), (unsigned)GPRegs[Rs1.to_ulong()] & ImmI);
     PC += 4;
   } else if (Mnemo == "jalr") {
     // FIXME: should addresss calculation be wrapped?
-    GPRegs[Rd.to_ulong()] = PC + 4;
+    GPRegs.write(Rd.to_ulong(), PC + 4);
     PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
   } else if (Mnemo == "lb")
     assert(false && "unimplemented!");
@@ -33,24 +33,24 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     assert(false && "unimplemented!");
   else if (Mnemo == "lw") {
     Word V = M.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
-    GPRegs[Rd.to_ulong()] = V;
+    GPRegs.write(Rd.to_ulong(), V);
     PC += 4;
   } else if (Mnemo == "lbu")
     assert(false && "unimplemented!");
   else if (Mnemo == "lhu")
     assert(false && "unimplemented!");
-  // FIXME: shamt
-  else if (Mnemo == "slli") {
-    GPRegs[Rd.to_ulong()] = (unsigned)GPRegs[Rs1.to_ulong()]
-                            << Imm.to_ulong(); // FIXME: sext?
+  else if (Mnemo == "slli") { // FIXME: shamt
+    // FIXME: sext?
+    GPRegs.write(Rd.to_ulong(),
+                 (unsigned)GPRegs[Rs1.to_ulong()] << Imm.to_ulong());
     PC += 4;
   } else if (Mnemo == "srli") {
-    GPRegs[Rd.to_ulong()] =
-        (unsigned)GPRegs[Rs1.to_ulong()] >> Imm.to_ulong(); // FIXME: sext?
+    GPRegs.write(Rd.to_ulong(),
+                 (unsigned)GPRegs[Rs1.to_ulong()] >> Imm.to_ulong());
     PC += 4;
   } else if (Mnemo == "srai") {
-    GPRegs[Rd.to_ulong()] =
-        (signed)GPRegs[Rs1.to_ulong()] >> Imm.to_ulong(); // FIXME: sext?
+    GPRegs.write(Rd.to_ulong(),
+                 (signed)GPRegs[Rs1.to_ulong()] >> Imm.to_ulong());
     PC += 4;
   } else
     assert(false && "unimplemented! or not exist");
@@ -60,39 +60,44 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
                         CustomRegisters &) {
   std::string Mnemo = RT.getMnemo();
   if (Mnemo == "add") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] + GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] + GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "sub") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] - GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] - GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "sll") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()]
-                            << (GPRegs[Rs2.to_ulong()] & 0b11111);
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] << (GPRegs[Rs2.to_ulong()] & 0b11111));
     PC += 4;
   } else if (Mnemo == "slt") {
-    GPRegs[Rd.to_ulong()] =
-        (signed)GPRegs[Rs1.to_ulong()] < (signed)GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] < GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "sltu") {
-    GPRegs[Rd.to_ulong()] =
-        (unsigned)GPRegs[Rs1.to_ulong()] < (unsigned)GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(), (unsigned)GPRegs[Rs1.to_ulong()] <
+                                    (unsigned)GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "xor") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] ^ GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] ^ GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "srl") {
-    GPRegs[Rd.to_ulong()] =
-        (unsigned)GPRegs[Rs1.to_ulong()] >> (GPRegs[Rs2.to_ulong()] & 0b11111);
+    GPRegs.write(Rd.to_ulong(), (unsigned)GPRegs[Rs1.to_ulong()] >>
+                                    (GPRegs[Rs2.to_ulong()] & 0b11111));
     PC += 4;
   } else if (Mnemo == "sra") {
-    GPRegs[Rd.to_ulong()] = (signed)GPRegs[Rs1.to_ulong()] >>
-                            (signed)(GPRegs[Rs2.to_ulong()] & 0b11111);
+    GPRegs.write(Rd.to_ulong(), (signed)GPRegs[Rs1.to_ulong()] >>
+                                    (signed)(GPRegs[Rs2.to_ulong()] & 0b11111));
     PC += 4;
   } else if (Mnemo == "or") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] | GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] | GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "and") {
-    GPRegs[Rd.to_ulong()] = GPRegs[Rs1.to_ulong()] & GPRegs[Rs2.to_ulong()];
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] & GPRegs[Rs2.to_ulong()]);
     PC += 4;
   }
 
@@ -105,7 +110,7 @@ void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
   std::string Mnemo = UT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "auipc") {
-    GPRegs[Rd.to_ulong()] = PC + (ImmI & 0xfffff000);
+    GPRegs.write(Rd.to_ulong(), PC + (ImmI & 0xfffff000));
     PC += 4;
   } else
     assert(false && "not exist");
@@ -174,7 +179,7 @@ void JInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
   std::string Mnemo = JT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "jal") {
-    GPRegs[Rd.to_ulong()] = PC + 4;
+    GPRegs.write(Rd.to_ulong(), PC + 4);
     PC += ImmI;
   } else
     assert(false && "unimplemented! or not exist");

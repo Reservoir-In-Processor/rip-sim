@@ -49,6 +49,7 @@ public:
       : Regs{0} {
     for (const auto &p : init_list) {
       assert(p.first < RegNum && "Register index out of bounds.");
+      assert(p.first != 0 && "The zero register x0 = zero is set 0.");
       assert(p.first != 2 &&
              "The stack pointer sp = x2 is set for end of the dram.");
       Regs[p.first] = p.second;
@@ -57,9 +58,13 @@ public:
     // address of dram.
     Regs[2] = DRAM_BASE + DRAM_SIZE;
   }
-  Reg &operator[](unsigned index) {
-    assert(index < RegNum && "Index out of bounds");
-    return Regs[index];
+
+  void write(unsigned Id, Reg Val) {
+    assert(Id < RegNum && "Index out of bounds");
+    if (Id == 0) {
+      return;
+    }
+    Regs[Id] = Val;
   }
 
   const Reg &operator[](unsigned index) const {
