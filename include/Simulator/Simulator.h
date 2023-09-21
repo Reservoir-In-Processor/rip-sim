@@ -29,6 +29,7 @@ public:
   Simulator(const Simulator &) = delete;
   Simulator &operator=(const Simulator &) = delete;
 
+  // move this def to .cpp
   Simulator(std::istream &is) : PC(DRAM_BASE) {
     // TODO: parse per 2 bytes for compressed instructions
     char Buff[4];
@@ -248,7 +249,7 @@ public:
     while (auto &I = PCInstMap[PC]) {
       I->exec(PC, GPRegs, M, CRegs);
 #ifdef DEBUG
-      std::cerr << "Inst:\n";
+      std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
       I->pprint(std::cerr);
       std::cerr << "Regs after:\n";
       dumpGPRegs();
