@@ -112,6 +112,12 @@ public:
           PCInstMap.insert(
               {P, std::make_unique<RInstruction>(RTypeKinds.find("and")->second,
                                                  Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b000 && Funct7 == 0b0000001) { // mul
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(RTypeKinds.find("mul")->second,
+                                                 Rd, Rs1, Rs2)});
+
         } else
           assert(false && "unimplemented!");
 
