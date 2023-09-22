@@ -99,6 +99,10 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     GPRegs.write(Rd.to_ulong(),
                  GPRegs[Rs1.to_ulong()] & GPRegs[Rs2.to_ulong()]);
     PC += 4;
+  } else if (Mnemo == "mul") {
+    GPRegs.write(Rd.to_ulong(),
+                 GPRegs[Rs1.to_ulong()] * GPRegs[Rs2.to_ulong()]);
+    PC += 4;
   }
 
   else

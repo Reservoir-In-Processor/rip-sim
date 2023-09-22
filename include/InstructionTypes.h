@@ -81,6 +81,7 @@ const std::map<std::string, RType> RTypeKinds = {
     {"sra", {"sra", 0b0100000, 0b101, 0b0110011}},
     {"or", {"or", 0b0000000, 0b110, 0b0110011}},
     {"and", {"and", 0b0000000, 0b111, 0b0110011}},
+    {"mul", {"mul", 0b0000001, 0b000, 0b0110011}},
 };
 
 class UJType {
