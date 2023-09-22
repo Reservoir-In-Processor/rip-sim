@@ -52,17 +52,33 @@ public:
       // FIXME: nested switch to if.
       switch (Opcode) {
       case 0b0000011:
-        switch (unsigned Imm = InstVal >> 20; Funct3) {
-        // TODO: other load insts
-        case 0b010: // lw rd ,offset(rs1)
+        if (Funct3 == 0b000) { // lb
+          unsigned Imm = InstVal >> 20;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("lb")->second,
+                                                 Rd, Rs1, Imm)});
+        } else if (Funct3 == 0b001) { // lh
+          unsigned Imm = InstVal >> 20;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("lh")->second,
+                                                 Rd, Rs1, Imm)});
+        } else if (Funct3 == 0b010) { // lw
+          unsigned Imm = InstVal >> 20;
           PCInstMap.insert(
               {P, std::make_unique<IInstruction>(ITypeKinds.find("lw")->second,
                                                  Rd, Rs1, Imm)});
-          break;
-        default:
+        } else if (Funct3 == 0b100) { // lbu
+          unsigned Imm = InstVal >> 20;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("lbu")->second,
+                                                 Rd, Rs1, Imm)});
+        } else if (Funct3 == 0b101) { // lhu
+          unsigned Imm = InstVal >> 20;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("lhu")->second,
+                                                 Rd, Rs1, Imm)});
+        } else
           assert(false && "unimplemented!");
-          break;
-        }
         break;
       case 0b0010111: // auipc
         PCInstMap.insert(
@@ -173,6 +189,9 @@ public:
             assert(false && "unimplemented!");
           break;
         default:
+#ifdef DEBUG
+          dumpInstVal(InstVal);
+#endif
           assert(false && "unimplemented!");
           break;
         }
@@ -183,18 +202,32 @@ public:
                                                Rd, Rs1, InstVal >> 20)});
         break;
       case 0b0100011:
-        // offset[11:5|4:0] = inst[31:25|11:7]
-        switch (unsigned Offset =
-                    (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
-                Funct3) {
-        case 0b010: // sw
+        if (Funct3 == 0b000) { // sb
+                               // offset[11:5|4:0] = inst[31:25|11:7]
+          unsigned Offset =
+              (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
+          PCInstMap.insert(
+              {P, std::make_unique<SInstruction>(STypeKinds.find("sb")->second,
+                                                 Rs1, Rs2, Offset)});
+        } else if (Funct3 == 0b001) { // sh
+                                      // offset[11:5|4:0] = inst[31:25|11:7]
+          unsigned Offset =
+              (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
+          PCInstMap.insert(
+              {P, std::make_unique<SInstruction>(STypeKinds.find("sh")->second,
+                                                 Rs1, Rs2, Offset)});
+        } else if (Funct3 == 0b010) { // sw
+                                      // offset[11:5|4:0] = inst[31:25|11:7]
+          unsigned Offset =
+              (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
           PCInstMap.insert(
               {P, std::make_unique<SInstruction>(STypeKinds.find("sw")->second,
                                                  Rs1, Rs2, Offset)});
-          break;
-        default:
-          assert(false && "unimplemented!");
-          break;
+        } else {
+#ifdef DEBUG
+          dumpInstVal(InstVal);
+#endif
+        assert(false && "unimplemented!");
         }
         break;
       case 0b1100011:

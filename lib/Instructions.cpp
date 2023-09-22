@@ -27,19 +27,33 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     // FIXME: should addresss calculation be wrapped?
     GPRegs.write(Rd.to_ulong(), PC + 4);
     PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
-  } else if (Mnemo == "lb")
-    assert(false && "unimplemented!");
-  else if (Mnemo == "lh")
-    assert(false && "unimplemented!");
-  else if (Mnemo == "lw") {
-    Word V = M.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
-    GPRegs.write(Rd.to_ulong(), V);
+  } else if (Mnemo == "lb") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Byte V = M.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    GPRegs.write(Rd.to_ulong(), (signed char)V);
     PC += 4;
-  } else if (Mnemo == "lbu")
-    assert(false && "unimplemented!");
-  else if (Mnemo == "lhu")
-    assert(false && "unimplemented!");
-  else if (Mnemo == "slli") { // FIXME: shamt
+  } else if (Mnemo == "lh") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    HalfWord V = M.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    std::cerr << std::dec << "lh: V= " << V << "\n";
+    std::cerr << "lh: V= " << (signed short)V << "\n";
+    GPRegs.write(Rd.to_ulong(), (signed short)V);
+    PC += 4;
+  } else if (Mnemo == "lw") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Word V = M.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    GPRegs.write(Rd.to_ulong(), (signed)V);
+    PC += 4;
+  } else if (Mnemo == "lbu") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Byte V = M.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    GPRegs.write(Rd.to_ulong(), (unsigned char)V);
+    PC += 4;
+  } else if (Mnemo == "lhu") {
+    HalfWord V = M.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    GPRegs.write(Rd.to_ulong(), (unsigned short)V);
+    PC += 4;
+  } else if (Mnemo == "slli") { // FIXME: shamt
     // FIXME: sext?
     GPRegs.write(Rd.to_ulong(),
                  (unsigned)GPRegs[Rs1.to_ulong()] << Imm.to_ulong());
@@ -125,8 +139,18 @@ void SInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
   std::string Mnemo = ST.getMnemo();
 
   int ImmI = signExtend(Imm);
-  if (Mnemo == "sw") {
-    // FIXME: wrap?
+  if (Mnemo == "sb") {
+    // FIXME: wrap add?
+    Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
+    M.writeByte(Ad, GPRegs[Rs2.to_ulong()]);
+    PC += 4;
+  } else if (Mnemo == "sh") {
+    // FIXME: wrap add?
+    Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
+    M.writeHalfWord(Ad, GPRegs[Rs2.to_ulong()]);
+    PC += 4;
+  } else if (Mnemo == "sw") {
+    // FIXME: wrap add?
     Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
     M.writeWord(Ad, GPRegs[Rs2.to_ulong()]);
     PC += 4;
