@@ -5,7 +5,7 @@
 ### sanitizer build
 
 ```sh
-cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
 ninja -Cbuild
 ```
 

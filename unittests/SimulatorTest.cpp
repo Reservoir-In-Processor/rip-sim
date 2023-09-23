@@ -240,6 +240,52 @@ TEST(SimulatorTest, SWLW) {
   }
 }
 
+TEST(SimulatorTest, SHLHLHU) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x00, 0x80, // addi x16, x0, -2048
+      0x23, 0x1e, 0x01, 0xff, // sh x16, -4(sp)
+      0x83, 0x18, 0xc1, 0xff, // lh x17, -4(sp)
+      0x03, 0x59, 0xc1, 0xff, // lhu x18, -4(sp)
+  };
+  // -2048 = 0xfffff800,
+  // 63480 = 0x0000f800
+  const GPRegisters EXPECTED = {{16, -2048}, {17, -2048}, {18, 63488}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, SBLBLBU) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0xf0, 0xff, // addi x16, x0, -1
+      0x23, 0x0e, 0x01, 0xff, // sb x16, -4(sp)
+      0x83, 0x08, 0xc1, 0xff, // lb x17, -4(sp)
+      0x03, 0x49, 0xc1, 0xff, // lbu x18, -4(sp)
+  };
+  const GPRegisters EXPECTED = {{16, -1}, {17, -1}, {18, 255}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
 TEST(SimulatorTest, JALR) {
   const unsigned char BYTES[] = {
       0x67, 0x09, 0xc0, 0x02, // jalr x18, x0, 44
@@ -494,6 +540,30 @@ TEST(SimulatorTest, MUL) {
   };
 
   const GPRegisters EXPECTED = {{3, 5}, {4, 6}, {5, 30}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, MULH) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
+      0x93, 0x91, 0x41, 0x01, // slli x3, x3, 20
+
+      0x13, 0x02, 0x60, 0x00, // addi x4, x0, 6
+      0x13, 0x12, 0xf2, 0x00, // slli x4, x4, 15
+
+      0xb3, 0x92, 0x41, 0x02, // mulh x5, x3, x4
+  };
+
+  const GPRegisters EXPECTED = {{3, 5242880}, {4, 196608}, {5, 240}};
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
