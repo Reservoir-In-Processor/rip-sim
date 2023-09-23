@@ -145,13 +145,19 @@ public:
                       ITypeKinds.find("xori")->second, Rd, Rs1, Imm)});
           break;
         case 0b110: // ori
-          assert(false && "unimplemented!");
+           PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(
+                      ITypeKinds.find("ori")->second, Rd, Rs1, Imm)});
           break;
         case 0b111: // andi
-          assert(false && "unimplemented!");
+           PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(
+                      ITypeKinds.find("andi")->second, Rd, Rs1, Imm)});
           break;
         case 0b001: // slli
-          assert(false && "unimplemented!");
+           PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(
+                      ITypeKinds.find("slli")->second, Rd, Rs1, Imm)});
           break;
         case 0b101:
           if (Funct7 == 0) // srli

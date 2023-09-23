@@ -86,6 +86,72 @@ TEST(SimulatorTest, XORI) {
   }
 }
 
+TEST(SimulatorTest, ORI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
+      0x93, 0x68, 0x38, 0x00, // ori x17, x16, 3
+      0x93, 0x67, 0xf8, 0xff, // ori x15, x16, -1
+  };
+
+  const GPRegisters EXPECTED = {{15, -1}, {16, 5}, {17, 7}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, ANDI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
+      0x93, 0x78, 0x38, 0x00, // andi x17, x16, 3
+      0x93, 0x77, 0xf8, 0xff, // andi x15, x16, -1
+  };
+
+  const GPRegisters EXPECTED = {{15, 5}, {16, 5}, {17, 1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, SLLI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
+      0x93, 0x18, 0x38, 0x00, // slli x17, x16, 3
+      0x93, 0x17, 0x18, 0x00, // slli x15, x16, 1
+  };
+
+  const GPRegisters EXPECTED = {{15, 10}, {16, 5}, {17, 40}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
 TEST(SimulatorTest, ADD) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
