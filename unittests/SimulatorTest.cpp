@@ -551,3 +551,27 @@ TEST(SimulatorTest, MUL) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
   }
 }
+
+TEST(SimulatorTest, MULH) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
+      0x93, 0x91, 0x41, 0x01, // slli x3, x3, 20
+
+      0x13, 0x02, 0x60, 0x00, // addi x4, x0, 6
+      0x13, 0x12, 0xf2, 0x00, // slli x4, x4, 15
+
+      0xb3, 0x92, 0x41, 0x02, // mulh x5, x3, x4
+  };
+
+  const GPRegisters EXPECTED = {{3, 5242880}, {4, 196608}, {5, 240}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}

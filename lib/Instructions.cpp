@@ -117,9 +117,11 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     GPRegs.write(Rd.to_ulong(),
                  GPRegs[Rs1.to_ulong()] * GPRegs[Rs2.to_ulong()]);
     PC += 4;
-  }
-
-  else
+  } else if (Mnemo == "mulh") {
+    GPRegs.write(Rd.to_ulong(),
+                 ((unsigned long long)GPRegs[Rs1.to_ulong()] * (unsigned long long)GPRegs[Rs2.to_ulong()]) >> 32);
+    PC += 4;
+  } else
     assert(false && "unimplemented! or not exist");
 }
 
