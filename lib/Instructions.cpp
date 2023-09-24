@@ -1,4 +1,5 @@
 #include "Instructions.h"
+#include <stdlib.h>
 void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
                         CustomRegisters &) {
   std::string Mnemo = IT.getMnemo();
@@ -119,8 +120,33 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     PC += 4;
   } else if (Mnemo == "mulh") {
     GPRegs.write(Rd.to_ulong(),
-                 ((unsigned long long)GPRegs[Rs1.to_ulong()] * (unsigned long long)GPRegs[Rs2.to_ulong()]) >> 32);
+                 ((signed long long)GPRegs[Rs1.to_ulong()] * (signed long long)GPRegs[Rs2.to_ulong()]) >> 32);
     PC += 4;
+  } else if (Mnemo == "mulhsu") {
+    GPRegs.write(Rd.to_ulong(),
+                 ((signed long long)GPRegs[Rs1.to_ulong()] * (unsigned long long)GPRegs[Rs2.to_ulong()]) >> 32);
+    PC += 4;
+  } else if (Mnemo == "mulhu") {
+    GPRegs.write(Rd.to_ulong(),
+                 ((signed long long)(unsigned int)GPRegs[Rs1.to_ulong()] * (signed long long)(unsigned int)GPRegs[Rs2.to_ulong()]) >> 32);
+    PC += 4;
+  } else if (Mnemo == "div") {
+    GPRegs.write(Rd.to_ulong(),
+                 div(GPRegs[Rs1.to_ulong()], GPRegs[Rs2.to_ulong()]).quot);
+    PC += 4;
+  } else if (Mnemo == "divu") {
+    GPRegs.write(Rd.to_ulong(),
+                 div(GPRegs[Rs1.to_ulong()], GPRegs[Rs2.to_ulong()]).quot);
+    PC += 4;
+  } else if (Mnemo == "rem") {
+    GPRegs.write(Rd.to_ulong(),
+                 div(GPRegs[Rs1.to_ulong()], GPRegs[Rs2.to_ulong()]).rem);
+    PC += 4;
+  } else if (Mnemo == "remu") {
+    GPRegs.write(Rd.to_ulong(),
+                 div(GPRegs[Rs1.to_ulong()], GPRegs[Rs2.to_ulong()]).rem);
+    PC += 4;
+
   } else
     assert(false && "unimplemented! or not exist");
 }

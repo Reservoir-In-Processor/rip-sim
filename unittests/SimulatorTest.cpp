@@ -575,3 +575,137 @@ TEST(SimulatorTest, MULH) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
   }
 }
+
+TEST(SimulatorTest, MULHSU) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
+      0x13, 0x02, 0x60, 0x00, // addi x4, x0, 6
+      0x13, 0x12, 0xf2, 0x00, // slli x4, x4, 15
+      0xb3, 0xa2, 0x41, 0x02, // mulhsu x5, x3, x4
+  };
+//   bin(-196008) = 0b 11111111 11111111 11111111 11111111 
+                    // 11111111 11111101 00000000 00000000
+
+  const GPRegisters EXPECTED = {{3, -1}, {4, 196608}, {5, -1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, MULHU) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
+      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2 
+      0xb3, 0xb2, 0x41, 0x02, // mulhu x5, x3, x4
+  };
+    // unsigned(-1) = 4294967295
+    // unsigned(-2) = 4294967294
+    // 4294967295 * 4294967294 = 18446744060824649730
+    // bin(18446744060824649730) >> 32 = 4294967293
+    // bin(4294967293) = 0b 1111.... 1101
+
+  const GPRegisters EXPECTED = {{3, -1}, {4, -2}, {5, -3}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, DIV) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
+      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2 
+      0xb3, 0xc2, 0x41, 0x02, // div x5, x3, x4
+  };
+
+//   9 = -2 * -4 + 1
+
+  const GPRegisters EXPECTED = {{3, 9}, {4, -2}, {5, -4}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, DIVU) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
+      0x13, 0x02, 0x30, 0x00, // addi x4, x0, 3
+      0xb3, 0xc2, 0x41, 0x02, // div x5, x3, x4
+  };
+
+  const GPRegisters EXPECTED = {{3, 9}, {4, 3}, {5, 3}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, REM) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
+      0x13, 0x02, 0xc0, 0xff, // addi x4, x0, -4
+      0xb3, 0xe2, 0x41, 0x02, // rem x5, x3, x4
+  };
+
+//   9 = (-4) * (-2) + 1
+
+  const GPRegisters EXPECTED = {{3, 9}, {4, -4}, {5, 1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+TEST(SimulatorTest, REMU) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
+      0x13, 0x02, 0x20, 0x00, // addi x4, x0, 2
+      0xb3, 0xf2, 0x41, 0x02, // remu x5, x3, x4
+  };
+
+//   9 = 2 * 4 + 1
+
+  const GPRegisters EXPECTED = {{3, 9}, {4, 2}, {5, 1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}

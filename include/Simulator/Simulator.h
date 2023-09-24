@@ -139,6 +139,36 @@ public:
               {P, std::make_unique<RInstruction>(
                       RTypeKinds.find("mulh")->second, Rd, Rs1, Rs2)});
 
+        } else if (Funct3 == 0b010 && Funct7 == 0b0000001) { // mulhsu
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("mulhsu")->second, Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b011 && Funct7 == 0b0000001) { // mulhu
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("mulhu")->second, Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b100 && Funct7 == 0b0000001) { // div
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("div")->second, Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b101 && Funct7 == 0b0000001) { // divu
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("divu")->second, Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b110 && Funct7 == 0b0000001) { // rem
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("rem")->second, Rd, Rs1, Rs2)});
+
+        } else if (Funct3 == 0b111 && Funct7 == 0b0000001) { // remu
+          PCInstMap.insert(
+              {P, std::make_unique<RInstruction>(
+                      RTypeKinds.find("remu")->second, Rd, Rs1, Rs2)});
+
         } else
           assert(false && "unimplemented!");
 
