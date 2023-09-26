@@ -155,7 +155,11 @@ void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
                         CustomRegisters &) {
   std::string Mnemo = UT.getMnemo();
   int ImmI = signExtend(Imm);
-  if (Mnemo == "auipc") {
+
+  if (Mnemo == "lui") {
+    GPRegs.write(Rd.to_ulong(), ImmI);
+    PC += 4;
+  } else if (Mnemo == "auipc") {
     GPRegs.write(Rd.to_ulong(), PC + (ImmI & 0xfffff000));
     PC += 4;
   } else

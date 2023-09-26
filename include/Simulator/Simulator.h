@@ -231,6 +231,12 @@ public:
           break;
         }
         break;
+      case 0b0110111: // lui
+        PCInstMap.insert(
+            {P, std::make_unique<UInstruction>(UTypeKinds.find("lui")->second,
+                                               Rd, InstVal & 0xfffff000)});
+        break;
+
       case 0b1100111: // jalr
         PCInstMap.insert(
             {P, std::make_unique<IInstruction>(ITypeKinds.find("jalr")->second,
