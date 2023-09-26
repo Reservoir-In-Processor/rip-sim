@@ -732,3 +732,23 @@ TEST(SimulatorTest, REMU) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
   }
 }
+
+TEST(SimulatorTest, LUI) {
+  const unsigned char BYTES[] = {
+      0x37, 0x28, 0x00, 0x00, // lui x16, 2
+  };
+  // rd ={upimm, 12'b0}
+  // x16 = 2 * 2^(12) = 8192
+
+  const GPRegisters EXPECTED = {{16, 8192}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
