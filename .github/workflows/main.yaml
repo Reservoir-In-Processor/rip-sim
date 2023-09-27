@@ -19,7 +19,14 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang llvm cmake ninja-build valgrind
+        sudo apt-get install -y clang llvm cmake ninja-build valgrind clang-format
+
+    - name: Check format for changed lines
+        run: |
+          git diff -U0 HEAD^ | clang-format-diff-10 -p1 -style=LLVM
+          if [ $? -ne 0 ]; then
+            exit 1
+          fi
 
     - name: Build
       run: |
