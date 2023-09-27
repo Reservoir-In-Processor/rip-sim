@@ -22,11 +22,8 @@ jobs:
         sudo apt-get install -y clang llvm cmake ninja-build valgrind clang-format
 
     - name: Check format for changed lines
-        run: |
-          git diff -U0 HEAD^ | clang-format-diff -p1 -style=LLVM
-          if [ $? -ne 0 ]; then
-            exit 1
-          fi
+      run: |
+        git diff -U0 HEAD^ | clang-format-diff -p1 -style=LLVM | tee /dev/stderr | grep . && exit 1
 
     - name: Build
       run: |
