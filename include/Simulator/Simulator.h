@@ -64,6 +64,11 @@ public:
           break;
         }
         break;
+      case 0b0001111: // fence
+                      // FIXME: Currently fence can be nop
+        PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                 ITypeKinds.find("addi")->second, 0, 0, 0)});
+        break;
       case 0b0010111: // auipc
         PCInstMap.insert(
             {P, std::make_unique<UInstruction>(UTypeKinds.find("auipc")->second,
