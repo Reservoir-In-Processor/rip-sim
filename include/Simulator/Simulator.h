@@ -228,14 +228,72 @@ public:
           break;
         }
         break;
-      case 0b1101111: // jal
-        // imm[20|10:1|11|19:12] = inst[31|30:21|20|19:12]
+      case 0b1101111:
         PCInstMap.insert(
             {P, std::make_unique<JInstruction>(
                     JTypeKinds.find("jal")->second, Rd,
                     ((InstVal & 0x80000000) >> 11) | (InstVal & 0xff000) |
                         ((InstVal >> 9) & 0x800) | ((InstVal >> 20) & 0x7fe))});
         break;
+      case 0b1110011:          // csr
+        if (Funct3 == 0b000) { // ecall, ebreak, mret, sret, etc...
+          unsigned Funct12 = Funct7 << 7 | Rs2;
+          if (Funct12 == 0) { // ecall
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("ecall")->second, Rd, Rs1,
+                                     InstVal >> 20)});
+          } else if (Funct12 == 1) { // ebreak
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("ebreak")->second, Rd, Rs1,
+                                     InstVal >> 20)});
+          } else if (Funct12 == 2) { // uret
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("uret")->second, Rd, Rs1,
+                                     InstVal >> 20)});
+          } else if (Funct12 == 3) { // sret
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("sret")->second, Rd, Rs1,
+                                     InstVal >> 20)});
+          } else if (Funct12 == 4) { // mret
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("mret")->second, Rd, Rs1,
+                                     InstVal >> 20)});
+          } else {
+#ifdef DEBUG
+            dumpInstVal(InstVal);
+#endif
+            assert(false && "unimplemented!");
+          }
+        } else if (Funct3 == 0b001) { // csrrw
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrrw")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else if (Funct3 == 0b010) { // csrrs
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrrs")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else if (Funct3 == 0b011) { // csrrc
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrrc")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else if (Funct3 == 0b101) { // csrrwi
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrwi")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else if (Funct3 == 0b110) { // csrrsi
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrrsi")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else if (Funct3 == 0b111) { // csrrci
+          PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                   ITypeKinds.find("csrrci")->second, Rd, Rs1,
+                                   InstVal >> 20)});
+        } else {
+#ifdef DEBUG
+          dumpInstVal(InstVal);
+#endif
+          assert(false && "unimplemented!");
+        }
       default:
 #ifdef DEBUG
         dumpInstVal(InstVal);
