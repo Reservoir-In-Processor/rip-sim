@@ -23,7 +23,7 @@ jobs:
 
     - name: Check format for changed lines
         run: |
-          git diff -U0 HEAD^ | clang-format-diff-10 -p1 -style=LLVM
+          git diff -U0 HEAD^ | clang-format-diff -p1 -style=LLVM
           if [ $? -ne 0 ]; then
             exit 1
           fi
