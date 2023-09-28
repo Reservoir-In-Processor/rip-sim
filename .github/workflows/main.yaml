@@ -30,7 +30,7 @@ jobs:
     - name: Check format for changed lines
       run: |
         git fetch origin &&
-        git diff -U0 origin/${{ github.event.pull_request.base.ref }} | clang-format-diff -p1 -style=LLVM | tee /dev/stderr | grep + && exit 1
+        git diff -U0 origin/${{ github.event.pull_request.base.ref }} | clang-format-diff -p1 -style=LLVM | tee /dev/stderr | grep + && exit 1 || echo format ok
 
     - name: Build
       run: |
