@@ -21,9 +21,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang llvm cmake ninja-build valgrind clang-format
 
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
+
     - name: Check format for changed lines
       run: |
-        git diff -U0 HEAD^ | clang-format-diff -p1 -style=LLVM | tee /dev/stderr | grep . && exit 1
+        git diff -U0 ${{ github.event.pull_request.base.ref }} | clang-format-diff -p1 -style=LLVM | tee /dev/stderr | grep . && exit 1
 
     - name: Build
       run: |
