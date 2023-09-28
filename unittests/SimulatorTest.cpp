@@ -753,7 +753,7 @@ TEST(SimulatorTest, LUI) {
   }
 }
 
-TEST(SimulatorTest, FENCE) {
+TEST(SimulatorTest, FENCE_AS_NOP) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi, x16, x0, 5
       0x0f, 0x00, 0x30, 0x02, // fence r, rw

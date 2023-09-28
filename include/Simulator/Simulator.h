@@ -83,14 +83,14 @@ public:
 
       case 0b0001111:
         if (Funct3 == 0b000) { // fence
-        // addi x0, x0, 0 (nop)
+        // FIXME: Currently mapped to addi x0, x0, 0 (nop)
           unsigned Imm = 0;
           PCInstMap.insert(
               {P, std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
                                                  Rd, Rs1, Imm)});
 
         } else if (Funct3 == 0b001) { // fence.i
-        // addi x0, x0, 0 (nop)
+        // FIXME: Currently mapped to addi x0, x0, 0 (nop)
           unsigned Imm = 0;
           PCInstMap.insert(
               {P, std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
