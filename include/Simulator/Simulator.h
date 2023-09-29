@@ -39,7 +39,6 @@ public:
       std::cerr << "Regs after:\n";
       dumpGPRegs();
 #endif
-      // TODO: dump instruction detail.
     }
     std::cerr << "stop on no instraction address\n";
   }
