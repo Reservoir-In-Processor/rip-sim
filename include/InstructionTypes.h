@@ -37,6 +37,8 @@ const std::map<const std::string, const ISBType> ITypeKinds = {
     {"slli",  {"slli",  0b001, 0b0010011}},
     {"srli",  {"srli",  0b101, 0b0010011}},
     {"srai",  {"srai",  0b101, 0b0010011}},
+    // {"fence", {"fence", 0b000, 0b0001111}},
+    // {"fence.i", {"fence.i", 0b001, 0b0001111}},
 };
 
 const std::map<std::string, ISBType> STypeKinds = {

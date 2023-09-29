@@ -67,6 +67,15 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     GPRegs.write(Rd.to_ulong(),
                  (signed)GPRegs[Rs1.to_ulong()] >> Imm.to_ulong());
     PC += 4;
+  } else if (Mnemo == "fence") {
+    // addi x0, x0, 0 (nop)
+    GPRegs.write(Rd.to_ulong(), GPRegs[Rs1.to_ulong()] + ImmI);
+    PC += 4;
+  } else if (Mnemo == "fence.i") {
+    // addi x0, x0, 0 (nop)
+    GPRegs.write(Rd.to_ulong(), GPRegs[Rs1.to_ulong()] + ImmI);
+
+    PC += 4;
   } else
     assert(false && "unimplemented! or not exist");
 }

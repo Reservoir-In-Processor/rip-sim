@@ -80,6 +80,26 @@ public:
         } else
           assert(false && "unimplemented!");
         break;
+
+      case 0b0001111:
+        if (Funct3 == 0b000) { // fence
+        // FIXME: Currently mapped to addi x0, x0, 0 (nop)
+          unsigned Imm = 0;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
+                                                 Rd, Rs1, Imm)});
+
+        } else if (Funct3 == 0b001) { // fence.i
+        // FIXME: Currently mapped to addi x0, x0, 0 (nop)
+          unsigned Imm = 0;
+          PCInstMap.insert(
+              {P, std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
+                                                 Rd, Rs1, Imm)});
+
+        } else
+          assert(false && "unimplemented!");
+        break;
+
       case 0b0010111: // auipc
         PCInstMap.insert(
             {P, std::make_unique<UInstruction>(UTypeKinds.find("auipc")->second,
