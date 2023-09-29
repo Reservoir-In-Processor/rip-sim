@@ -46,7 +46,6 @@ private:
   unsigned CodeSize;
   Address PC;
   PipelineStates PS;
-  // FIXME: byref?
   GPRegisters GPRegs;
   std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
 
@@ -78,11 +77,7 @@ public:
   void runFromDRAMBASE() {
     PC = DRAM_BASE;
     unsigned CycleNum = 0;
-    // TODO: PCにあるものをPQに読む, 分岐するかどうかはCRegsを見る?
-    // fetchが0だったら
-    // 、停止条件は、パイプラインが全部null?
     while (true) {
-      // forwardingはどうやる？CRegsにいれておけばよい？
       writeback(GPRegs, PS);
 
       // TODO: write address info to CRegs?
@@ -91,16 +86,8 @@ public:
       // exec
       exec(PS);
 
-      // InstructionのgetRdを
-      // CRegsを、介して、各フェーズはつながる. PQにはいろいろつめる
-      // 構造ハザードはうしろが優先なので、うしろからやってもよいかも
-      // TODO: バブルはnop? stall Instruction? nullptrでいいか
-      // operandの値をｄ取るのはｄ
-      // CRegs, string: long, longにして、それでええか？
-      // decode
       decode(GPRegs, PS);
 
-      // TODO: it's enough to show only what is fetched.
       fetch(M, PS);
       // TODO: dump all queued instruction, and CRegs?
 #ifdef DEBUG
