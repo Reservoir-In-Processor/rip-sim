@@ -10,20 +10,22 @@
 #include <vector>
 
 const unsigned STAGENUM = 5;
-const enum STAGES {
+enum STAGES {
   IF,
   DE,
   EX,
-  MEM,
+  MA,
   WB,
 };
 
 class PipelineStates {
 private:
-  Reg ForwardVal;
-  unsigned MemRPortNum;
-  unsigned MemWPortNum;
-  std::unique_ptr<Instruction> P[STAGENUM];
+  unsigned EXDestReg;
+  unsigned MADestReg;
+  unsigned FetchedInst;
+  Reg EXResult;
+  std::shared_ptr<Instruction> Insts[STAGENUM];
+  bool AreStall[STAGENUM];
 
 public:
   PipelineStates(const PipelineStates &) = delete;
@@ -31,6 +33,11 @@ public:
 
   PipelineStates() {}
   void dump() { assert(false && "unimplemented!"); }
+
+  const std::shared_ptr<Instruction> &operator[](unsigned Stage) const {
+    assert(Stage < STAGENUM && "Index out of bounds");
+    return Insts[Stage];
+  }
 };
 
 class RIPSimulator {
@@ -38,7 +45,7 @@ private:
   Memory M;
   unsigned CodeSize;
   Address PC;
-  unsigned FetchedInst;
+  PipelineStates PS;
   // FIXME: byref?
   GPRegisters GPRegs;
   std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
@@ -61,25 +68,28 @@ public:
     }
   }
   GPRegisters &getGPRegs() { return GPRegs; }
-  void writeback() {}
+  // inherently unused arguments, but better to see dependencies
+  void writeback(GPRegisters &, PipelineStates &);
+  void memoryaccess(Memory &, PipelineStates &);
+  void exec(PipelineStates &);
+  void decode(GPRegisters &, PipelineStates &);
+  void fetch(Memory &, PipelineStates &);
 
-  void writeback() {}
   void runFromDRAMBASE() {
     PC = DRAM_BASE;
     unsigned CycleNum = 0;
     // TODO: PCにあるものをPQに読む, 分岐するかどうかはCRegsを見る?
     // fetchが0だったら
-    Instruction *I;
     // 、停止条件は、パイプラインが全部null?
     while (true) {
       // forwardingはどうやる？CRegsにいれておけばよい？
-      writeback(GPRegs, PQ, CRegs);
+      writeback(GPRegs, PS);
 
       // TODO: write address info to CRegs?
-      memoryaccess(M, PQ, CRegs);
+      memoryaccess(M, PS);
 
       // exec
-      exec(PQ, CRegs);
+      exec(PS);
 
       // InstructionのgetRdを
       // CRegsを、介して、各フェーズはつながる. PQにはいろいろつめる
@@ -88,12 +98,15 @@ public:
       // operandの値をｄ取るのはｄ
       // CRegs, string: long, longにして、それでええか？
       // decode
-      decode(PQ, CRegs);
+      decode(GPRegs, PS);
 
       // TODO: it's enough to show only what is fetched.
-      fetch(PC, PQ, CRegs);
+      fetch(M, PS);
       // TODO: dump all queued instruction, and CRegs?
+#ifdef DEBUG
+      PS.dump();
       CycleNum++;
+#endif
     }
   }
 

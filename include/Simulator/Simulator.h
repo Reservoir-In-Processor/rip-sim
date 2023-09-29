@@ -10,10 +10,6 @@
 #include <string>
 #include <vector>
 
-#ifdef DEBUG
-#include "Debug.h"
-#endif // DEBUG
-
 class Simulator {
 private:
   Decoder Dec;
@@ -29,23 +25,8 @@ public:
   Simulator(const Simulator &) = delete;
   Simulator &operator=(const Simulator &) = delete;
 
-  // move this def to .cpp
-  Simulator(std::istream &is) : PC(DRAM_BASE) {
-    // TODO: parse per 2 bytes for compressed instructions
-    char Buff[4];
-    // starts from DRAM_BASE
-    Address P = DRAM_BASE;
-    while (is.read(Buff, 4)) {
+  Simulator(std::istream &is);
 
-      unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
-      // Currently, Instruction level simulator doesn't use raw inst code, only
-      // use cached instruction class values.
-      M.writeWord(P, InstVal);
-      PCInstMap.insert({P, Dec.decode(InstVal)});
-      P += 4;
-      CodeSize += 4;
-    }
-  }
   GPRegisters &getGPRegs() { return GPRegs; }
 
   void execFromDRAMBASE() {
