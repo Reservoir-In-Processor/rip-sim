@@ -61,7 +61,7 @@ public:
 namespace {
 template <std::size_t N> int signExtend(const std::bitset<N> &bs) {
   if (bs[N - 1]) {
-    std::bitset<sizeof(Reg) * 8> extended = ~0;
+    std::bitset<sizeof(RegVal) * 8> extended = ~0;
     for (std::size_t i = 0; i < N; ++i) {
       extended[i] = bs[i];
     }
