@@ -30,11 +30,11 @@ static const std::string ABI[32] = {
     " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
 };
 
-using Reg = std::int32_t;
+using RegVal = std::int32_t;
 const unsigned RegNum = 32;
 class GPRegisters {
 private:
-  Reg Regs[RegNum];
+  RegVal Regs[RegNum];
 
 public:
   GPRegisters(const GPRegisters &) = delete;
@@ -45,7 +45,7 @@ public:
     // address of dram.
     Regs[2] = DRAM_BASE + DRAM_SIZE;
   }
-  GPRegisters(std::initializer_list<std::pair<unsigned, Reg>> init_list)
+  GPRegisters(std::initializer_list<std::pair<unsigned, RegVal>> init_list)
       : Regs{0} {
     for (const auto &p : init_list) {
       assert(p.first < RegNum && "Register index out of bounds.");
@@ -59,7 +59,7 @@ public:
     Regs[2] = DRAM_BASE + DRAM_SIZE;
   }
 
-  void write(unsigned Id, Reg Val) {
+  void write(unsigned Id, RegVal Val) {
     assert(Id < RegNum && "Index out of bounds");
     if (Id == 0) {
       return;
@@ -67,12 +67,12 @@ public:
     Regs[Id] = Val;
   }
 
-  const Reg &operator[](unsigned index) const {
+  const RegVal &operator[](unsigned index) const {
     assert(index < RegNum && "Index out of bounds");
     return Regs[index];
   }
 
-  const Reg &operator[](std::string name) const {
+  const RegVal &operator[](std::string name) const {
     auto IT = GPRegMap.find(name);
     assert(IT != GPRegMap.end() && "No such registers.");
     return Regs[(IT->second).to_ulong()];
