@@ -24,6 +24,9 @@ class Memory {
 private:
   std::vector<Byte> DRAM;
 
+  unsigned MemRPortNum;
+  unsigned MemWPortNum;
+
 public:
   Memory(const Memory &) = delete;
   Memory &operator=(const Memory &) = delete;

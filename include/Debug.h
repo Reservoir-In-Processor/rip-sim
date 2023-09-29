@@ -1,5 +1,7 @@
 #ifdef DEBUG
 
+#ifndef DEBUG_H
+#define DEBUG_H
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -54,4 +56,5 @@ void debugInstOnAsm(const std::vector<std::string> Toks, unsigned Val) {
   std::cerr << "\n\n";
 }
 
+#endif
 #endif

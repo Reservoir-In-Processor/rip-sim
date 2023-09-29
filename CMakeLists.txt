@@ -66,8 +66,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # enable unit tests
+set(ALL_TESTS "")
 add_subdirectory(unittests)
 
+message(STATUS "ALL_TEST is ${ALL_TESTS}")
 add_custom_target(unittests
   COMMAND ctest --test-dir ./unittests/ --output-on-failure 
   DEPENDS ${ALL_TESTS}

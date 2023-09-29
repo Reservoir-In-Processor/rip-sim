@@ -9,10 +9,6 @@
 #include <optional>
 #include <stdexcept>
 
-#ifdef DEBUG
-#include "Debug.h"
-#endif
-
 void BinaryEmitter::emitBinary(std::ostream &os) {
   while (AP.parseLine()) {
     auto &Toks = AP.getTokens();
