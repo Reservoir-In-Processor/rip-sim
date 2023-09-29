@@ -4,7 +4,7 @@ project(asmkheiv CXX)
 # FIXME: this seems bad...
 # set (CMAKE_CXX_COMPILER /usr/bin/clang++ CACHE PATH "" FORCE)
 
-set(CMAKE_CXX_FLAGS "-Wall -fPIC  ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Werror -Wall -fPIC  ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 # for valgrind https://hg.mozilla.org/integration/autoland/rev/192810f500b5
