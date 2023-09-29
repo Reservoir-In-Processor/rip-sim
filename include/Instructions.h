@@ -50,7 +50,14 @@ class Instruction {
 
 public:
   void setVal(unsigned V) { Val = V; }
-  unsigned getVal() { return Val; }
+
+  const unsigned getVal() { return Val; }
+  const unsigned getRd() { return (Val & 0x00000f80) >> 7; }
+  const unsigned getRs1() { return (Val & 0x000f8000) >> 15; }
+  const unsigned getRs2() { return (Val & 0x01f00000) >> 20; }
+
+  virtual const std::string &getMnemo() = 0;
+
   void emitBinary(std::ostream &os) {
     os.write(reinterpret_cast<char *>(&Val), 4);
   }
@@ -120,6 +127,7 @@ public:
            IT.getOpcode().to_ulong());
   }
 
+  const std::string &getMnemo() override { return IT.getMnemo(); }
   void pprint(std::ostream &os) override {
     if (IT.getMnemo() == "lb" || IT.getMnemo() == "lh" ||
         IT.getMnemo() == "lw" || IT.getMnemo() == "lbu" ||
@@ -177,6 +185,7 @@ public:
            (this->Rd.to_ulong() << 7) | RT.getOpcode().to_ulong());
   }
 
+  const std::string &getMnemo() override { return RT.getMnemo(); }
   void pprint(std::ostream &os) override {
     os << RT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
        << ABI[Rs1.to_ulong()] << " " << ABI[Rs2.to_ulong()];
@@ -224,6 +233,7 @@ public:
     setVal((this->Imm.to_ulong() << 12) | (this->Rd.to_ulong() << 7) |
            UT.getOpcode().to_ulong());
   }
+  const std::string &getMnemo() override { return UT.getMnemo(); }
   void pprint(std::ostream &os) override {
     os << UT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
        << signExtend(Imm);
@@ -281,6 +291,7 @@ public:
            (((Imm & M2) >> 11) << 20) | (((Imm & M3) >> 12) << 12) | (Rd << 7) |
            JT.getOpcode().to_ulong());
   }
+  const std::string &getMnemo() override { return JT.getMnemo(); }
   void pprint(std::ostream &os) override {
     os << JT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
        << signExtend(Imm);
@@ -340,6 +351,7 @@ public:
            ((Imm & M1) << 7) | ST.getOpcode().to_ulong());
   }
 
+  const std::string &getMnemo() override { return ST.getMnemo(); }
   void pprint(std::ostream &os) override {
     os << ST.getMnemo() << " " << ABI[Rs2.to_ulong()] << " "
        << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
@@ -408,6 +420,7 @@ public:
            (((Imm & M3) >> 11) << 7) | BT.getOpcode().to_ulong());
   }
 
+  const std::string &getMnemo() override { return BT.getMnemo(); }
   void pprint(std::ostream &os) override {
     os << BT.getMnemo() << " " << ABI[Rs1.to_ulong()] << " "
        << ABI[Rs2.to_ulong()] << std::dec << signExtend(Imm);
