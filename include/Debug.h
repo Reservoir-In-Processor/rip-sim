@@ -2,6 +2,7 @@
 
 #ifndef DEBUG_H
 #define DEBUG_H
+#include <bitset>
 #include <iomanip>
 #include <iostream>
 #include <vector>
