@@ -41,7 +41,7 @@ public:
       // Currently, Instruction level simulator doesn't use raw inst code, only
       // use cached instruction class values.
       M.writeWord(P, InstVal);
-      Dec.decode(InstVal);
+      PCInstMap.insert({P, Dec.decode(InstVal)});
       P += 4;
       CodeSize += 4;
     }

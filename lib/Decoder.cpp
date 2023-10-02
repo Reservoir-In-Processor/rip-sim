@@ -169,25 +169,25 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
                                              InstVal & 0xfffff000);
     break;
   case 0b1100111: // jalr
-    std::make_unique<IInstruction>(ITypeKinds.find("jalr")->second, Rd, Rs1,
-                                   InstVal >> 20);
+    InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("jalr")->second,
+                                             Rd, Rs1, InstVal >> 20);
     break;
   case 0b0100011:
     if (Funct3 == 0b000) { // sb
                            // offset[11:5|4:0] = inst[31:25|11:7]
       unsigned Offset = (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
-      std::make_unique<SInstruction>(STypeKinds.find("sb")->second, Rs1, Rs2,
-                                     Offset);
+      InstPtr = std::make_unique<SInstruction>(STypeKinds.find("sb")->second,
+                                               Rs1, Rs2, Offset);
     } else if (Funct3 == 0b001) { // sh
                                   // offset[11:5|4:0] = inst[31:25|11:7]
       unsigned Offset = (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
-      std::make_unique<SInstruction>(STypeKinds.find("sh")->second, Rs1, Rs2,
-                                     Offset);
+      InstPtr = std::make_unique<SInstruction>(STypeKinds.find("sh")->second,
+                                               Rs1, Rs2, Offset);
     } else if (Funct3 == 0b010) { // sw
                                   // offset[11:5|4:0] = inst[31:25|11:7]
       unsigned Offset = (InstVal & 0xfe000000) >> 20 | ((InstVal >> 7) & 0x1f);
-      std::make_unique<SInstruction>(STypeKinds.find("sw")->second, Rs1, Rs2,
-                                     Offset);
+      InstPtr = std::make_unique<SInstruction>(STypeKinds.find("sw")->second,
+                                               Rs1, Rs2, Offset);
     } else {
 #ifdef DEBUG
       dumpInstVal(InstVal);
