@@ -233,15 +233,13 @@ public:
         case 0b101:
           if (Funct7 == 0) // srli
                            // this will be 6 bit for RV64I
-            // Is.push_back(std::make_unique<IInstruction>(
-            //     ITypeKinds.find("srli")->second, Rd, Rs1,
-            //     (InstVal >> 20) & 0b11111));
-            assert(false && "unimplemented!");
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("srli")->second, Rd, Rs1,
+                                     (InstVal >> 20) & 0b11111)});
           else // srai
-            // Is.push_back(std::make_unique<IInstruction>(
-            //     ITypeKinds.find("srai")->second, Rd, Rs1,
-            //     (InstVal >> 20) & 0b11111));
-            assert(false && "unimplemented!");
+            PCInstMap.insert({P, std::make_unique<IInstruction>(
+                                     ITypeKinds.find("srai")->second, Rd, Rs1,
+                                     (InstVal >> 20) & 0b11111)});
           break;
         default:
 #ifdef DEBUG

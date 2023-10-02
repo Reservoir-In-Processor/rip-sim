@@ -152,6 +152,50 @@ TEST(SimulatorTest, SLLI) {
   }
 }
 
+TEST(SimulatorTest, SRAI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x80, 0xff, // addi x16, x0, -8
+      0x93, 0x58, 0x28, 0x40, // srai x17, x16, 2
+  };
+
+  const GPRegisters EXPECTED = {{16, -8}, {17, -2}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, SRLI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x80, 0xff, // addi x16, x0, -8
+      0x93, 0x58, 0x28, 0x00, // srli x17, x16, 2
+  };
+  // -8 = 0b11..1000
+  // -8 l>> 2 = 0b0011...1110 = 1073741822
+
+  const GPRegisters EXPECTED = {{16, -8}, {17, 1073741822}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
 TEST(SimulatorTest, ADD) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
