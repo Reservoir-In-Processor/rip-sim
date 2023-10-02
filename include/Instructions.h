@@ -10,6 +10,8 @@
 #include <optional>
 #include <vector>
 
+#include "Debug.h"
+
 namespace {
 
 static const std::pair<int, std::string>

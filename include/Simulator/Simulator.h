@@ -1,7 +1,7 @@
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
-#include "CPU.h"
+#include "Decoder.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
 #include "Memory.h"
@@ -12,7 +12,7 @@
 
 class Simulator {
 private:
-  CPU C;
+  Decoder Dec;
   Memory M;
   unsigned CodeSize;
   Address PC;
