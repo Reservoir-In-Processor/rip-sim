@@ -38,9 +38,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake ninja-build
 
-    - name: Run unit tests
+    - name: Run unit tests with -werror
       run: |
-        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
+        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=ON
         ninja -Cbuild unittests
 
   asmtest:
