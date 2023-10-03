@@ -66,6 +66,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # enable unit tests
+set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
 
 add_custom_target(unittests
