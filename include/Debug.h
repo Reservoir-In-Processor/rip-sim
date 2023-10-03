@@ -2,10 +2,7 @@
 
 #ifndef DEBUG_H
 #define DEBUG_H
-<<<<<<< HEAD
 #include <bitset>
-=======
->>>>>>> 4118e2b (update structure)
 #include <iomanip>
 #include <iostream>
 #include <vector>
