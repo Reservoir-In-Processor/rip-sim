@@ -4,7 +4,7 @@ project(asmkheiv CXX)
 # FIXME: this seems bad...
 # set (CMAKE_CXX_COMPILER /usr/bin/clang++ CACHE PATH "" FORCE)
 
-set(CMAKE_CXX_FLAGS "-Werror -Wall -fPIC  ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Wall -fPIC  ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 # for valgrind https://hg.mozilla.org/integration/autoland/rev/192810f500b5
@@ -19,10 +19,15 @@ message(STATUS "build on ${CMAKE_SYSTEM_NAME}, ${CMAKE_SYSTEM_PROCESSOR}")
 
 option(SANITIZE "Enable sanitize options" ON)
 
+option(ENABLE_WERROR "Enable -Werror options" OFF)
+
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set(SANITIZE OFF)
 endif()
 
+if (ENABLE_WERROR)
+  set(CMAKE_CXX_FLAGS "-Werror ${CMAKE_CXX_FLAGS}")
+endif()
 if (SANITIZE)
   set(CMAKE_CXX_FLAGS "-fsanitize=undefined ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
