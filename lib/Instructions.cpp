@@ -1,6 +1,7 @@
 #include "Instructions.h"
 
-void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = IT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "addi") {
@@ -76,7 +77,8 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
     assert(false && "unimplemented! or not exist");
 }
 
-void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = RT.getMnemo();
   if (Mnemo == "add") {
     GPRegs.write(Rd.to_ulong(),
@@ -155,7 +157,8 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
     assert(false && "unimplemented! or not exist");
 }
 
-void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = UT.getMnemo();
   int ImmI = signExtend(Imm);
 
@@ -169,7 +172,8 @@ void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
     assert(false && "not exist");
 }
 
-void SInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void SInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = ST.getMnemo();
 
   int ImmI = signExtend(Imm);
@@ -192,7 +196,8 @@ void SInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
     assert(false && "unimplemented! or not exist");
 }
 
-void BInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void BInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = BT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "beq") {
@@ -235,7 +240,8 @@ void BInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
     assert(false && "unimplemented! or not exist");
 }
 
-void JInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M) {
+void JInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
+                        CSRs &CSRs) {
   std::string Mnemo = JT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "jal") {

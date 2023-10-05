@@ -1,5 +1,6 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
+#include "CSR.h"
 #include "InstructionTypes.h"
 #include "Registers.h"
 #include "Simulator/Memory.h"
@@ -61,7 +62,7 @@ public:
     os.write(reinterpret_cast<char *>(&Val), 4);
   }
   virtual void pprint(std::ostream &) = 0;
-  virtual void exec(Address &, GPRegisters &, Memory &) = 0;
+  virtual void exec(Address &, GPRegisters &, Memory &, CSRs &) = 0;
   virtual ~Instruction() {}
 };
 namespace {
@@ -154,7 +155,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &P, GPRegisters &GPRegs, Memory &M) override;
+  void exec(Address &P, GPRegisters &GPRegs, Memory &M, CSRs &CSRs) override;
 };
 
 class RInstruction : public Instruction {
@@ -205,7 +206,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &) override;
+  void exec(Address &, GPRegisters &, Memory &, CSRs &CSRs) override;
 };
 
 class UInstruction : public Instruction {
@@ -253,7 +254,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &) override;
+  void exec(Address &, GPRegisters &, Memory &, CSRs &CSRs) override;
 };
 
 class JInstruction : public Instruction {
@@ -310,7 +311,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &) override;
+  void exec(Address &, GPRegisters &, Memory &, CSRs &CSRs) override;
 };
 
 class SInstruction : public Instruction {
@@ -371,7 +372,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &) override;
+  void exec(Address &, GPRegisters &, Memory &, CSRs &CSRs) override;
 };
 
 class BInstruction : public Instruction {
@@ -438,7 +439,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &) override;
+  void exec(Address &, GPRegisters &, Memory &, CSRs &CSRs) override;
 };
 
 #endif

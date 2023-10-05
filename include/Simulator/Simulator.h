@@ -1,6 +1,7 @@
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
+#include "CSR.h"
 #include "Decoder.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
@@ -16,6 +17,7 @@ private:
   Memory M;
   unsigned CodeSize;
   Address PC;
+  CSRs CSRs;
   GPRegisters GPRegs;
   std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
 
