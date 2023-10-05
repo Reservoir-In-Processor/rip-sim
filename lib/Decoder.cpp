@@ -1,4 +1,4 @@
-#include "Simulator/Decoder.h"
+#include "Decoder.h"
 
 std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
   // Raw inst
