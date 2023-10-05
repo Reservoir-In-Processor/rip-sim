@@ -234,6 +234,55 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
         ((InstVal & 0x80000000) >> 11) | (InstVal & 0xff000) |
             ((InstVal >> 9) & 0x800) | ((InstVal >> 20) & 0x7fe));
     break;
+  case 0b1110011:          // csr
+    if (Funct3 == 0b000) { // ecall, ebreak, mret, sret, etc...
+      unsigned Funct12 = Funct7 << 7 | Rs2;
+      if (Funct12 == 0) { // ecall
+        InstPtr = std::make_unique<IInstruction>(
+            ITypeKinds.find("ecall")->second, Rd, Rs1, InstVal >> 20);
+      } else if (Funct12 == 1) { // ebreak
+        InstPtr = std::make_unique<IInstruction>(
+            ITypeKinds.find("ebreak")->second, Rd, Rs1, InstVal >> 20);
+      } else if (Funct12 == 2) { // uret
+        InstPtr = std::make_unique<IInstruction>(
+            ITypeKinds.find("uret")->second, Rd, Rs1, InstVal >> 20);
+      } else if (Funct12 == 3) { // sret
+        InstPtr = std::make_unique<IInstruction>(
+            ITypeKinds.find("sret")->second, Rd, Rs1, InstVal >> 20);
+      } else if (Funct12 == 4) { // mret
+        InstPtr = std::make_unique<IInstruction>(
+            ITypeKinds.find("mret")->second, Rd, Rs1, InstVal >> 20);
+      } else {
+#ifdef DEBUG
+        dumpInstVal(InstVal);
+#endif
+        assert(false && "unimplemented!");
+      }
+    } else if (Funct3 == 0b001) { // csrrw
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrrw")->second,
+                                               Rd, Rs1, InstVal >> 20);
+    } else if (Funct3 == 0b010) { // csrrs
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrrs")->second,
+                                               Rd, Rs1, InstVal >> 20);
+    } else if (Funct3 == 0b011) { // csrrc
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrrc")->second,
+                                               Rd, Rs1, InstVal >> 20);
+    } else if (Funct3 == 0b101) { // csrrwi
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrri")->second,
+                                               Rd, Rs1, InstVal >> 20);
+    } else if (Funct3 == 0b110) { // csrrsi
+      InstPtr = std::make_unique<IInstruction>(
+          ITypeKinds.find("csrrsi")->second, Rd, Rs1, InstVal >> 20);
+    } else if (Funct3 == 0b111) { // csrrci
+      InstPtr = std::make_unique<IInstruction>(
+          ITypeKinds.find("csrrci")->second, Rd, Rs1, InstVal >> 20);
+    } else {
+#ifdef DEBUG
+      dumpInstVal(InstVal);
+#endif
+      assert(false && "unimplemented!");
+    }
+
   default:
 #ifdef DEBUG
     dumpInstVal(InstVal);
