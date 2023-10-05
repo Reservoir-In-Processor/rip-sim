@@ -16,9 +16,7 @@ private:
   Memory M;
   unsigned CodeSize;
   Address PC;
-  // FIXME: byref?
   GPRegisters GPRegs;
-  CustomRegisters CRegs;
   std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
 
 public:
@@ -32,7 +30,7 @@ public:
   void execFromDRAMBASE() {
     PC = DRAM_BASE;
     while (auto &I = PCInstMap[PC]) {
-      I->exec(PC, GPRegs, M, CRegs);
+      I->exec(PC, GPRegs, M);
 #ifdef DEBUG
       std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
       I->pprint(std::cerr);

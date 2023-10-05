@@ -2,7 +2,6 @@
 #define INSTRUCTIONS_H
 #include "InstructionTypes.h"
 #include "Registers.h"
-#include "Simulator/CustomRegisters.h"
 #include "Simulator/Memory.h"
 #include <cassert>
 #include <iomanip>
@@ -62,7 +61,7 @@ public:
     os.write(reinterpret_cast<char *>(&Val), 4);
   }
   virtual void pprint(std::ostream &) = 0;
-  virtual void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) = 0;
+  virtual void exec(Address &, GPRegisters &, Memory &) = 0;
   virtual ~Instruction() {}
 };
 namespace {
@@ -155,8 +154,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &P, GPRegisters &GPRegs, Memory &M,
-            CustomRegisters &) override;
+  void exec(Address &P, GPRegisters &GPRegs, Memory &M) override;
 };
 
 class RInstruction : public Instruction {
@@ -207,7 +205,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
+  void exec(Address &, GPRegisters &, Memory &) override;
 };
 
 class UInstruction : public Instruction {
@@ -255,7 +253,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
+  void exec(Address &, GPRegisters &, Memory &) override;
 };
 
 class JInstruction : public Instruction {
@@ -312,7 +310,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
+  void exec(Address &, GPRegisters &, Memory &) override;
 };
 
 class SInstruction : public Instruction {
@@ -373,7 +371,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
+  void exec(Address &, GPRegisters &, Memory &) override;
 };
 
 class BInstruction : public Instruction {
@@ -440,7 +438,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
-  void exec(Address &, GPRegisters &, Memory &, CustomRegisters &) override;
+  void exec(Address &, GPRegisters &, Memory &) override;
 };
 
 #endif
