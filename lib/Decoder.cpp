@@ -258,6 +258,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #endif
         assert(false && "unimplemented!");
       }
+      break;
     } else if (Funct3 == 0b001) { // csrrw
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrrw")->second,
                                                Rd, Rs1, InstVal >> 20);
@@ -282,6 +283,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #endif
       assert(false && "unimplemented!");
     }
+    break;
 
   default:
 #ifdef DEBUG
