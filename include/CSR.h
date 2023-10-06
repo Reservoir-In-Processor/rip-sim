@@ -17,6 +17,9 @@ using CSRAddress = std::uint16_t;
 
 // Machine Status register
 const CSRAddress MSTATUS = 0x300;
+
+const CSRAddress MSTATUS_MPP_BEGIN = 11;
+const CSRAddress MSTATUS_MPP_END = 12;
 // Machine Exception Delegation register
 const CSRAddress MEDELEG = 0x302;
 // Machine Interrupt Delegation register
@@ -29,6 +32,8 @@ const CSRAddress MTVEC = 0x305;
 const CSRAddress MEPC = 0x341;
 // Machine Trap Cause
 const CSRAddress MCAUSE = 0x342;
+// Machine Trap Value register. bad address or instructions
+const CSRAddress MTVAL = 0x343;
 
 class CSRs {
 private:

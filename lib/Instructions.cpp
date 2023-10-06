@@ -75,43 +75,100 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     // FIXME: currently expected to be nop
     PC += 4;
   } else if (Mnemo == "csrrw") {
-    CSRVal CV = States.read(Imm.to_ulong() & 0xfff);
-    // let t = self.state.read(csr_addr);
-    // self.state.write(csr_addr, self.xregs.read(rs1));
-    // self.xregs.write(rd, t);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    States.write(CA, CV);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrs") {
-    // let t = self.state.read(csr_addr);
-    // self.state.write(csr_addr, t | self.xregs.read(rs1));
-    // self.xregs.write(rd, t);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    States.write(CA, GPRegs[Rs1.to_ulong()] | CV);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrc") {
-    // let t = self.state.read(csr_addr);
-    // self.state.write(csr_addr, t & (!self.xregs.read(rs1)));
-    // self.xregs.write(rd, t);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    States.write(CA, GPRegs[Rs1.to_ulong()] & !CV);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrwi") {
-    // let zimm = rs1;
-    // self.xregs.write(rd, self.state.read(csr_addr));
-    // self.state.write(csr_addr, zimm);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    CSRVal ZImm = Rs1.to_ulong();
+    States.write(CA, ZImm);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrsi") {
-    // let zimm = rs1;
-    // let t = self.state.read(csr_addr);
-    // self.state.write(csr_addr, t | zimm);
-    // self.xregs.write(rd, t);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    CSRVal ZImm = Rs1.to_ulong();
+    States.write(CA, CV | ZImm);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrci") {
-    // let zimm = rs1;
-    // let t = self.state.read(csr_addr);
-    // self.state.write(csr_addr, t & (!zimm));
-    // self.xregs.write(rd, t);
+    CSRAddress CA = Imm.to_ulong() & 0xfff;
+    CSRVal CV = States.read(CA);
+    CSRVal ZImm = Rs1.to_ulong();
+    States.write(CA, CV & !ZImm);
+    GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "ecall") {
-    // FIXME: check current mode
-    return Exception::EnvironmentCallFromMMode;
-  } else
+    if (Mode == ModeKind::User) {
+      return Exception::EnvironmentCallFromUMode;
+    } else if (Mode == ModeKind::Supervisor) {
+      return Exception::EnvironmentCallFromSMode;
+    } else if (Mode == ModeKind::Machine) {
+      return Exception::EnvironmentCallFromMMode;
+    } else {
+      // FIXME: is this illegal inst?
+      return Exception::IllegalInstruction;
+    }
+  } else if (Mnemo == "ebreak") {
+    return Exception::Breakpoint;
+  } else if (Mnemo == "uret") {
+    // TODO: uret
+    assert(false && "uret: unimplemented!");
+    return Exception::IllegalInstruction;
+  } else if (Mnemo == "sret") {
+    // TODO: uret
+  } else if (Mnemo == "mret") {
+    // FIXME: make constant on CSR.h
+    PC = States.read(MEPC); // FIXME: should sub 4?
+    // FIXME: add MSTATUS handle methods?
+    CSRVal MSTATUSVal = States.read(MSTATUS);
+    // Previous Privilege mode for Machine mode.
+    ModeKind MPP = (ModeKind)((MSTATUSVal >> 11) & 0b11);
+
+    if (MPP == ModeKind::User) {
+      // FIXME: add methods?
+      // set MPREV=0
+      // MPREV: Modify privilege bit. 17-th bit of MSTATUS
+      States.write(MSTATUS, MSTATUS & 0xfffdffff);
+      Mode = ModeKind::User;
+    } else if (MPP == ModeKind::Supervisor) {
+      // set MPREV=0
+      States.write(MSTATUS, MSTATUS & 0xfffdffff);
+      Mode = ModeKind::Supervisor;
+    } else if (MPP == ModeKind::Machine) {
+      Mode = ModeKind::Machine;
+    } else
+      return Exception::IllegalInstruction;
+    // set MIE to MPIE;
+    // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
+    // MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
+    bool MPIE = (bool)((MSTATUSVal >> 7) & 1);
+    States.write(MSTATUS, (MSTATUSVal & 0xfffffff7) | (MPIE << 3));
+
+    // Set MPIE to 1
+    States.write(MSTATUS, MSTATUSVal | 0b10000000);
+
+    // Set MPP to 0
+    States.write(MSTATUS, MSTATUSVal & 0xffffe7ff);
+  } else {
     assert(false && "unimplemented! or not exist");
+    return Exception::IllegalInstruction;
+  }
   return std::nullopt;
 }
 
