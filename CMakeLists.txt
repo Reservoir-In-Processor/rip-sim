@@ -82,6 +82,6 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 
 add_custom_target(asmtest
-  COMMAND make -C ../tests test
+  COMMAND make -C ../tests/asm test
   DEPENDS asmkheiv simkheiv
 )

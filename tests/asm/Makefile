@@ -26,7 +26,7 @@ test: gen
 	clang --target=riscv32-unknown-elf -O0 -march=rv32i -c $< -o $@
 
 %.bin: %.s
-	../build/bin/asmkheiv $< -o $@
+	../../build/bin/asmkheiv $< -o $@
 
 clean:
 	rm -f $(BIN_FILES) $(OBJ_FILES)
