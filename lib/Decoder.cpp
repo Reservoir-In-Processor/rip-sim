@@ -284,7 +284,6 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       assert(false && "unimplemented!");
     }
     break;
-
   default:
 #ifdef DEBUG
     dumpInstVal(InstVal);

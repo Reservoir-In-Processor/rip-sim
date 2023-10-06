@@ -1,6 +1,7 @@
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
+#include "CSR.h"
 #include "Decoder.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
@@ -13,9 +14,11 @@
 class Simulator {
 private:
   Decoder Dec;
-  Memory M;
+  Memory Mem;
   unsigned CodeSize;
   Address PC;
+  CSRs States;
+  ModeKind Mode;
   GPRegisters GPRegs;
   std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
 
@@ -26,6 +29,7 @@ public:
   Simulator(std::istream &is);
 
   inline const GPRegisters &getGPRegs() const { return GPRegs; }
+  inline const CSRs &getCSRs() const { return States; }
 
   void execFromDRAMBASE();
 
