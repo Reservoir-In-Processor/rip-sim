@@ -13,7 +13,7 @@ TEST(SimulatorTest, ADDI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -33,7 +33,7 @@ TEST(SimulatorTest, SLTI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -55,7 +55,7 @@ TEST(SimulatorTest, SLTIU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -77,7 +77,7 @@ TEST(SimulatorTest, XORI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -99,7 +99,7 @@ TEST(SimulatorTest, ORI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -121,7 +121,7 @@ TEST(SimulatorTest, ANDI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -143,7 +143,7 @@ TEST(SimulatorTest, SLLI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -164,7 +164,7 @@ TEST(SimulatorTest, SRAI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -187,7 +187,7 @@ TEST(SimulatorTest, SRLI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -209,7 +209,7 @@ TEST(SimulatorTest, ADD) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -231,7 +231,7 @@ TEST(SimulatorTest, SUB) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -252,7 +252,7 @@ TEST(SimulatorTest, AUIPC) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -275,7 +275,7 @@ TEST(SimulatorTest, SWLW) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -299,7 +299,7 @@ TEST(SimulatorTest, SHLHLHU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -321,7 +321,7 @@ TEST(SimulatorTest, SBLBLBU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -342,7 +342,7 @@ TEST(SimulatorTest, JALR) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -369,7 +369,7 @@ TEST(SimulatorTest, BEQ) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -396,7 +396,7 @@ TEST(SimulatorTest, BNE) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -423,7 +423,7 @@ TEST(SimulatorTest, BLT) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -450,7 +450,7 @@ TEST(SimulatorTest, BGE) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -477,7 +477,7 @@ TEST(SimulatorTest, BLTU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -504,7 +504,7 @@ TEST(SimulatorTest, BGEU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -528,7 +528,7 @@ TEST(SimulatorTest, JAL) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -552,7 +552,7 @@ TEST(SimulatorTest, JALNEG) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i])
@@ -575,7 +575,7 @@ TEST(SimulatorTest, ZERO1) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -593,7 +593,7 @@ TEST(SimulatorTest, ZERO2) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -613,7 +613,7 @@ TEST(SimulatorTest, MUL) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -633,7 +633,7 @@ TEST(SimulatorTest, MULH) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -654,7 +654,7 @@ TEST(SimulatorTest, MULHSU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -679,7 +679,7 @@ TEST(SimulatorTest, MULHU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -701,7 +701,7 @@ TEST(SimulatorTest, DIV) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -726,7 +726,7 @@ TEST(SimulatorTest, DIVU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -748,7 +748,7 @@ TEST(SimulatorTest, REM) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -770,7 +770,7 @@ TEST(SimulatorTest, REMU) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -790,7 +790,7 @@ TEST(SimulatorTest, LUI) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
@@ -812,7 +812,7 @@ TEST(SimulatorTest, FENCE_AS_NOP) {
 
   Simulator Sim(ss);
   Sim.execFromDRAMBASE();
-  GPRegisters &Res = Sim.getGPRegs();
+  const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
     EXPECT_EQ(Res[i], EXPECTED[i]);

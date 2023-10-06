@@ -78,7 +78,7 @@ public:
     return Regs[(IT->second).to_ulong()];
   }
 
-  void dump() {
+  const void dump() const {
     for (unsigned i = 0; i < 32; ++i) {
       char ValStr[11];
       std::snprintf(ValStr, sizeof(ValStr), "0x%08x", Regs[i]);

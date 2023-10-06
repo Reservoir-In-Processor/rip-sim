@@ -25,24 +25,12 @@ public:
 
   Simulator(std::istream &is);
 
-  GPRegisters &getGPRegs() { return GPRegs; }
+  inline const GPRegisters &getGPRegs() const { return GPRegs; }
 
-  void execFromDRAMBASE() {
-    PC = DRAM_BASE;
-    while (auto &I = PCInstMap[PC]) {
-      I->exec(PC, GPRegs, M);
-#ifdef DEBUG
-      std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
-      I->pprint(std::cerr);
-      std::cerr << "Regs after:\n";
-      dumpGPRegs();
-#endif
-    }
-    std::cerr << "stop on no instraction address\n";
-  }
+  void execFromDRAMBASE();
 
-  void dumpGPRegs() { GPRegs.dump(); }
-  Address &getPC() { return PC; }
+  inline const void dumpGPRegs() const { GPRegs.dump(); }
+  inline const Address &getPC() const { return PC; }
 };
 
 #endif

@@ -19,3 +19,17 @@ Simulator::Simulator(std::istream &is) : PC(DRAM_BASE) {
     CodeSize += 4;
   }
 }
+
+void Simulator::execFromDRAMBASE() {
+  PC = DRAM_BASE;
+  while (auto &I = PCInstMap[PC]) {
+    I->exec(PC, GPRegs, M);
+#ifdef DEBUG
+    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
+    I->pprint(std::cerr);
+    std::cerr << "Regs after:\n";
+    dumpGPRegs();
+#endif
+  }
+  std::cerr << "stop on no instraction address\n";
+}
