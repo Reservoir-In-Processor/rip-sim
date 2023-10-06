@@ -5,6 +5,7 @@ add_subdirectory(Assembler)
 add_subdirectory(Simulator)
 add_subdirectory(RIPSimulator)
 
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
 foreach(TEST_SRC ${TEST_SOURCES})
     
     get_filename_component(TEST_NAME ${TEST_SRC} NAME_WE)

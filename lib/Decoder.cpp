@@ -269,8 +269,8 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrrc")->second,
                                                Rd, Rs1, InstVal >> 20);
     } else if (Funct3 == 0b101) { // csrrwi
-      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("csrri")->second,
-                                               Rd, Rs1, InstVal >> 20);
+      InstPtr = std::make_unique<IInstruction>(
+          ITypeKinds.find("csrrwi")->second, Rd, Rs1, InstVal >> 20);
     } else if (Funct3 == 0b110) { // csrrsi
       InstPtr = std::make_unique<IInstruction>(
           ITypeKinds.find("csrrsi")->second, Rd, Rs1, InstVal >> 20);
