@@ -1,0 +1,18 @@
+enum class Exception {
+  InstructionAddressMisaligned,
+  InstructionAccessFault,
+  IllegalInstruction,
+  Breakpoint,
+  LoadAddressMisaligned,
+  LoadAccessFault,
+  StoreAMOAddressMisaligned,
+  StoreAMOAccessFault,
+  EnvironmentCallFromUMode,
+  EnvironmentCallFromSMode,
+  R0,
+  EnvironmentCallFromMMode,
+  InstructionPageFault,
+  LoadPageFault,
+  R1,
+  StoreAMOPageFault,
+};

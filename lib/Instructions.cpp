@@ -1,7 +1,8 @@
 #include "Instructions.h"
 
-void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = IT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "addi") {
@@ -30,28 +31,28 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
   } else if (Mnemo == "lb") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
-    Byte V = M.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
     GPRegs.write(Rd.to_ulong(), (signed char)V);
     PC += 4;
   } else if (Mnemo == "lh") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
-    HalfWord V = M.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
     std::cerr << std::dec << "lh: V= " << V << "\n";
     std::cerr << "lh: V= " << (signed short)V << "\n";
     GPRegs.write(Rd.to_ulong(), (signed short)V);
     PC += 4;
   } else if (Mnemo == "lw") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
-    Word V = M.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    Word V = Mem.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
     GPRegs.write(Rd.to_ulong(), (signed)V);
     PC += 4;
   } else if (Mnemo == "lbu") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
-    Byte V = M.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
     GPRegs.write(Rd.to_ulong(), (unsigned char)V);
     PC += 4;
   } else if (Mnemo == "lhu") {
-    HalfWord V = M.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
     GPRegs.write(Rd.to_ulong(), (unsigned short)V);
     PC += 4;
   } else if (Mnemo == "slli") { // FIXME: shamt
@@ -73,12 +74,50 @@ void IInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
   } else if (Mnemo == "fence.i") {
     // FIXME: currently expected to be nop
     PC += 4;
+  } else if (Mnemo == "csrrw") {
+    CSRVal CV = States.read(Imm.to_ulong() & 0xfff);
+    // let t = self.state.read(csr_addr);
+    // self.state.write(csr_addr, self.xregs.read(rs1));
+    // self.xregs.write(rd, t);
+    PC += 4;
+  } else if (Mnemo == "csrrs") {
+    // let t = self.state.read(csr_addr);
+    // self.state.write(csr_addr, t | self.xregs.read(rs1));
+    // self.xregs.write(rd, t);
+    PC += 4;
+  } else if (Mnemo == "csrrc") {
+    // let t = self.state.read(csr_addr);
+    // self.state.write(csr_addr, t & (!self.xregs.read(rs1)));
+    // self.xregs.write(rd, t);
+    PC += 4;
+  } else if (Mnemo == "csrrwi") {
+    // let zimm = rs1;
+    // self.xregs.write(rd, self.state.read(csr_addr));
+    // self.state.write(csr_addr, zimm);
+    PC += 4;
+  } else if (Mnemo == "csrrsi") {
+    // let zimm = rs1;
+    // let t = self.state.read(csr_addr);
+    // self.state.write(csr_addr, t | zimm);
+    // self.xregs.write(rd, t);
+    PC += 4;
+  } else if (Mnemo == "csrrci") {
+    // let zimm = rs1;
+    // let t = self.state.read(csr_addr);
+    // self.state.write(csr_addr, t & (!zimm));
+    // self.xregs.write(rd, t);
+    PC += 4;
+  } else if (Mnemo == "ecall") {
+    // FIXME: check current mode
+    return Exception::EnvironmentCallFromMMode;
   } else
     assert(false && "unimplemented! or not exist");
+  return std::nullopt;
 }
 
-void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> RInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = RT.getMnemo();
   if (Mnemo == "add") {
     GPRegs.write(Rd.to_ulong(),
@@ -155,10 +194,12 @@ void RInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     
   } else
     assert(false && "unimplemented! or not exist");
+  return std::nullopt;
 }
 
-void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> UInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = UT.getMnemo();
   int ImmI = signExtend(Imm);
 
@@ -170,34 +211,38 @@ void UInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     PC += 4;
   } else
     assert(false && "not exist");
+  return std::nullopt;
 }
 
-void SInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> SInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = ST.getMnemo();
 
   int ImmI = signExtend(Imm);
   if (Mnemo == "sb") {
     // FIXME: wrap add?
     Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
-    M.writeByte(Ad, GPRegs[Rs2.to_ulong()]);
+    Mem.writeByte(Ad, GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "sh") {
     // FIXME: wrap add?
     Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
-    M.writeHalfWord(Ad, GPRegs[Rs2.to_ulong()]);
+    Mem.writeHalfWord(Ad, GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "sw") {
     // FIXME: wrap add?
     Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
-    M.writeWord(Ad, GPRegs[Rs2.to_ulong()]);
+    Mem.writeWord(Ad, GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else
     assert(false && "unimplemented! or not exist");
+  return std::nullopt;
 }
 
-void BInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> BInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = BT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "beq") {
@@ -238,10 +283,12 @@ void BInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     }
   } else
     assert(false && "unimplemented! or not exist");
+  return std::nullopt;
 }
 
-void JInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
-                        CSRs &CSRs) {
+std::optional<Exception> JInstruction::exec(Address &PC, GPRegisters &GPRegs,
+                                            Memory &Mem, CSRs &States,
+                                            ModeKind &Mode) {
   std::string Mnemo = JT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "jal") {
@@ -249,4 +296,5 @@ void JInstruction::exec(Address &PC, GPRegisters &GPRegs, Memory &M,
     PC += ImmI;
   } else
     assert(false && "unimplemented! or not exist");
+  return std::nullopt;
 }

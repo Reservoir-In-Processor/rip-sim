@@ -818,3 +818,21 @@ TEST(SimulatorTest, FENCE_AS_NOP) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
   }
 }
+
+TEST(SimulatorTest, ECALL) {
+  const unsigned char BYTES[] = {
+      0x73, 0x00, 0x00, 0x00, // ecall
+  };
+
+  const GPRegisters EXPECTED = {{1, 42}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  const GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
