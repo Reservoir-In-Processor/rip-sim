@@ -236,7 +236,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
     break;
   case 0b1110011:          // csr
     if (Funct3 == 0b000) { // ecall, ebreak, mret, sret, etc...
-      unsigned Funct12 = Funct7 << 7 | Rs2;
+      unsigned Funct12 = Funct7 << 5 | Rs2;
       if (Funct12 == 0) { // ecall
         InstPtr = std::make_unique<IInstruction>(
             ITypeKinds.find("ecall")->second, Rd, Rs1, InstVal >> 20);
@@ -246,10 +246,10 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       } else if (Funct12 == 2) { // uret
         InstPtr = std::make_unique<IInstruction>(
             ITypeKinds.find("uret")->second, Rd, Rs1, InstVal >> 20);
-      } else if (Funct12 == 3) { // sret
+      } else if (Funct12 == 0b100000010) { // sret
         InstPtr = std::make_unique<IInstruction>(
             ITypeKinds.find("sret")->second, Rd, Rs1, InstVal >> 20);
-      } else if (Funct12 == 4) { // mret
+      } else if (Funct12 == 0b1100000010) { // mret
         InstPtr = std::make_unique<IInstruction>(
             ITypeKinds.find("mret")->second, Rd, Rs1, InstVal >> 20);
       } else {

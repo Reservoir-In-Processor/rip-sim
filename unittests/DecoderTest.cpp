@@ -26,10 +26,9 @@ TEST(DecoderTest, EBREAK) {
   EXPECT_EQ(InstPtr->getMnemo(), "ebreak");
 }
 // uret,
-// 00000000 00100000 00000000 01110011
 TEST(DecoderTest, URET) {
   unsigned char INST_BYTES[] = {
-      0x73, 0x00, 0x20, 0xc0, // uret
+      0x73, 0x00, 0x20, 0x00, // uret
   };
 
   unsigned InstVal = *(reinterpret_cast<unsigned *>(INST_BYTES));
