@@ -77,7 +77,7 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
   } else if (Mnemo == "csrrw") {
     CSRAddress CA = Imm.to_ulong() & 0xfff;
     CSRVal CV = States.read(CA);
-    States.write(CA, CV);
+    States.write(CA, GPRegs[Rs1.to_ulong()]);
     GPRegs.write(Rd.to_ulong(), CV);
     PC += 4;
   } else if (Mnemo == "csrrs") {
