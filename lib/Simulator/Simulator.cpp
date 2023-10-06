@@ -66,5 +66,5 @@ void Simulator::execFromDRAMBASE() {
     dumpGPRegs();
 #endif
   }
-  std::cerr << "stop on no instraction address\n";
+  std::cerr << "stop on no instraction address=" << PC << "\n";
 }

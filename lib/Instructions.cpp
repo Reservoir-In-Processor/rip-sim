@@ -131,7 +131,9 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     assert(false && "uret: unimplemented!");
     return Exception::IllegalInstruction;
   } else if (Mnemo == "sret") {
-    // TODO: uret
+    // TODO: sret
+    assert(false && "sret: unimplemented!");
+    return Exception::IllegalInstruction;
   } else if (Mnemo == "mret") {
     // FIXME: make constant on CSR.h
     PC = States.read(MEPC); // FIXME: should sub 4?

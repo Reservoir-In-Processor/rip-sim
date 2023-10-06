@@ -49,6 +49,20 @@ const CSRAddress PMPADDR0 = 0x3b0;
 // Hardware thread ID.
 const CSRAddress MHARTID = 0xf14;
 
+const std::map<std::string, CSRAddress> CSRMap = {
+    {"satp", 0x180},    {"mstatus", 0x300}, {"medeleg", 0x302},
+    {"mideleg", 0x303}, {"mie", 0x304},     {"mtvec", 0x305},
+    {"mepc", 0x341},    {"mcause", 0x342},  {"mtval", 0x343},
+    {"pmpcfg", 0x3a0},  {"pmpaddr", 0x3b0}, {"mhartid", 0xf14},
+};
+
+const std::map<CSRAddress, std::string> CSRNames = {
+    {0x180, "satp"},    {0x300, "mstatus"}, {0x302, "medeleg"},
+    {0x303, "mideleg"}, {0x304, "mie"},     {0x305, "mtvec"},
+    {0x341, "mepc"},    {0x342, "mcause"},  {0x343, "mtval"},
+    {0x3a0, "pmpcfg"},  {0x3b0, "pmpaddr"}, {0xf14, "mhartid"},
+};
+
 class CSRs {
 private:
   CSRVal States[CSR_SIZE];
