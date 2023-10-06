@@ -30,7 +30,7 @@ void Simulator::execFromDRAMBASE() {
       ModeKind PrevMode = Mode;
       unsigned Cause = *E;
       if (Mode == ModeKind::Machine) {
-        PC = States.read(MTVEC) & !1;
+        PC = States.read(MTVEC) & (~1);
 
         States.write(MEPC, ExceptionPC & !1);
 

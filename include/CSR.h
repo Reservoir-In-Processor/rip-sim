@@ -1,7 +1,10 @@
 #ifndef CSR_H
 #define CSR_H
 
+#include <cassert>
 #include <cstdint>
+#include <initializer_list>
+#include <utility>
 
 enum ModeKind {
   User,
@@ -15,11 +18,12 @@ const unsigned CSR_SIZE = 4096;
 using CSRVal = std::int32_t;
 using CSRAddress = std::uint16_t;
 
+// Supervisor address translation and protection
+const CSRAddress SATP = 0x180;
+
 // Machine Status register
 const CSRAddress MSTATUS = 0x300;
 
-const CSRAddress MSTATUS_MPP_BEGIN = 11;
-const CSRAddress MSTATUS_MPP_END = 12;
 // Machine Exception Delegation register
 const CSRAddress MEDELEG = 0x302;
 // Machine Interrupt Delegation register
@@ -35,6 +39,16 @@ const CSRAddress MCAUSE = 0x342;
 // Machine Trap Value register. bad address or instructions
 const CSRAddress MTVAL = 0x343;
 
+/// Physical memory protection configuration.
+const CSRAddress PMPCFG0 = 0x3a0;
+/// Physical memory protection address register.
+const CSRAddress PMPADDR0 = 0x3b0;
+
+// Machine-level CSR addresses
+// Machine information registers
+// Hardware thread ID.
+const CSRAddress MHARTID = 0xf14;
+
 class CSRs {
 private:
   CSRVal States[CSR_SIZE];
@@ -44,6 +58,19 @@ public:
   CSRs &operator=(const CSRs &) = delete;
 
   CSRs() : States{0} {}
+
+  const CSRVal &operator[](CSRAddress index) const {
+    assert(index < CSR_SIZE && "Index out of bounds");
+    return States[index];
+  }
+
+  // TODO: it's better to be string : CSRVal
+  CSRs(std::initializer_list<std::pair<CSRAddress, CSRVal>> init_list)
+      : States{0} {
+    for (const auto &p : init_list) {
+      States[p.first] = p.second;
+    }
+  }
 
   void write(CSRAddress Ad, CSRVal Val);
   CSRVal read(CSRAddress Ad);
