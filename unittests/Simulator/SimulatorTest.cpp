@@ -889,7 +889,7 @@ TEST(SimulatorTest, ECALLMMODE) {
   const GPRegisters EXPECTED = {};
 
   const CSRs EXPECTED_C = {
-      {MEPC, 0},
+      {MEPC, DRAM_BASE + 4},
       {MCAUSE, Exception::EnvironmentCallFromMMode},
       {MTVAL, 0},
       {MTVEC, 20},
@@ -918,7 +918,9 @@ TEST(SimulatorTest, ECALLMMODE) {
            MTVEC,
            MSTATUS,
        }) {
-    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
+        << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
+        << ", got: " << ResC[CA];
   }
 
   EXPECT_EQ(Sim.getPC(), EXPECTED_PC)
@@ -935,6 +937,9 @@ TEST(SimulatorTest, MRET) {
       0x93, 0x00, 0x10, 0x00, // addi x1, x0, 1
       0x93, 0x04, 0x90, 0x00, // addi x9, x0, 9
       0x6f, 0x05, 0xa0, 0x02, // jal x10, 42
+      0x73, 0x25, 0x10, 0x34, // csrrs x10, mepc, x0
+      0x13, 0x05, 0x45, 0x00, // addi x10, x10, 4
+      0x73, 0x10, 0x15, 0x34, // csrrw x0, mepc, x10
       0x73, 0x00, 0x20, 0x30, // mret
   };
 
@@ -944,14 +949,14 @@ TEST(SimulatorTest, MRET) {
   const CSRs EXPECTED_C = {
       {MCAUSE, Exception::EnvironmentCallFromMMode},
       {MTVAL, 0},
-      {MTVEC, 20},
+      {MTVEC, DRAM_BASE + 28},
       // 1. default MSTATUS is zero.
       // 2. prev mode is machine mode,
       // 3. MIE is zero, because default MPIE is zero
-      // 4. MPIE is 1 by mret.
-      {MSTATUS, 0b1100010000000},
+      // 4. MPIE is 1 and MPP is zero by mret.
+      {MSTATUS, 0b10000000},
   };
-  const Address EXPECTED_PC = 42;
+  const Address EXPECTED_PC = DRAM_BASE + 66;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -960,7 +965,9 @@ TEST(SimulatorTest, MRET) {
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
-    EXPECT_EQ(Res[i], EXPECTED[i]);
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
   }
 
   const CSRs &ResC = Sim.getCSRs();
@@ -970,7 +977,10 @@ TEST(SimulatorTest, MRET) {
            MTVEC,
            MSTATUS,
        }) {
-    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
+        << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
+        << ", got: " << ResC[CA];
+    ;
   }
 
   EXPECT_EQ(Sim.getPC(), EXPECTED_PC)

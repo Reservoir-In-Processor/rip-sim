@@ -24,15 +24,16 @@ Simulator::Simulator(std::istream &is)
 void Simulator::execFromDRAMBASE() {
   PC = DRAM_BASE;
   while (auto &I = PCInstMap[PC]) {
+    // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
-      // FIXME: non-machine mode
+      // FIXME: if ecall happens, next address is written, is this correct?
       Address ExceptionPC = PC;
       ModeKind PrevMode = Mode;
       unsigned Cause = *E;
       if (Mode == ModeKind::Machine) {
         PC = States.read(MTVEC) & (~1);
 
-        States.write(MEPC, ExceptionPC & !1);
+        States.write(MEPC, ExceptionPC & (~1));
 
         States.write(MCAUSE, Cause);
 
@@ -57,7 +58,6 @@ void Simulator::execFromDRAMBASE() {
         assert(false && "Non-Machine mode is unimplemented!");
         return;
       }
-      break;
     }
 #ifdef DEBUG
     std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
@@ -66,5 +66,6 @@ void Simulator::execFromDRAMBASE() {
     dumpGPRegs();
 #endif
   }
-  std::cerr << "stop on no instraction address=" << PC << "\n";
+  std::cerr << "stop on no instraction address="
+            << "0x" << std::hex << PC << "\n";
 }

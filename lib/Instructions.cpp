@@ -136,7 +136,7 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     return Exception::IllegalInstruction;
   } else if (Mnemo == "mret") {
     // FIXME: make constant on CSR.h
-    PC = States.read(MEPC); // FIXME: should sub 4?
+    PC = States.read(MEPC);
     // FIXME: add MSTATUS handle methods?
     CSRVal MSTATUSVal = States.read(MSTATUS);
     // Previous Privilege mode for Machine mode.
@@ -160,13 +160,14 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
     // MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
     bool MPIE = (bool)((MSTATUSVal >> 7) & 1);
-    States.write(MSTATUS, (MSTATUSVal & 0xfffffff7) | (MPIE << 3));
+    CSRVal ResVal = (MSTATUSVal & 0xfffffff7) | (MPIE << 3);
 
     // Set MPIE to 1
-    States.write(MSTATUS, MSTATUSVal | 0b10000000);
+    ResVal |= 0b10000000;
 
     // Set MPP to 0
-    States.write(MSTATUS, MSTATUSVal & 0xffffe7ff);
+    ResVal &= 0xffffe7ff;
+    States.write(MSTATUS, ResVal);
   } else {
     assert(false && "unimplemented! or not exist");
     return Exception::IllegalInstruction;

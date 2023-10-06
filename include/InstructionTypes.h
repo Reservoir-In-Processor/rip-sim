@@ -40,9 +40,9 @@ const std::map<const std::string, const ISBType> ITypeKinds = {
     // {"fence", {"fence", 0b000, 0b0001111}},
     // {"fence.i", {"fence.i", 0b001, 0b0001111}},
     // csr
-    {"csrrw",  {"csrrw",  0b001, 0b1110011}},
-    {"csrrs",  {"csrrs",  0b010, 0b1110011}},
-    {"csrrc",  {"csrrc",  0b011, 0b1110011}},
+    {"csrrw",  {"csrrw",  0b001, 0b1110011}}, // Read/Write
+    {"csrrs",  {"csrrs",  0b010, 0b1110011}}, // Read and Set bits
+    {"csrrc",  {"csrrc",  0b011, 0b1110011}}, // Read and Clear bits
     {"csrrwi", {"csrrwi", 0b101, 0b1110011}},
     {"csrrsi", {"csrrsi", 0b110, 0b1110011}},
     {"csrrci", {"csrrci", 0b111, 0b1110011}},
