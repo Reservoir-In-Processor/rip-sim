@@ -97,6 +97,9 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
     } else if (Funct3 == 0b011 && Funct7 == 0b0000001) { // mulhu
       InstPtr = std::make_unique<RInstruction>(RTypeKinds.find("mulhu")->second,
                                                Rd, Rs1, Rs2);
+    } else if (Funct3 == 0b100 && Funct7 == 0b0000000) { // xor
+      InstPtr = std::make_unique<RInstruction>(RTypeKinds.find("xor")->second,
+                                               Rd, Rs1, Rs2);
     } else if (Funct3 == 0b100 && Funct7 == 0b0000001) { // div
       InstPtr = std::make_unique<RInstruction>(RTypeKinds.find("div")->second,
                                                Rd, Rs1, Rs2);
@@ -110,8 +113,12 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       // remu
       InstPtr = std::make_unique<RInstruction>(RTypeKinds.find("remu")->second,
                                                Rd, Rs1, Rs2);
-    } else
+    } else {
+#ifdef DEBUG
+      dumpInstVal(InstVal);
+#endif
       assert(false && "Decoder(R-types): unimplemented!");
+    }
 
     break;
   case 0b0010011:

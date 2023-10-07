@@ -240,6 +240,72 @@ TEST(SimulatorTest, SUB) {
   }
 }
 
+TEST(SimulatorTest, OR) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x33, 0x69, 0x18, 0x01, // xor x18, x16, x17
+  };
+
+  const GPRegisters EXPECTED = {{16, 3}, {17, 5}, {18, 7}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  const GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, AND) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x33, 0x79, 0x18, 0x01, // and x18, x16, x17
+  };
+
+  const GPRegisters EXPECTED = {{16, 3}, {17, 5}, {18, 1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  const GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
+TEST(SimulatorTest, XOR) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x33, 0x49, 0x18, 0x01, // xor x18, x16, x17
+  };
+
+  const GPRegisters EXPECTED = {{16, 3}, {17, 5}, {18, 6}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  Simulator Sim(ss);
+  Sim.execFromDRAMBASE();
+  const GPRegisters &Res = Sim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
 TEST(SimulatorTest, AUIPC) {
   const unsigned char BYTES[] = {
       0x97, 0x08, 0x00, 0x00, // auipc x17, 0
