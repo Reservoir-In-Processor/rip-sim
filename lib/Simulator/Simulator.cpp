@@ -5,7 +5,7 @@
 #endif // DEBUG
 
 Simulator::Simulator(std::istream &is)
-    : PC(DRAM_BASE), Mode(ModeKind::Machine) {
+    : Mem(), PC(DRAM_BASE), Mode(ModeKind::Machine) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -15,7 +15,6 @@ Simulator::Simulator(std::istream &is)
     // Currently, Instruction level simulator doesn't use raw inst code, only
     // use cached instruction class values.
     Mem.writeWord(P, InstVal);
-    PCInstMap.insert({P, Dec.decode(InstVal)});
     P += 4;
     CodeSize += 4;
   }
@@ -23,7 +22,11 @@ Simulator::Simulator(std::istream &is)
 
 void Simulator::execFromDRAMBASE() {
   PC = DRAM_BASE;
-  while (auto &I = PCInstMap[PC]) {
+  while (auto I = Dec.decode(Mem.readWord(PC))) {
+#ifdef DEBUG
+    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
+    I->pprint(std::cerr);
+#endif
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
       // FIXME: if ecall happens, next address is written, is this correct?
@@ -60,8 +63,6 @@ void Simulator::execFromDRAMBASE() {
       }
     }
 #ifdef DEBUG
-    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
-    I->pprint(std::cerr);
     std::cerr << "Regs after:\n";
     dumpGPRegs();
 #endif

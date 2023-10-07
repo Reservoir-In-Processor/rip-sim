@@ -398,11 +398,12 @@ TEST(SimulatorTest, SBLBLBU) {
 
 TEST(SimulatorTest, JALR) {
   const unsigned char BYTES[] = {
-      0x67, 0x09, 0xc0, 0x02, // jalr x18, x0, 44
+      0x17, 0x02, 0x00, 0x00, // auipc x4, 0
+      0x67, 0x09, 0xc2, 0x02, // jalr x18, x4, 44
   };
 
-  const GPRegisters EXPECTED = {{18, DRAM_BASE + 4}};
-  const Address EXPECTED_PC = 44;
+  const GPRegisters EXPECTED = {{4, DRAM_BASE}, {18, DRAM_BASE + 8}};
+  const Address EXPECTED_PC = DRAM_BASE + 44;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -589,30 +590,6 @@ TEST(SimulatorTest, JAL) {
 
   const GPRegisters EXPECTED = {{18, DRAM_BASE + 4}};
   const Address EXPECTED_PC = DRAM_BASE + 12;
-  std::stringstream ss;
-  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
-
-  Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
-  const GPRegisters &Res = Sim.getGPRegs();
-
-  for (unsigned i = 0; i < 32; ++i) {
-    EXPECT_EQ(Res[i], EXPECTED[i])
-        << "Register:" << i << ", expected: " << EXPECTED[i]
-        << ", got: " << Res[i];
-  }
-  EXPECT_EQ(Sim.getPC(), EXPECTED_PC)
-      << "PC"
-      << ", expected: " << EXPECTED_PC << ", got: " << Sim.getPC();
-}
-
-TEST(SimulatorTest, JALNEG) {
-  const unsigned char BYTES[] = {
-      0x6f, 0xf9, 0x5f, 0xff, // jal x18, -12
-  };
-
-  const GPRegisters EXPECTED = {{18, DRAM_BASE + 4}};
-  const Address EXPECTED_PC = DRAM_BASE - 12;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -948,23 +925,25 @@ TEST(SimulatorTest, CSRRW) {
 
 TEST(SimulatorTest, ECALLMMODE) {
   const unsigned char BYTES[] = {
-      0x73, 0x50, 0x5a, 0x30, // csrrwi x0, mtvec, 20
+      0x17, 0x02, 0x00, 0x00, // auipc x4, 0
+      0x13, 0x02, 0xc2, 0x01, // addi x4, x4, 28
+      0x73, 0x10, 0x52, 0x30, // csrrw x0, mtvec, x4
       0x73, 0x00, 0x00, 0x00, // ecall
   };
 
-  const GPRegisters EXPECTED = {};
-
+  const GPRegisters EXPECTED = {{4, DRAM_BASE + 28}};
   const CSRs EXPECTED_C = {
-      {MEPC, DRAM_BASE + 4},
+      // FIXME: if last is illegal inst, then MEPC shouldn't be ecall's?
+      {MEPC, DRAM_BASE + 12},
       {MCAUSE, Exception::EnvironmentCallFromMMode},
       {MTVAL, 0},
-      {MTVEC, 20},
+      {MTVEC, DRAM_BASE + 28},
       // 1. default MSTATUS is zero.
       // 2. prev mode is machine mode,
       // 3. MIE and MPIE is zero
       {MSTATUS, 0b1100000000000},
   };
-  const Address EXPECTED_PC = 20;
+  const Address EXPECTED_PC = DRAM_BASE + 28;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 

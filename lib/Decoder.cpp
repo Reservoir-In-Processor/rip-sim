@@ -32,8 +32,12 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       unsigned Imm = InstVal >> 20;
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("lhu")->second,
                                                Rd, Rs1, Imm);
-    } else
-      assert(false && "Decoder(Funct3 for load): unimplemented!");
+    } else {
+#ifdef DEBUG
+      dumpInstVal(InstVal);
+#endif
+      return nullptr;
+    }
     break;
 
   case 0b0001111:
@@ -47,8 +51,12 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       unsigned Imm = 0;
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
                                                Rd, Rs1, Imm);
-    } else
-      assert(false && "Decoder(fence): unimplemented!");
+    } else {
+#ifdef DEBUG
+      dumpInstVal(InstVal);
+#endif
+      return nullptr;
+    }
     break;
 
   case 0b0010111: // auipc
@@ -117,7 +125,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #ifdef DEBUG
       dumpInstVal(InstVal);
 #endif
-      assert(false && "Decoder(R-types): unimplemented!");
+      return nullptr;
     }
 
     break;
@@ -167,7 +175,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #ifdef DEBUG
       dumpInstVal(InstVal);
 #endif
-      assert(false && "Decoder(Funct3 for I-types): unimplemented!");
+      return nullptr;
       break;
     }
     break;
@@ -199,7 +207,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #ifdef DEBUG
       dumpInstVal(InstVal);
 #endif
-      assert(false && "Decoder(Funct3 for store): unimplemented!");
+      return nullptr;
     }
     break;
   case 0b1100011:
@@ -263,7 +271,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #ifdef DEBUG
         dumpInstVal(InstVal);
 #endif
-        assert(false && "unimplemented!");
+        return nullptr;
       }
       break;
     } else if (Funct3 == 0b001) { // csrrw
@@ -288,21 +296,15 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 #ifdef DEBUG
       dumpInstVal(InstVal);
 #endif
-      assert(false && "unimplemented!");
+      return nullptr;
     }
     break;
   default:
 #ifdef DEBUG
     dumpInstVal(InstVal);
 #endif
-    assert(false && "Decoder(Opcode): unimplemented!");
+    return nullptr;
     break;
-  }
-  if (InstPtr == nullptr) {
-#ifdef DEBUG
-    dumpInstVal(InstVal);
-#endif
-    assert(false && "Decoder: unreachable!");
   }
   return InstPtr;
 };
