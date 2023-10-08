@@ -75,7 +75,7 @@ set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
 
 add_custom_target(unittests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure 
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
   DEPENDS ${ALL_TESTS}
 )
 set(CMAKE_COLOR_DIAGNOSTICS ON)
