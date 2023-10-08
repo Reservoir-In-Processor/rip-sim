@@ -1,3 +1,6 @@
+
+enable_testing()
+file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR}/unittests)
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittests)
 foreach(TEST_SRC ${TEST_SOURCES})

@@ -51,7 +51,6 @@ add_subdirectory(lib)
 
 add_subdirectory(tools)
 
-enable_testing()
 include(FetchContent)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.25")
@@ -70,6 +69,8 @@ endif()
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+
+enable_testing()
 # enable unit tests
 set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
@@ -78,10 +79,18 @@ add_custom_target(unittests
   COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
   DEPENDS ${ALL_TESTS}
 )
-set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 
 add_custom_target(asmtest
   COMMAND make -C ../tests/asm test
   DEPENDS asmkheiv simkheiv
 )
+
+
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+# FIXME: use ctest
+# add_custom_target(simtests
+#   COMMAND ctest --test-dir ./simtests --output-on-failure
+#   WORKING_DIRECTORY 
+#   DEPENDS RiscvTests
+# )

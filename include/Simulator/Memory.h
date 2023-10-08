@@ -6,9 +6,9 @@
 // to avoid sanitizer overhead hell.
 #ifdef DEBUG
 // 1 MiB
-// const std::uint64_t DRAM_SIZE = 1 << 20;
+const std::uint64_t DRAM_SIZE = 1 << 20;
 // 1 KiB
-const std::uint64_t DRAM_SIZE = 1 << 10;
+// const std::uint64_t DRAM_SIZE = 1 << 10;
 #else
 // 1 GiB
 const std::uint64_t DRAM_SIZE = 1 << 30;

@@ -31,6 +31,7 @@ HalfWord Memory::readHalfWord(Address Ad){
 
 void Memory::writeWord(Address Ad, Word Val) {
   Address DRAM_Ad = Ad - DRAM_BASE;
+  // std::cerr << "DRAM_Ad=" << DRAM_Ad << '\n';
   DRAM[DRAM_Ad] = Val & 0xff;
   DRAM[DRAM_Ad + 1] = (Val >> 8) & 0xff;
   DRAM[DRAM_Ad + 2] = (Val >> 16) & 0xff;

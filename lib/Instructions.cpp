@@ -37,8 +37,6 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
   } else if (Mnemo == "lh") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
-    std::cerr << std::dec << "lh: V= " << V << "\n";
-    std::cerr << "lh: V= " << (signed short)V << "\n";
     GPRegs.write(Rd.to_ulong(), (signed short)V);
     PC += 4;
   } else if (Mnemo == "lw") {
@@ -147,9 +145,11 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
       // set MPREV=0
       // MPREV: Modify privilege bit. 17-th bit of MSTATUS
       States.write(MSTATUS, MSTATUS & 0xfffdffff);
-      Mode = ModeKind::User;
+      // FIXME: riscv-tests expects UserMode?
+      // Mode = ModeKind::User;
     } else if (MPP == ModeKind::Supervisor) {
       // set MPREV=0
+      std::cerr << "Supervisor!\n";
       States.write(MSTATUS, MSTATUS & 0xfffdffff);
       Mode = ModeKind::Supervisor;
     } else if (MPP == ModeKind::Machine) {
@@ -251,7 +251,6 @@ std::optional<Exception> RInstruction::exec(Address &PC, GPRegisters &GPRegs,
     GPRegs.write(Rd.to_ulong(),
                  (unsigned int)GPRegs[Rs1.to_ulong()] % (unsigned int)GPRegs[Rs2.to_ulong()]);
     PC += 4;
-    
   } else
     assert(false && "unimplemented! or not exist");
   return std::nullopt;
