@@ -181,7 +181,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
     break;
   case 0b0110111: // lui
     InstPtr = std::make_unique<UInstruction>(UTypeKinds.find("lui")->second, Rd,
-                                             InstVal & 0xfffff000);
+                                             (InstVal & 0xfffff000) >> 12);
     break;
   case 0b1100111: // jalr
     InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("jalr")->second,

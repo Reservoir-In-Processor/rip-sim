@@ -399,10 +399,11 @@ TEST(SimulatorTest, SBLBLBU) {
 TEST(SimulatorTest, JALR) {
   const unsigned char BYTES[] = {
       0x17, 0x02, 0x00, 0x00, // auipc x4, 0
-      0x67, 0x09, 0xc2, 0x02, // jalr x18, x4, 44
+      0x67, 0x02, 0xc2, 0x02, // jalr x4, x4, 44
   };
 
-  const GPRegisters EXPECTED = {{4, DRAM_BASE}, {18, DRAM_BASE + 8}};
+
+  const GPRegisters EXPECTED = {{4, DRAM_BASE + 8}};
   const Address EXPECTED_PC = DRAM_BASE + 44;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
@@ -823,11 +824,13 @@ TEST(SimulatorTest, REMU) {
 TEST(SimulatorTest, LUI) {
   const unsigned char BYTES[] = {
       0x37, 0x28, 0x00, 0x00, // lui x16, 2
+      0xb7, 0xf0, 0xff, 0x7f, // lui	x1, 0x7ffff
+      0xb7, 0x03, 0x00, 0x80, // lui	x7, 0x80000
   };
   // rd ={upimm, 12'b0}
   // x16 = 2 * 2^(12) = 8192
 
-  const GPRegisters EXPECTED = {{16, 8192}};
+  const GPRegisters EXPECTED = {{1, 0x7ffff000},{7, 0x80000000},{16, 8192}};
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
