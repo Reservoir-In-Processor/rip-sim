@@ -1,4 +1,5 @@
 #include "Instructions.h"
+#include <limits>
 
 std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
                                             Memory &Mem, CSRs &States,
