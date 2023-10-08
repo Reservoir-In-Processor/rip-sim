@@ -29,6 +29,7 @@ if (ENABLE_WERROR)
   set(CMAKE_CXX_FLAGS "-Werror ${CMAKE_CXX_FLAGS}")
 endif()
 if (SANITIZE)
+  message(STATUS "sanitizer build")
   set(CMAKE_CXX_FLAGS "-fsanitize=undefined ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
   if (NOT APPLE) # apple clang doesn't have leak sanitizer
@@ -51,7 +52,6 @@ add_subdirectory(lib)
 
 add_subdirectory(tools)
 
-enable_testing()
 include(FetchContent)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.25")
@@ -70,18 +70,43 @@ endif()
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+
+enable_testing()
 # enable unit tests
 set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
 
+# FIXME: work filter
 add_custom_target(unittests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ${CMAKE_COMMAND} -E env GTEST_FILTER="-RV32M/RiscvTests.*:-RV32I/RiscvTests.*" ctest --test-dir ./unittests/ --output-on-failure --timeout 30
   DEPENDS ${ALL_TESTS}
 )
-set(CMAKE_COLOR_DIAGNOSTICS ON)
 
+file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
+
+add_subdirectory(riscvtests)
+# FIXME: do riscvtests
+add_custom_target(riscvtests
+  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure
+  DEPENDS RiscvTests
+)
+
+# FIXME: do dhry
+add_custom_target(dhrystone
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure
+  DEPENDS Dhrystone
+)
 
 add_custom_target(asmtest
   COMMAND make -C ../tests/asm test
   DEPENDS asmkheiv simkheiv
 )
+
+
+set(CMAKE_COLOR_DIAGNOSTICS ON)
+# FIXME: use ctest
+# add_custom_target(simtests
+#   COMMAND ctest --test-dir ./simtests --output-on-failure
+#   WORKING_DIRECTORY 
+#   DEPENDS RiscvTests
+# )

@@ -5,6 +5,7 @@ add_subdirectory(Assembler)
 add_subdirectory(Simulator)
 add_subdirectory(RIPSimulator)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/unittests)
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS *.cpp)
 foreach(TEST_SRC ${TEST_SOURCES})
     

@@ -1,4 +1,5 @@
 #include "Instructions.h"
+#include <limits>
 
 std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
                                             Memory &Mem, CSRs &States,
@@ -27,8 +28,9 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     PC += 4;
   } else if (Mnemo == "jalr") {
     // FIXME: should addresss calculation be wrapped?
-    GPRegs.write(Rd.to_ulong(), PC + 4);
+    Address CurPC = PC;
     PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
+    GPRegs.write(Rd.to_ulong(), CurPC + 4);
   } else if (Mnemo == "lb") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
@@ -37,8 +39,6 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
   } else if (Mnemo == "lh") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
-    std::cerr << std::dec << "lh: V= " << V << "\n";
-    std::cerr << "lh: V= " << (signed short)V << "\n";
     GPRegs.write(Rd.to_ulong(), (signed short)V);
     PC += 4;
   } else if (Mnemo == "lw") {
@@ -147,9 +147,11 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
       // set MPREV=0
       // MPREV: Modify privilege bit. 17-th bit of MSTATUS
       States.write(MSTATUS, MSTATUS & 0xfffdffff);
-      Mode = ModeKind::User;
+      // FIXME: riscv-tests expects UserMode?
+      // Mode = ModeKind::User;
     } else if (MPP == ModeKind::Supervisor) {
       // set MPREV=0
+      std::cerr << "Supervisor!\n";
       States.write(MSTATUS, MSTATUS & 0xfffdffff);
       Mode = ModeKind::Supervisor;
     } else if (MPP == ModeKind::Machine) {
@@ -220,38 +222,69 @@ std::optional<Exception> RInstruction::exec(Address &PC, GPRegisters &GPRegs,
                  GPRegs[Rs1.to_ulong()] & GPRegs[Rs2.to_ulong()]);
     PC += 4;
   } else if (Mnemo == "mul") {
-    GPRegs.write(Rd.to_ulong(),
-                 ((signed long long)GPRegs[Rs1.to_ulong()] * (signed long long)GPRegs[Rs2.to_ulong()]) & 0xffff);
+    GPRegs.write(Rd.to_ulong(), ((signed long long)GPRegs[Rs1.to_ulong()] *
+                                 (signed long long)GPRegs[Rs2.to_ulong()]) &
+                                    0xffffffff);
     PC += 4;
   } else if (Mnemo == "mulh") {
-    GPRegs.write(Rd.to_ulong(),
-                 ((signed long long)GPRegs[Rs1.to_ulong()] * (signed long long)GPRegs[Rs2.to_ulong()]) >> 32);
+    GPRegs.write(Rd.to_ulong(), ((signed long long)GPRegs[Rs1.to_ulong()] *
+                                 (signed long long)GPRegs[Rs2.to_ulong()]) >>
+                                    32);
     PC += 4;
   } else if (Mnemo == "mulhsu") {
     GPRegs.write(Rd.to_ulong(),
-                 ((signed long long)GPRegs[Rs1.to_ulong()] * (unsigned long long)(unsigned int)GPRegs[Rs2.to_ulong()]) >> 32);
+                 ((signed long long)GPRegs[Rs1.to_ulong()] *
+                  (unsigned long long)(unsigned int)GPRegs[Rs2.to_ulong()]) >>
+                     32);
     PC += 4;
   } else if (Mnemo == "mulhu") {
     GPRegs.write(Rd.to_ulong(),
-                 ((unsigned long long)(unsigned int)GPRegs[Rs1.to_ulong()] * (unsigned long long)(unsigned int)GPRegs[Rs2.to_ulong()]) >> 32);
+                 ((unsigned long long)(unsigned int)GPRegs[Rs1.to_ulong()] *
+                  (unsigned long long)(unsigned int)GPRegs[Rs2.to_ulong()]) >>
+                     32);
     PC += 4;
   } else if (Mnemo == "div") {
-    GPRegs.write(Rd.to_ulong(),
-                 GPRegs[Rs1.to_ulong()] / GPRegs[Rs2.to_ulong()]);
+    // FIXME: set DV zero register?
+    RegVal Divisor = GPRegs[Rs2.to_ulong()], Dividend = GPRegs[Rs1.to_ulong()];
+    if (Divisor == 0) {
+      GPRegs.write(Rd.to_ulong(), -1);
+    } else if (Dividend == std::numeric_limits<std::int32_t>::min() &&
+               Divisor == -1) {
+      GPRegs.write(Rd.to_ulong(), std::numeric_limits<std::int32_t>::min());
+    } else {
+      GPRegs.write(Rd.to_ulong(), Dividend / Divisor);
+    }
     PC += 4;
   } else if (Mnemo == "divu") {
-    GPRegs.write(Rd.to_ulong(),
-                 (unsigned int)GPRegs[Rs1.to_ulong()] / (unsigned int)GPRegs[Rs2.to_ulong()]);
+    RegVal Divisor = GPRegs[Rs2.to_ulong()], Dividend = GPRegs[Rs1.to_ulong()];
+    if (Divisor == 0) {
+      GPRegs.write(Rd.to_ulong(), std::numeric_limits<std::uint32_t>::max());
+    } else {
+      GPRegs.write(Rd.to_ulong(),
+                   (unsigned int)Dividend / (unsigned int)Divisor);
+    }
     PC += 4;
   } else if (Mnemo == "rem") {
-    GPRegs.write(Rd.to_ulong(),
-                 GPRegs[Rs1.to_ulong()] % GPRegs[Rs2.to_ulong()]);
+    RegVal Divisor = GPRegs[Rs2.to_ulong()], Dividend = GPRegs[Rs1.to_ulong()];
+    if (Divisor == 0) {
+      GPRegs.write(Rd.to_ulong(), Dividend);
+    } else if (Dividend == std::numeric_limits<std::int32_t>::min() &&
+               Divisor == -1) {
+      GPRegs.write(Rd.to_ulong(), 0);
+    } else {
+      GPRegs.write(Rd.to_ulong(),
+                   GPRegs[Rs1.to_ulong()] % GPRegs[Rs2.to_ulong()]);
+    }
     PC += 4;
   } else if (Mnemo == "remu") {
-    GPRegs.write(Rd.to_ulong(),
-                 (unsigned int)GPRegs[Rs1.to_ulong()] % (unsigned int)GPRegs[Rs2.to_ulong()]);
+    RegVal Divisor = GPRegs[Rs2.to_ulong()], Dividend = GPRegs[Rs1.to_ulong()];
+    if (Divisor == 0) {
+      GPRegs.write(Rd.to_ulong(), Dividend);
+    } else {
+      GPRegs.write(Rd.to_ulong(), (unsigned int)GPRegs[Rs1.to_ulong()] %
+                                      (unsigned int)GPRegs[Rs2.to_ulong()]);
+    }
     PC += 4;
-    
   } else
     assert(false && "unimplemented! or not exist");
   return std::nullopt;
@@ -264,7 +297,7 @@ std::optional<Exception> UInstruction::exec(Address &PC, GPRegisters &GPRegs,
   int ImmI = signExtend(Imm);
 
   if (Mnemo == "lui") {
-    GPRegs.write(Rd.to_ulong(), ImmI);
+    GPRegs.write(Rd.to_ulong(), ImmI << 12);
     PC += 4;
   } else if (Mnemo == "auipc") {
     GPRegs.write(Rd.to_ulong(), PC + (ImmI & 0xfffff000));

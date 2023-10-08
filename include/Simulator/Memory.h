@@ -6,9 +6,11 @@
 // to avoid sanitizer overhead hell.
 #ifdef DEBUG
 // 1 MiB
-// const std::uint64_t DRAM_SIZE = 1 << 20;
+const std::uint64_t DRAM_SIZE = 1LL << 20;
 // 1 KiB
-const std::uint64_t DRAM_SIZE = 1 << 10;
+// const std::uint64_t DRAM_SIZE = 1 << 10;
+// 4GB memory
+// const std::uint64_t DRAM_SIZE = 1LL << 32;
 #else
 // 1 GiB
 const std::uint64_t DRAM_SIZE = 1 << 30;
@@ -16,6 +18,8 @@ const std::uint64_t DRAM_SIZE = 1 << 30;
 
 using Address = std::uint64_t;
 const Address DRAM_BASE = 0x8000;
+// For Dhrystone
+// const Address DRAM_BASE = 0x0000;
 
 using Byte = std::uint8_t;
 using HalfWord = std::uint16_t;
