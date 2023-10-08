@@ -3,23 +3,27 @@
 #include <iostream>
 
 void Memory::writeByte(Address Ad, Byte Val){
+  // FIXME: raise access fault for address like x < DRAM_BASE ?
   Address DRAM_Ad = Ad - DRAM_BASE;
   DRAM[DRAM_Ad] = Val & 0xff;
 }
 
 Byte Memory::readByte(Address Ad){
+  // FIXME: raise access fault for address like x < DRAM_BASE ?
   Address DRAM_Ad = Ad - DRAM_BASE;
   Byte Val = DRAM[DRAM_Ad];
   return Val;
 }
 
 void Memory::writeHalfWord(Address Ad, HalfWord Val){
+  // FIXME: raise access fault for address like x < DRAM_BASE ?
   Address DRAM_Ad = Ad - DRAM_BASE;
   DRAM[DRAM_Ad] = Val & 0xff;
   DRAM[DRAM_Ad + 1] = (Val >> 8) & 0xff;
 }
 
 HalfWord Memory::readHalfWord(Address Ad){
+  // FIXME: raise access fault for address like x < DRAM_BASE ?
   Address DRAM_Ad = Ad - DRAM_BASE;
   HalfWord Val = DRAM[DRAM_Ad] + (DRAM[DRAM_Ad + 1] << 8);
   return Val;

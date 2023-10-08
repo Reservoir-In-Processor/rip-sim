@@ -20,7 +20,6 @@ private:
   CSRs States;
   ModeKind Mode;
   GPRegisters GPRegs;
-  std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
 
 public:
   Simulator(const Simulator &) = delete;
