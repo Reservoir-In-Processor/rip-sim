@@ -402,7 +402,6 @@ TEST(SimulatorTest, JALR) {
       0x67, 0x02, 0xc2, 0x02, // jalr x4, x4, 44
   };
 
-
   const GPRegisters EXPECTED = {{4, DRAM_BASE + 8}};
   const Address EXPECTED_PC = DRAM_BASE + 44;
   std::stringstream ss;
@@ -646,7 +645,7 @@ TEST(SimulatorTest, ZERO2) {
 
 TEST(SimulatorTest, MUL) {
   const unsigned char BYTES[] = {
-      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1 
+      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
       0xb3, 0x82, 0x41, 0x02, // mul x5, x3, x4
   };
@@ -666,7 +665,7 @@ TEST(SimulatorTest, MUL) {
 
 TEST(SimulatorTest, MULH) {
   const unsigned char BYTES[] = {
-      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1 
+      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0x10, 0x00, // addi x4, x0, 1
       0xb3, 0x92, 0x41, 0x02, // mulh x5, x3, x4
   };
@@ -686,11 +685,11 @@ TEST(SimulatorTest, MULH) {
 
 TEST(SimulatorTest, MULHSU) {
   const unsigned char BYTES[] = {
-      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1 
+      0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
       0xb3, 0xa2, 0x41, 0x02, // mulhsu x5, x3, x4
   };
-//  -1 * (2**32 - 1) = 0b11111111 11111111 00000000 00000001
+  //  -1 * (2**32 - 1) = 0b11111111 11111111 00000000 00000001
 
   const GPRegisters EXPECTED = {{3, -1}, {4, -1}, {5, -1}};
   std::stringstream ss;
@@ -711,11 +710,11 @@ TEST(SimulatorTest, MULHU) {
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
       0xb3, 0xb2, 0x41, 0x02, // mulhu x5, x3, x4
   };
-    // unsigned(-1) = 4294967295
-    // unsigned(-1) = 4294967295
-    // 4294967295 * 4294967295 = 18446744065119617025
-    // bin(18446744065119617025) >> 32 = 4294967294
-    // bin(4294967294) = 0b 1111.... 1110 = unsigned(-2)
+  // unsigned(-1) = 4294967295
+  // unsigned(-1) = 4294967295
+  // 4294967295 * 4294967295 = 18446744065119617025
+  // bin(18446744065119617025) >> 32 = 4294967294
+  // bin(4294967294) = 0b 1111.... 1110 = unsigned(-2)
 
   const GPRegisters EXPECTED = {{3, -1}, {4, -1}, {5, -2}};
   std::stringstream ss;
@@ -733,11 +732,11 @@ TEST(SimulatorTest, MULHU) {
 TEST(SimulatorTest, DIV) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
-      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2 
+      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2
       0xb3, 0xc2, 0x41, 0x02, // div x5, x3, x4
   };
 
-//   9 = -2 * -4 + 1
+  //   9 = -2 * -4 + 1
 
   const GPRegisters EXPECTED = {{3, 9}, {4, -2}, {5, -4}};
   std::stringstream ss;
@@ -755,14 +754,11 @@ TEST(SimulatorTest, DIV) {
 TEST(SimulatorTest, DIVU) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
-      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2 
+      0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2
       0xb3, 0xd2, 0x41, 0x02, // divu x5, x3, x4
-    //   0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
-    //   0x13, 0x02, 0x30, 0x00, // addi x4, x0, 3
-    //   0xb3, 0xc2, 0x41, 0x02, // div x5, x3, x4
   };
 
-// 9 = (2**(32) - 2) * 0 + 9
+  // 9 = (2**(32) - 2) * 0 + 9
 
   const GPRegisters EXPECTED = {{3, 9}, {4, -2}, {5, 0}};
   std::stringstream ss;
@@ -784,7 +780,7 @@ TEST(SimulatorTest, REM) {
       0xb3, 0xe2, 0x41, 0x02, // rem x5, x3, x4
   };
 
-//   9 = (-4) * (-2) + 1
+  //   9 = (-4) * (-2) + 1
 
   const GPRegisters EXPECTED = {{3, 9}, {4, -4}, {5, 1}};
   std::stringstream ss;
@@ -806,7 +802,7 @@ TEST(SimulatorTest, REMU) {
       0xb3, 0xf2, 0x41, 0x02, // remu x5, x3, x4
   };
 
-//   9 = (2**(32)-4) * 0 + 9
+  //   9 = (2**(32)-4) * 0 + 9
 
   const GPRegisters EXPECTED = {{3, 9}, {4, -4}, {5, 9}};
   std::stringstream ss;
@@ -830,7 +826,7 @@ TEST(SimulatorTest, LUI) {
   // rd ={upimm, 12'b0}
   // x16 = 2 * 2^(12) = 8192
 
-  const GPRegisters EXPECTED = {{1, 0x7ffff000},{7, 0x80000000},{16, 8192}};
+  const GPRegisters EXPECTED = {{1, 0x7ffff000}, {7, 0x80000000}, {16, 8192}};
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -852,7 +848,7 @@ TEST(SimulatorTest, FENCE_AS_NOP) {
 
   };
 
-  const GPRegisters EXPECTED = {{16, 5},{17, 3}};
+  const GPRegisters EXPECTED = {{16, 5}, {17, 3}};
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 

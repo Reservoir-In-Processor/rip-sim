@@ -13,8 +13,8 @@ void Simulator::execRISCVTESTS() {
     if (PC == 0x804c)
       break;
 #ifdef DEBUG
-      std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
-      I->pprint(std::cerr);
+    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
+    I->pprint(std::cerr);
 #endif
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
