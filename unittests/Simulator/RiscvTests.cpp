@@ -51,8 +51,8 @@ void Simulator::execRISCVTESTS() {
       }
     }
 #ifdef DEBUG
-    // std::cerr << "Regs after:\n";
-    // dumpGPRegs();
+    std::cerr << "Regs after:\n";
+    dumpGPRegs();
 #endif
   }
 #ifdef DEBUG
@@ -75,22 +75,6 @@ std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
   return binFiles;
 }
 
-// TEST(SimulatorTest, RV32I) {
-//   std::filesystem::path binPath = std::filesystem::absolute("./");
-//   std::cerr << "Binary path: " << binPath << std::endl;
-//   std::vector<std::string> BinFiles =
-//       getBinFilesWithPrefix("../rip-tests", "rv32ui-p-");
-
-//   for (const auto &FileName : BinFiles) {
-//     auto Files = std::ifstream(FileName);
-//     Simulator Sim(Files);
-//     Sim.execRISCVTESTS();
-//     Sim.dumpGPRegs();
-//     const GPRegisters &Res = Sim.getGPRegs();
-//     EXPECT_EQ(Res[3], 1) << FileName << "failed\n";
-//   }
-// }
-
 TEST_P(RiscvTests, RiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
@@ -106,18 +90,3 @@ INSTANTIATE_TEST_SUITE_P(
 INSTANTIATE_TEST_SUITE_P(
     RV32M, RiscvTests,
     ::testing::ValuesIn(getBinFilesWithPrefix("../rip-tests", "rv32um-p-")));
-// TEST(SimulatorTest, RV32M) {
-//   std::vector<std::string> BinFiles =
-//       getBinFilesWithPrefix("../rip-tests", "rv32um-p-");
-
-//   for (const auto &FileName : BinFiles) {
-//     auto Files = std::ifstream(FileName);
-//     if (!Files.is_open()) {
-//     }
-//     Simulator Sim(Files);
-//     Sim.execRISCVTESTS();
-//     Sim.dumpGPRegs();
-//     const GPRegisters &Res = Sim.getGPRegs();
-//     EXPECT_EQ(Res[3], 1);
-//   }
-// }
