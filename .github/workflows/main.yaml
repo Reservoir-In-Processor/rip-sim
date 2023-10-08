@@ -64,6 +64,23 @@ jobs:
       run: |
         ninja -Cbuild asmtest
 
+  riscv-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm cmake ninja-build
+
+    - name: Build and Run riscv-tests
+      run: |
+        cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+        ninja -Cbuild riscvtests
+
   dump-fib:
     runs-on: ubuntu-latest
 
