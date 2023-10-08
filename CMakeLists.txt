@@ -81,16 +81,20 @@ add_custom_target(unittests
   COMMAND ${CMAKE_COMMAND} -E env GTEST_FILTER="-RV32M/RiscvTests.*:-RV32I/RiscvTests.*" ctest --test-dir ./unittests/ --output-on-failure --timeout 30
   DEPENDS ${ALL_TESTS}
 )
+
+file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
+
+add_subdirectory(riscvtests)
 # FIXME: do riscvtests
 add_custom_target(riscvtests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure
-  DEPENDS ${ALL_TESTS}
+  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure
+  DEPENDS RiscvTests
 )
 
 # FIXME: do dhry
-add_custom_target(dhry
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure
-  DEPENDS ${ALL_TESTS}
+add_custom_target(dhrystone
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure
+  DEPENDS Dhrystone
 )
 
 add_custom_target(asmtest
