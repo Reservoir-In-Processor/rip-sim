@@ -32,6 +32,7 @@ public:
 
   void execFromDRAMBASE();
   void execRISCVTESTS();
+  // void execDhrystone();
 
   inline const void dumpGPRegs() const { GPRegs.dump(); }
   inline const Address &getPC() const { return PC; }

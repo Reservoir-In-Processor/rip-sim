@@ -33,6 +33,11 @@ void Simulator::execFromDRAMBASE() {
       Address ExceptionPC = PC;
       ModeKind PrevMode = Mode;
       unsigned Cause = *E;
+      // FIXME: tmporary exit with break
+      if (E == Exception::Breakpoint) {
+        std::cerr << "breaked\n";
+        break;
+      }
       if (Mode == ModeKind::Machine) {
         PC = States.read(MTVEC) & (~1);
 
@@ -67,6 +72,10 @@ void Simulator::execFromDRAMBASE() {
     dumpGPRegs();
 #endif
   }
+#ifdef DEBUG
+  std::cerr << "finish with:\n";
+  dumpGPRegs();
+#endif
   std::cerr << "stop on no instraction address="
             << "0x" << std::hex << PC << "\n";
 }

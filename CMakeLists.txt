@@ -29,6 +29,7 @@ if (ENABLE_WERROR)
   set(CMAKE_CXX_FLAGS "-Werror ${CMAKE_CXX_FLAGS}")
 endif()
 if (SANITIZE)
+  message(STATUS "sanitizer build")
   set(CMAKE_CXX_FLAGS "-fsanitize=undefined ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
   if (NOT APPLE) # apple clang doesn't have leak sanitizer
@@ -75,11 +76,22 @@ enable_testing()
 set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
 
+# FIXME: work filter
 add_custom_target(unittests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ${CMAKE_COMMAND} -E env GTEST_FILTER="-RV32M/RiscvTests.*:-RV32I/RiscvTests.*" ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  DEPENDS ${ALL_TESTS}
+)
+# FIXME: do riscvtests
+add_custom_target(riscvtests
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure
   DEPENDS ${ALL_TESTS}
 )
 
+# FIXME: do dhry
+add_custom_target(dhry
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure
+  DEPENDS ${ALL_TESTS}
+)
 
 add_custom_target(asmtest
   COMMAND make -C ../tests/asm test
