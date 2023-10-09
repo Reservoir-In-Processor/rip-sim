@@ -84,20 +84,15 @@ void RIPSimulator::exec(PipelineStates &) {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "slti") {
     Res = (signed)PS.getDERs1Val() < PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "sltiu") {
     Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "xori") {
     Res = (unsigned)PS.getDERs1Val() ^ PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "ori") {
     // FIXME: sext?
     Res = (unsigned)PS.getDERs1Val() | PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "andi") {
     Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
-    PC += 4;
     // } else if (Mnemo == "jalr") {
     //   // FIXME: should addresss calculation be wrapped?
     //   Address CurPC = PC;
@@ -130,19 +125,14 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "slli") { // FIXME: shamt
     // FIXME: sext?
     Res = (unsigned)PS.getDERs1Val() << PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "srli") {
     Res = (unsigned)PS.getDERs1Val() >> PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "srai") {
     Res = (signed)PS.getDERs1Val() >> PS.getDEImmVal();
-    PC += 4;
   } else if (Mnemo == "fence") {
     // FIXME: currently expected to be nop
-    PC += 4;
   } else if (Mnemo == "fence.i") {
     // FIXME: currently expected to be nop
-    PC += 4;
     // } else if (Mnemo == "csrrw") {
     //   CSRAddress CA = Imm.to_ulong() & 0xfff;
     //   CSRVal CV = States.read(CA);
@@ -199,54 +189,40 @@ void RIPSimulator::exec(PipelineStates &) {
     // R-type
   } else if (Mnemo == "add") {
     Res = PS.getDERs1Val() + PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "sub") {
     Res = PS.getDERs1Val() - PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "sll") {
     Res = PS.getDERs1Val() << (PS.getDERs2Val() & 0b11111);
-    PC += 4;
   } else if (Mnemo == "slt") {
     Res = PS.getDERs1Val() < PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "sltu") {
     Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "xor") {
     Res = PS.getDERs1Val() ^ PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "srl") {
     Res = (unsigned)PS.getDERs1Val() >> (PS.getDERs2Val() & 0b11111);
-    PC += 4;
   } else if (Mnemo == "sra") {
     Res = (signed)PS.getDERs1Val() >> (signed)(PS.getDERs2Val() & 0b11111);
-    PC += 4;
   } else if (Mnemo == "or") {
     Res = PS.getDERs1Val() | PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "and") {
     Res = PS.getDERs1Val() & PS.getDERs2Val();
-    PC += 4;
   } else if (Mnemo == "mul") {
     Res = ((signed long long)PS.getDERs1Val() *
            (signed long long)PS.getDERs2Val()) &
           0xffffffff;
-    PC += 4;
   } else if (Mnemo == "mulh") {
     Res = ((signed long long)PS.getDERs1Val() *
            (signed long long)PS.getDERs2Val()) >>
           32;
-    PC += 4;
   } else if (Mnemo == "mulhsu") {
     Res = ((signed long long)PS.getDERs1Val() *
            (unsigned long long)(unsigned int)PS.getDERs2Val()) >>
           32;
-    PC += 4;
   } else if (Mnemo == "mulhu") {
     Res = ((unsigned long long)(unsigned int)PS.getDERs1Val() *
            (unsigned long long)(unsigned int)PS.getDERs2Val()) >>
           32;
-    PC += 4;
   } else if (Mnemo == "div") {
     // FIXME: set DV zero register?
     RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
@@ -258,7 +234,6 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
       Res = Dividend / Divisor;
     }
-    PC += 4;
   } else if (Mnemo == "divu") {
     RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
     if (Divisor == 0) {
@@ -266,7 +241,6 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
       Res = (unsigned int)Dividend / (unsigned int)Divisor;
     }
-    PC += 4;
   } else if (Mnemo == "rem") {
     RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
     if (Divisor == 0) {
@@ -315,22 +289,20 @@ void RIPSimulator::exec(PipelineStates &) {
       // pass
     }
   } else if (Mnemo == "bge") {
-    if (PS.getDERs1Val() >= PS.getDERs1Val()) {
+    if (PS.getDERs1Val() >= PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
     } else {
-      PC += 4;
     }
   } else if (Mnemo == "bltu") {
-    if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs1Val()) {
+    if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
 
     } else {
-      PC += 4;
     }
   } else if (Mnemo == "bgeu") {
-    if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs1Val()) {
+    if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
     } else {
