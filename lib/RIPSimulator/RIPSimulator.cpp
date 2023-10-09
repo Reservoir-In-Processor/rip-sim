@@ -246,6 +246,44 @@ void RIPSimulator::exec(PipelineStates &) {
            (unsigned long long)(unsigned int)PS.getDERs2Val()) >>
           32;
     PC += 4;
+  } else if (Mnemo == "div") {
+    // FIXME: set DV zero register?
+    RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
+    if (Divisor == 0) {
+      Res = -1;
+    } else if (Dividend == std::numeric_limits<std::int32_t>::min() &&
+               Divisor == -1) {
+      Res = std::numeric_limits<std::int32_t>::min();
+    } else {
+      Res = Dividend / Divisor;
+    }
+    PC += 4;
+  } else if (Mnemo == "divu") {
+    RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
+    if (Divisor == 0) {
+      Res = std::numeric_limits<std::uint32_t>::max();
+    } else {
+      Res = (unsigned int)Dividend / (unsigned int)Divisor;
+    }
+    PC += 4;
+  } else if (Mnemo == "rem") {
+    RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
+    if (Divisor == 0) {
+      Res = Dividend;
+    } else if (Dividend == std::numeric_limits<std::int32_t>::min() &&
+               Divisor == -1) {
+      Res = 0;
+    } else {
+      Res = PS.getDERs1Val() % PS.getDERs2Val();
+    }
+    PC += 4;
+  } else if (Mnemo == "remu") {
+    RegVal Divisor = PS.getDERs2Val(), Dividend = PS.getDERs1Val();
+    if (Divisor == 0) {
+      Res = Dividend;
+    } else {
+      Res = (unsigned int)PS.getDERs1Val() % (unsigned int)PS.getDERs2Val();
+    }
   } else {
     assert(false && "unimplemented!");
   }
