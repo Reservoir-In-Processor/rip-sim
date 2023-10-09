@@ -285,10 +285,56 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
       Res = (unsigned int)PS.getDERs1Val() % (unsigned int)PS.getDERs2Val();
     }
+
+    // J-type
   } else if (Mnemo == "jal") {
     Res = PS.getPCs(EX) + 4;
     Address nextPC = PS.getPCs(EX) + signExtend(PS.getDEImmVal(), 20);
     PS.setBranchPC(nextPC);
+
+    // B-type
+  } else if (Mnemo == "beq") {
+    if (PS.getDERs1Val() == PS.getDERs2Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+    } else {
+      // pass
+    }
+  } else if (Mnemo == "bne") {
+    if (PS.getDERs1Val() != PS.getDERs2Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+    } else {
+      // pass
+    }
+  } else if (Mnemo == "blt") {
+    if (PS.getDERs1Val() < PS.getDERs2Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+    } else {
+      // pass
+    }
+  } else if (Mnemo == "bge") {
+    if (PS.getDERs1Val() >= PS.getDERs1Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+    } else {
+      PC += 4;
+    }
+  } else if (Mnemo == "bltu") {
+    if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs1Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+
+    } else {
+      PC += 4;
+    }
+  } else if (Mnemo == "bgeu") {
+    if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs1Val()) {
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+    } else {
+    }
   } else {
     assert(false && "unimplemented!");
   }
@@ -350,16 +396,22 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     unsigned Offset =
         (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) & 0x1f);
     PS.setDEImmVal(signExtend(Offset, 12));
+
   } else if (RTypeKinds.find(Inst->getMnemo()) != RTypeKinds.end()) {
     // FIXME: pass
-  } else if (JTypeKinds.find(Inst->getMnemo()) != JTypeKinds.end()) {
-    // FIXME: pass
-    RegVal Imm = ((Inst->getVal() & 0x80000000) >> 11) |
-                 (Inst->getVal() & 0xff000) | ((Inst->getVal() >> 9) & 0x800) |
-                 ((Inst->getVal() >> 20) & 0x7fe);
 
+  } else if (JTypeKinds.find(Inst->getMnemo()) != JTypeKinds.end()) {
+    unsigned Imm =
+        ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
+        ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
     PS.setDEImmVal(Imm);
 
+  } else if (BTypeKinds.find(Inst->getMnemo()) != BTypeKinds.end()) {
+    unsigned Imm =
+        (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
+        ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
+
+    PS.setDEImmVal(Imm);
   } else {
     assert(false && "unimplemented!");
   }

@@ -47,7 +47,6 @@ private:
 
   bool AreStall[STAGENUM];
   bool AreInvalid[STAGENUM];
-  // int PipelinePCs[STAGENUM];
 
 public:
   PipelineStates(const PipelineStates &) = delete;
