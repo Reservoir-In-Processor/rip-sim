@@ -1,50 +1,50 @@
 #include "RIPSimulator/RIPSimulator.h"
-#include <set>
 #include <cmath>
+#include <set>
 
 namespace {
-  // BitWidth < 32
- int signExtend(const unsigned Imm, unsigned BitWidth) {
+// BitWidth < 32
+int signExtend(const unsigned Imm, unsigned BitWidth) {
   if ((Imm >> (BitWidth - 1)) & 1) {
-    return (~0 ^ ((int)(pow(2, BitWidth) - 1)) ) | (signed)Imm;
-  }else {
+    return (~0 ^ ((int)(pow(2, BitWidth) - 1))) | (signed)Imm;
+  } else {
     return Imm;
   }
 }
 
 } // namespace
 
-void PipelineStates::dump(){
-    // TODO: dump stall,
-    for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
-      std::cerr << StageNames[(STAGES)Stage] << ": ";
-      if (Insts[Stage] != nullptr) {
-        Insts[Stage]->mprint(std::cerr);
-        std::cerr << ", ";
-      } else
-        std::cerr << "Bubble, ";
+void PipelineStates::dump() {
+  // TODO: dump stall,
+  for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
+    std::cerr << StageNames[(STAGES)Stage] << ": ";
+    if (Insts[Stage] != nullptr) {
+      Insts[Stage]->mprint(std::cerr);
+      std::cerr << ", ";
+    } else
+      std::cerr << "Bubble, ";
 
-      // TODO: dump stage specific info.
-      switch (Stage) {
-      case STAGES::DE:
-        std::cerr << "DERs1Val=" << DERs1Val << ", ";
-        std::cerr << "DERs2Val=" << DERs2Val << ", ";
-        std::cerr << "DEImmVal=" << DEImmVal << "\n";
-        break;
-      case STAGES::EX:
-        std::cerr << "EXRdVal=" << EXRdVal << "\n";
-        break;
-      case STAGES::MA:
-        std::cerr << "MARdVal=" << MARdVal << "\n";
-        break;
-      default:
-        std::cerr << "\n";
-        break;
-      }
+    // TODO: dump stage specific info.
+    switch (Stage) {
+    case STAGES::DE:
+      std::cerr << "DERs1Val=" << DERs1Val << ", ";
+      std::cerr << "DERs2Val=" << DERs2Val << ", ";
+      std::cerr << "DEImmVal=" << DEImmVal << "\n";
+      break;
+    case STAGES::EX:
+      std::cerr << "EXRdVal=" << EXRdVal << "\n";
+      break;
+    case STAGES::MA:
+      std::cerr << "MARdVal=" << MARdVal << "\n";
+      break;
+    default:
+      std::cerr << "\n";
+      break;
     }
   }
+}
 
-RIPSimulator::RIPSimulator(std::istream &is) :  PC(DRAM_BASE), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -78,11 +78,175 @@ void RIPSimulator::exec(PipelineStates &) {
   // TODO: calc
   RegVal Res = 0;
   std::string Mnemo = Inst->getMnemo();
-  if (Mnemo == "add") {
-    Res = PS.getDERs1Val() + PS.getDERs2Val();
-  } else if (Mnemo == "addi") {
+  // I-type
+  if (Mnemo == "addi") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
-  }else {
+  } else if (Mnemo == "slti") {
+    Res = (signed)PS.getDERs1Val() < PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "sltiu") {
+    Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "xori") {
+    Res = (unsigned)PS.getDERs1Val() ^ PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "ori") {
+    // FIXME: sext?
+    Res = (unsigned)PS.getDERs1Val() | PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "andi") {
+    Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
+    PC += 4;
+    // } else if (Mnemo == "jalr") {
+    //   // FIXME: should addresss calculation be wrapped?
+    //   Address CurPC = PC;
+    //   PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
+    //   GPRegs.write(Rd.to_ulong(), CurPC + 4);
+    // } else if (Mnemo == "lb") {
+    //   // FIXME: unsigned to signed safe cast (not implementation defined way)
+    //   Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    //   GPRegs.write(Rd.to_ulong(), (signed char)V);
+    //   PC += 4;
+    // } else if (Mnemo == "lh") {
+    //   // FIXME: unsigned to signed safe cast (not implementation defined way)
+    //   HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    //   GPRegs.write(Rd.to_ulong(), (signed short)V);
+    //   PC += 4;
+    // } else if (Mnemo == "lw") {
+    //   // FIXME: unsigned to signed safe cast (not implementation defined way)
+    //   Word V = Mem.readWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    //   GPRegs.write(Rd.to_ulong(), (signed)V);
+    //   PC += 4;
+    // } else if (Mnemo == "lbu") {
+    //   // FIXME: unsigned to signed safe cast (not implementation defined way)
+    //   Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
+    //   GPRegs.write(Rd.to_ulong(), (unsigned char)V);
+    //   PC += 4;
+    // } else if (Mnemo == "lhu") {
+    //   HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
+    //   GPRegs.write(Rd.to_ulong(), (unsigned short)V);
+    //   PC += 4;
+  } else if (Mnemo == "slli") { // FIXME: shamt
+    // FIXME: sext?
+    Res = (unsigned)PS.getDERs1Val() << PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "srli") {
+    Res = (unsigned)PS.getDERs1Val() >> PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "srai") {
+    Res = (signed)PS.getDERs1Val() >> PS.getDEImmVal();
+    PC += 4;
+  } else if (Mnemo == "fence") {
+    // FIXME: currently expected to be nop
+    PC += 4;
+  } else if (Mnemo == "fence.i") {
+    // FIXME: currently expected to be nop
+    PC += 4;
+    // } else if (Mnemo == "csrrw") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   States.write(CA, GPRegs[Rs1.to_ulong()]);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "csrrs") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   States.write(CA, GPRegs[Rs1.to_ulong()] | CV);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "csrrc") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   States.write(CA, GPRegs[Rs1.to_ulong()] & !CV);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "csrrwi") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   CSRVal ZImm = Rs1.to_ulong();
+    //   States.write(CA, ZImm);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "csrrsi") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   CSRVal ZImm = Rs1.to_ulong();
+    //   States.write(CA, CV | ZImm);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "csrrci") {
+    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
+    //   CSRVal CV = States.read(CA);
+    //   CSRVal ZImm = Rs1.to_ulong();
+    //   States.write(CA, CV & !ZImm);
+    //   GPRegs.write(Rd.to_ulong(), CV);
+    //   PC += 4;
+    // } else if (Mnemo == "ecall") {
+    //   if (Mode == ModeKind::User) {
+    //     return Exception::EnvironmentCallFromUMode;
+    //   } else if (Mode == ModeKind::Supervisor) {
+    //     return Exception::EnvironmentCallFromSMode;
+    //   } else if (Mode == ModeKind::Machine) {
+    //     return Exception::EnvironmentCallFromMMode;
+    //   } else {
+    //     // FIXME: is this illegal inst?
+    //     return Exception::IllegalInstruction;
+    //   }
+    // } else if (Mnemo == "ebreak") {
+    //   return Exception::Breakpoint;
+
+    // R-type
+  } else if (Mnemo == "add") {
+    Res = PS.getDERs1Val() + PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "sub") {
+    Res = PS.getDERs1Val() - PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "sll") {
+    Res = PS.getDERs1Val() << (PS.getDERs2Val() & 0b11111);
+    PC += 4;
+  } else if (Mnemo == "slt") {
+    Res = PS.getDERs1Val() < PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "sltu") {
+    Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "xor") {
+    Res = PS.getDERs1Val() ^ PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "srl") {
+    Res = (unsigned)PS.getDERs1Val() >> (PS.getDERs2Val() & 0b11111);
+    PC += 4;
+  } else if (Mnemo == "sra") {
+    Res = (signed)PS.getDERs1Val() >> (signed)(PS.getDERs2Val() & 0b11111);
+    PC += 4;
+  } else if (Mnemo == "or") {
+    Res = PS.getDERs1Val() | PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "and") {
+    Res = PS.getDERs1Val() & PS.getDERs2Val();
+    PC += 4;
+  } else if (Mnemo == "mul") {
+    Res = ((signed long long)PS.getDERs1Val() *
+           (signed long long)PS.getDERs2Val()) &
+          0xffffffff;
+    PC += 4;
+  } else if (Mnemo == "mulh") {
+    Res = ((signed long long)PS.getDERs1Val() *
+           (signed long long)PS.getDERs2Val()) >>
+          32;
+    PC += 4;
+  } else if (Mnemo == "mulhsu") {
+    Res = ((signed long long)PS.getDERs1Val() *
+           (unsigned long long)(unsigned int)PS.getDERs2Val()) >>
+          32;
+    PC += 4;
+  } else if (Mnemo == "mulhu") {
+    Res = ((unsigned long long)(unsigned int)PS.getDERs1Val() *
+           (unsigned long long)(unsigned int)PS.getDERs2Val()) >>
+          32;
+    PC += 4;
+  } else {
     assert(false && "unimplemented!");
   }
 
@@ -100,15 +264,15 @@ void RIPSimulator::exec(PipelineStates &) {
   PS.setEXRdVal(Res);
 }
 
-// register access shuold be done in this phase, exec shuoldn't access GPRegs
-// directly.
+// register access shuold be done in this phase, exec shuoldn't access
+// GPRegs directly.
 void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // FIXME: PS indexing seems not consistent(it's not only instructions)
   const auto &Inst = PS[STAGES::DE];
 
   // TODO:
-  // FIXME: this is incorrect, because U-type and J-type instr's Rs1 or Rs2 is a
-  // part of immediate. Check if the inst is one of those.
+  // FIXME: this is incorrect, because U-type and J-type instr's Rs1 or Rs2
+  // is a part of immediate. Check if the inst is one of those.
 
   // Register access on Rs1
   if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
@@ -135,10 +299,20 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   }
 
   // TODO: more variants
-  if (ITypeKinds.find(Inst->getMnemo()) != ITypeKinds.end())
+  if (ITypeKinds.find(Inst->getMnemo()) != ITypeKinds.end()) {
     PS.setDEImmVal(signExtend(Inst->getImm(), 12));
-  else 
+
+  } else if (STypeKinds.find(Inst->getMnemo()) != STypeKinds.end()) {
+    // FIXME: Need to be tested
+    //   unsigned Offset =
+    //       (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) &
+    //       0x1f);
+    //   PS.setDEImmVal(signExtend(Offset, 12));
+  } else if (RTypeKinds.find(Inst->getMnemo()) != RTypeKinds.end()) {
+    // FIXME: pass
+  } else {
     assert(false && "unimplemented!");
+  }
   // TODO: stall 1 cycle if the inst is load;
 }
 void RIPSimulator::fetch(Memory &, PipelineStates &) {
@@ -174,7 +348,7 @@ void RIPSimulator::runFromDRAMBASE() {
     if (PS.isEmpty()) {
       break;
     }
-    // TODO: 
+    // TODO:
     if (auto NextPC = PS.takeBranchPC()) {
       PC = *NextPC;
     }
