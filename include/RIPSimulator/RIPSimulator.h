@@ -43,9 +43,11 @@ private:
 
   // pipeline bubbles are nullptr
   std::unique_ptr<Instruction> Insts[STAGENUM];
+  Address PCs[STAGENUM];
 
   bool AreStall[STAGENUM];
   bool AreInvalid[STAGENUM];
+  // int PipelinePCs[STAGENUM];
 
 public:
   PipelineStates(const PipelineStates &) = delete;
@@ -70,6 +72,8 @@ public:
 
   const RegVal &getMARdVal() { return MARdVal; }
   void setMARdVal(const RegVal &V) { MARdVal = V; }
+
+  const Address &getPCs(STAGES stage) { return PCs[stage]; }
 
   const unsigned &getFetchedInst() { return FetchedInst; }
   void setFetchedInst(const unsigned &V) { FetchedInst = V; }
@@ -118,6 +122,13 @@ public:
         return false;
     }
     return true;
+  }
+
+  void pushPC(const Address PC) {
+    for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
+      PCs[Stage] = std::move(PCs[Stage - 1]);
+    }
+    PCs[STAGES::IF] = std::move(PC);
   }
 };
 

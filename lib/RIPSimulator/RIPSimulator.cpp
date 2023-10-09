@@ -19,6 +19,7 @@ void PipelineStates::dump() {
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     std::cerr << StageNames[(STAGES)Stage] << ": ";
     if (Insts[Stage] != nullptr) {
+      std::cerr << std::hex << "PC=" << PCs[Stage] << " ";
       Insts[Stage]->mprint(std::cerr);
       std::cerr << ", ";
     } else
@@ -284,6 +285,10 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
       Res = (unsigned int)PS.getDERs1Val() % (unsigned int)PS.getDERs2Val();
     }
+  } else if (Mnemo == "jal") {
+    Res = PS.getPCs(EX) + 4;
+    Address nextPC = PS.getPCs(EX) + signExtend(PS.getDEImmVal(), 20);
+    PS.setBranchPC(nextPC);
   } else {
     assert(false && "unimplemented!");
   }
@@ -342,12 +347,19 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
 
   } else if (STypeKinds.find(Inst->getMnemo()) != STypeKinds.end()) {
     // FIXME: Need to be tested
-    //   unsigned Offset =
-    //       (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) &
-    //       0x1f);
-    //   PS.setDEImmVal(signExtend(Offset, 12));
+    unsigned Offset =
+        (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) & 0x1f);
+    PS.setDEImmVal(signExtend(Offset, 12));
   } else if (RTypeKinds.find(Inst->getMnemo()) != RTypeKinds.end()) {
     // FIXME: pass
+  } else if (JTypeKinds.find(Inst->getMnemo()) != JTypeKinds.end()) {
+    // FIXME: pass
+    RegVal Imm = ((Inst->getVal() & 0x80000000) >> 11) |
+                 (Inst->getVal() & 0xff000) | ((Inst->getVal() >> 9) & 0x800) |
+                 ((Inst->getVal() >> 20) & 0x7fe);
+
+    PS.setDEImmVal(Imm);
+
   } else {
     assert(false && "unimplemented!");
   }
@@ -363,6 +375,7 @@ void RIPSimulator::runFromDRAMBASE() {
 
   while (true) {
     auto InstPtr = Dec.decode(Mem.readWord(PC));
+    PS.pushPC(PC);
     if (InstPtr) {
       PC += 4;
     }

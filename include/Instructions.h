@@ -328,14 +328,6 @@ public:
   void mprint(std::ostream &os) override {
     os << JT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
        << signExtend(Imm);
-    os << " :=";
-
-    unsigned V = getVal();
-    for (int i = 0; i < 32; ++i) {
-      if (i == 20 || i == 25)
-        os << ' ';
-      os << (V >> (31 - i) & 1);
-    }
   }
 
   void pprint(std::ostream &os) override {
