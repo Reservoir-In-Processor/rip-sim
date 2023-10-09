@@ -40,7 +40,7 @@ TEST(RIPSimulatorTest, ADDI_FORWARD) {
   }
 }
 
-TEST(SimulatorTest, SLTI) {
+TEST(RIPSimulatorTest, SLTI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0xd0, 0xff, // addi, x16, x0, -3
       0x93, 0x28, 0xe8, 0xff, // slti  x17, x16, -2
@@ -62,7 +62,7 @@ TEST(SimulatorTest, SLTI) {
   }
 }
 
-TEST(SimulatorTest, SLTIU) {
+TEST(RIPSimulatorTest, SLTIU) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi, x16, x0, 5
       0x93, 0x38, 0x68, 0x00, // sltiu, x17, x16, 6
@@ -84,7 +84,7 @@ TEST(SimulatorTest, SLTIU) {
   }
 }
 
-TEST(SimulatorTest, XORI) {
+TEST(RIPSimulatorTest, XORI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
       0x93, 0x48, 0x38, 0x00, // xori x17, x16, 3
@@ -106,7 +106,7 @@ TEST(SimulatorTest, XORI) {
   }
 }
 
-TEST(SimulatorTest, ORI) {
+TEST(RIPSimulatorTest, ORI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
       0x93, 0x68, 0x38, 0x00, // ori x17, x16, 3
@@ -128,7 +128,7 @@ TEST(SimulatorTest, ORI) {
   }
 }
 
-TEST(SimulatorTest, ANDI) {
+TEST(RIPSimulatorTest, ANDI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
       0x93, 0x78, 0x38, 0x00, // andi x17, x16, 3
@@ -150,7 +150,7 @@ TEST(SimulatorTest, ANDI) {
   }
 }
 
-TEST(SimulatorTest, SLLI) {
+TEST(RIPSimulatorTest, SLLI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
       0x93, 0x18, 0x38, 0x00, // slli x17, x16, 3
@@ -172,7 +172,7 @@ TEST(SimulatorTest, SLLI) {
   }
 }
 
-TEST(SimulatorTest, SRAI) {
+TEST(RIPSimulatorTest, SRAI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x80, 0xff, // addi x16, x0, -8
       0x93, 0x58, 0x28, 0x40, // srai x17, x16, 2
@@ -193,7 +193,7 @@ TEST(SimulatorTest, SRAI) {
   }
 }
 
-TEST(SimulatorTest, SRLI) {
+TEST(RIPSimulatorTest, SRLI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x80, 0xff, // addi x16, x0, -8
       0x93, 0x58, 0x28, 0x00, // srli x17, x16, 2
@@ -216,7 +216,7 @@ TEST(SimulatorTest, SRLI) {
   }
 }
 
-TEST(SimulatorTest, ADD) {
+TEST(RIPSimulatorTest, ADD) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
       0x13, 0x02, 0x60, 0x00, // addi x4, x0, 6
@@ -238,7 +238,7 @@ TEST(SimulatorTest, ADD) {
   }
 }
 
-TEST(SimulatorTest, SUB) {
+TEST(RIPSimulatorTest, SUB) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x50, 0x00, // addi x3, x0, 5
       0x13, 0x02, 0x60, 0x00, // addi x4, x0, 6
@@ -260,7 +260,7 @@ TEST(SimulatorTest, SUB) {
   }
 }
 
-TEST(SimulatorTest, OR) {
+TEST(RIPSimulatorTest, OR) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
       0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
@@ -282,7 +282,7 @@ TEST(SimulatorTest, OR) {
   }
 }
 
-TEST(SimulatorTest, AND) {
+TEST(RIPSimulatorTest, AND) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
       0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
@@ -304,7 +304,7 @@ TEST(SimulatorTest, AND) {
   }
 }
 
-TEST(SimulatorTest, XOR) {
+TEST(RIPSimulatorTest, XOR) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
       0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
@@ -326,7 +326,7 @@ TEST(SimulatorTest, XOR) {
   }
 }
 
-TEST(SimulatorTest, MUL) {
+TEST(RIPSimulatorTest, MUL) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
@@ -346,7 +346,7 @@ TEST(SimulatorTest, MUL) {
   }
 }
 
-TEST(SimulatorTest, MULH) {
+TEST(RIPSimulatorTest, MULH) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0x10, 0x00, // addi x4, x0, 1
@@ -366,7 +366,7 @@ TEST(SimulatorTest, MULH) {
   }
 }
 
-TEST(SimulatorTest, MULHSU) {
+TEST(RIPSimulatorTest, MULHSU) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
@@ -387,7 +387,7 @@ TEST(SimulatorTest, MULHSU) {
   }
 }
 
-TEST(SimulatorTest, MULHU) {
+TEST(RIPSimulatorTest, MULHU) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0xf0, 0xff, // addi x3, x0, -1
       0x13, 0x02, 0xf0, 0xff, // addi x4, x0, -1
@@ -412,7 +412,7 @@ TEST(SimulatorTest, MULHU) {
   }
 }
 
-TEST(SimulatorTest, DIV) {
+TEST(RIPSimulatorTest, DIV) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
       0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2
@@ -434,7 +434,7 @@ TEST(SimulatorTest, DIV) {
   }
 }
 
-TEST(SimulatorTest, DIVU) {
+TEST(RIPSimulatorTest, DIVU) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
       0x13, 0x02, 0xe0, 0xff, // addi x4, x0,-2
@@ -456,7 +456,7 @@ TEST(SimulatorTest, DIVU) {
   }
 }
 
-TEST(SimulatorTest, REM) {
+TEST(RIPSimulatorTest, REM) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
       0x13, 0x02, 0xc0, 0xff, // addi x4, x0, -4
@@ -478,7 +478,7 @@ TEST(SimulatorTest, REM) {
   }
 }
 
-TEST(SimulatorTest, REMU) {
+TEST(RIPSimulatorTest, REMU) {
   const unsigned char BYTES[] = {
       0x93, 0x01, 0x90, 0x00, // addi x3, x0, 9
       0x13, 0x02, 0xc0, 0xff, // addi x4, x0, -4
