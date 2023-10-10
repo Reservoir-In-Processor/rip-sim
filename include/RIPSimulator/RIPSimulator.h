@@ -34,7 +34,7 @@ private:
 
   // For operands
   RegVal EXRdVal;
-  RegVal EXRsVal;
+  RegVal EXRs2Val;
   RegVal EXImmVal;
   RegVal MARdVal;
   RegVal MAImmVal;
@@ -57,7 +57,7 @@ public:
   PipelineStates &operator=(const PipelineStates &) = delete;
 
   PipelineStates()
-      : EXRdVal(0), EXRsVal(0), EXImmVal(0), MARdVal(0), MAImmVal(0),
+      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), MARdVal(0), MAImmVal(0),
         DERs2Val(0), DEImmVal(0), WBImmVal(0) {}
 
   void dump();
@@ -65,8 +65,8 @@ public:
   const RegVal &getEXRdVal() { return EXRdVal; }
   void setEXRdVal(RegVal &V) { EXRdVal = V; }
 
-  const RegVal &getEXRsVal() { return EXRsVal; }
-  void setEXRsVal(RegVal &V) { EXRsVal = V; }
+  const RegVal &getEXRs2Val() { return EXRs2Val; }
+  void setEXRs2Val(RegVal &V) { EXRs2Val = V; }
 
   const RegVal &getEXImmVal() { return EXImmVal; }
   void setEXImmVal(RegVal &V) { EXImmVal = V; }
