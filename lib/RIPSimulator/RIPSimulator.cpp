@@ -67,6 +67,21 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
     // Instructions without writeback
   } else if (Mnemo == "jalr") {
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
+  } else if (Mnemo == "csrrw") {
+    // FIXME: is it correct calculation in this stage?
+    CSRVal CV = States.read(PS.getMARdVal()); // CV = CSR[Imm]
+    States.write(PS.getMARdVal(),
+                 GPRegs[Inst->getRs1()]); // CSR[Imm] = GPReg[rs1]
+    GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
+
+  } else if (Mnemo == "csrrs") {
+    // FIXME: is it correct calculation in this stage?
+    CSRVal CV = States.read(PS.getMARdVal()); // CV = CSR[Imm]
+    States.write(
+        PS.getMARdVal(),
+        CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
+    GPRegs.write(Inst->getRd(), CV);
+
   } else {
     // Instructions with writeback
     GPRegs.write(Inst->getRd(), PS.getMARdVal());
@@ -100,6 +115,8 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "lb") {
     Byte V = Mem.readByte(PS.getEXRdVal());
     Res = (signed char)V;
+  } else if (Mnemo == "csrrw") {
+    // pass
   }
 
   PS.setMARdVal(Res);
@@ -159,18 +176,12 @@ void RIPSimulator::exec(PipelineStates &) {
     // FIXME: currently expected to be nop
   } else if (Mnemo == "fence.i") {
     // FIXME: currently expected to be nop
-    // } else if (Mnemo == "csrrw") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   States.write(CA, GPRegs[Rs1.to_ulong()]);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
-    // } else if (Mnemo == "csrrs") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   States.write(CA, GPRegs[Rs1.to_ulong()] | CV);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
+  } else if (Mnemo == "csrrw") {
+    Res = PS.getDEImmVal() & 0xfff; // CSR address as Rd1
+
+  } else if (Mnemo == "csrrs") {
+    Res = PS.getDEImmVal() & 0xfff; // CSR address
+
     // } else if (Mnemo == "csrrc") {
     //   CSRAddress CA = Imm.to_ulong() & 0xfff;
     //   CSRVal CV = States.read(CA);
@@ -336,18 +347,18 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "sb") {
     // FIXME: wrap add?
     Res = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Res2 = PS.getDERs2Val();
-    PS.setEXRsVal(Res2);
+    RegVal Rs2 = PS.getDERs2Val();
+    PS.setEXRsVal(Rs2);
 
   } else if (Mnemo == "sh") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Res2 = PS.getDERs2Val();
-    PS.setEXRsVal(Res2);
+    RegVal Rs2 = PS.getDERs2Val();
+    PS.setEXRsVal(Rs2);
 
   } else if (Mnemo == "sw") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Res2 = PS.getDERs2Val();
-    PS.setEXRsVal(Res2);
+    RegVal Rs2 = PS.getDERs2Val();
+    PS.setEXRsVal(Rs2);
 
     // U-type
   } else if (Mnemo == "lui") {
@@ -471,6 +482,7 @@ void RIPSimulator::runFromDRAMBASE() {
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
+    dumpCSRegs();
 #endif
     if (PS.isEmpty()) {
       break;

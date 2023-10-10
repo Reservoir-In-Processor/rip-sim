@@ -86,8 +86,8 @@ public:
     for (unsigned i = 0; i < 32; ++i) {
       char ValStr[11];
       std::snprintf(ValStr, sizeof(ValStr), "0x%08x", Regs[i]);
-      std::cerr << 'x' << std::dec << std::left << std::setw(2) << std::setfill(' ') << i
-                << "(" << ABI[i] << ")"
+      std::cerr << 'x' << std::dec << std::left << std::setw(2)
+                << std::setfill(' ') << i << "(" << ABI[i] << ")"
                 << ":=" << std::right << std::setw(18) << std::setfill(' ')
                 << ValStr << ", ";
       if (i % 4 == 3)

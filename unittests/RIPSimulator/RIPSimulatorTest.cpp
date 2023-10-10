@@ -858,3 +858,197 @@ TEST(RIPSimulatorTest, LUI) {
     EXPECT_EQ(Res[i], EXPECTED[i]);
   }
 }
+
+TEST(RIPSimulatorTest, FENCE_AS_NOP) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi, x16, x0, 5
+      0x0f, 0x00, 0x30, 0x02, // fence r, rw
+      0x0f, 0x10, 0x00, 0x00, // fence.i
+      0x93, 0x08, 0x30, 0x00, // addi, x17, x0, 3
+
+  };
+
+  const GPRegisters EXPECTED = {{16, 5}, {17, 3}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
+// TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
+//   const unsigned char BYTES[] = {
+//       0x73, 0x50, 0x26, 0x34, // csrrwi x0, mcause, 12
+//       0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
+//       0x73, 0xd0, 0x46, 0xf1, // csrrwi x0, mhartid, 13
+//       0x73, 0x25, 0x40, 0xf1, // csrrs x10, mhartid, x0
+//   };
+
+//   const GPRegisters EXPECTED = {{10, 13}, {30, 12}};
+//   const CSRs EXPECTED_C = {{MCAUSE, 12}, {MHARTID, 13}};
+//   std::stringstream ss;
+//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+//   RIPSimulator RSim(ss);
+//   RSim.runFromDRAMBASE();
+//   const GPRegisters &Res = RSim.getGPRegs();
+
+//   for (unsigned i = 0; i < 32; ++i) {
+//     EXPECT_EQ(Res[i], EXPECTED[i])
+//         << "Register:" << i << ", expected: " << EXPECTED[i]
+//         << ", got: " << Res[i];
+//   }
+//   const CSRs &ResC = RSim.getCSRs();
+//   for (CSRAddress CA : {MCAUSE, MHARTID}) {
+//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+//   }
+// }
+
+TEST(RIPSimulatorTest, CSRRW) {
+  const unsigned char BYTES[] = {
+      0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
+      0x73, 0x90, 0x52, 0x30, // csrrw x0, mtvec, x5
+      0x73, 0x25, 0x50, 0x30, // csrrs x10, mtvec, x0
+                              // 0x13, 0x03, 0xf0, 0x00, // addi x6, x0, 15
+                              // 0x73, 0x10, 0x03, 0x18, // csrrw x0, satp, x6
+                              // 0x73, 0x2f, 0x00, 0x18, // csrrs x30, satp, x0
+  };
+
+  const GPRegisters EXPECTED = {{5, 14}, {10, 14}};
+  // const GPRegisters EXPECTED = {{5, 14}, {6, 15}, {10, 14}, {30, 15}};
+  const CSRs EXPECTED_C = {
+      {MTVEC, 14},
+      // {SATP, 15},
+  };
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MTVEC, SATP}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
+
+// TEST(RIPSimulatorTest, ECALLMMODE) {
+//   const unsigned char BYTES[] = {
+//       0x17, 0x02, 0x00, 0x00, // auipc x4, 0
+//       0x13, 0x02, 0xc2, 0x01, // addi x4, x4, 28
+//       0x73, 0x10, 0x52, 0x30, // csrrw x0, mtvec, x4
+//       0x73, 0x00, 0x00, 0x00, // ecall
+//   };
+
+//   const GPRegisters EXPECTED = {{4, DRAM_BASE + 28}};
+//   const CSRs EXPECTED_C = {
+//       // FIXME: if last is illegal inst, then MEPC shouldn't be ecall's?
+//       {MEPC, DRAM_BASE + 12},
+//       {MCAUSE, Exception::EnvironmentCallFromMMode},
+//       {MTVAL, 0},
+//       {MTVEC, DRAM_BASE + 28},
+//       // 1. default MSTATUS is zero.
+//       // 2. prev mode is machine mode,
+//       // 3. MIE and MPIE is zero
+//       {MSTATUS, 0b1100000000000},
+//   };
+//   const Address EXPECTED_PC = DRAM_BASE + 28;
+//   std::stringstream ss;
+//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+//   RIPSimulator RSim(ss);
+//   RSim.runFromDRAMBASE();
+//   const GPRegisters &Res = RSim.getGPRegs();
+
+//   for (unsigned i = 0; i < 32; ++i) {
+//     EXPECT_EQ(Res[i], EXPECTED[i]);
+//   }
+
+//   const CSRs &ResC = RSim.getCSRs();
+//   for (CSRAddress CA : {
+//            MEPC,
+//            MCAUSE,
+//            MTVAL,
+//            MTVEC,
+//            MSTATUS,
+//        }) {
+//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
+//         << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
+//         << ", got: " << ResC[CA];
+//   }
+
+//   EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+//       << "PC"
+//       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+// }
+
+// TEST(RIPSimulatorTest, MRET) {
+//   const unsigned char BYTES[] = {
+//       0x17, 0x02, 0x00, 0x00, // auipc x4, 0
+//       0x13, 0x02, 0xc2, 0x01, // addi x4, x4, 28
+//       0x73, 0x10, 0x52, 0x30, // csrrw x0, mtvec, x4
+//       0x73, 0x00, 0x00, 0x00, // ecall
+//       0x93, 0x00, 0x10, 0x00, // addi x1, x0, 1
+//       0x93, 0x04, 0x90, 0x00, // addi x9, x0, 9
+//       0x6f, 0x05, 0xa0, 0x02, // jal x10, 42
+//       0x73, 0x25, 0x10, 0x34, // csrrs x10, mepc, x0
+//       0x13, 0x05, 0x45, 0x00, // addi x10, x10, 4
+//       0x73, 0x10, 0x15, 0x34, // csrrw x0, mepc, x10
+//       0x73, 0x00, 0x20, 0x30, // mret
+//   };
+
+//   const GPRegisters EXPECTED = {
+//       {1, 1}, {4, DRAM_BASE + 28}, {9, 9}, {10, DRAM_BASE + 28}};
+
+//   const CSRs EXPECTED_C = {
+//       {MCAUSE, Exception::EnvironmentCallFromMMode},
+//       {MTVAL, 0},
+//       {MTVEC, DRAM_BASE + 28},
+//       // 1. default MSTATUS is zero.
+//       // 2. prev mode is machine mode,
+//       // 3. MIE is zero, because default MPIE is zero
+//       // 4. MPIE is 1 and MPP is zero by mret.
+//       {MSTATUS, 0b10000000},
+//   };
+//   const Address EXPECTED_PC = DRAM_BASE + 66;
+//   std::stringstream ss;
+//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+//   RIPSimulator RSim(ss);
+//   RSim.runFromDRAMBASE();
+//   const GPRegisters &Res = RSim.getGPRegs();
+
+//   for (unsigned i = 0; i < 32; ++i) {
+//     EXPECT_EQ(Res[i], EXPECTED[i])
+//         << "Register:" << i << ", expected: " << EXPECTED[i]
+//         << ", got: " << Res[i];
+//   }
+
+//   const CSRs &ResC = RSim.getCSRs();
+//   for (CSRAddress CA : {
+//            MCAUSE,
+//            MTVAL,
+//            MTVEC,
+//            MSTATUS,
+//        }) {
+//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
+//         << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
+//         << ", got: " << ResC[CA];
+//     ;
+//   }
+
+//   EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+//       << "PC"
+//       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+// }

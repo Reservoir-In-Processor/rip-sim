@@ -140,6 +140,7 @@ private:
   Memory Mem;
   unsigned CodeSize;
   Address PC;
+  CSRs States;
   unsigned CycleNum;
   PipelineStates PS;
   GPRegisters GPRegs;
@@ -152,6 +153,8 @@ public:
   // move this def to .cpp
   RIPSimulator(std::istream &is);
   GPRegisters &getGPRegs() { return GPRegs; }
+  // FIXME: is it correct to define CSRs?
+  inline const CSRs &getCSRs() const { return States; }
   // inherently unused arguments, but better to see dependencies
   void writeback(GPRegisters &, PipelineStates &);
   void memoryaccess(Memory &, PipelineStates &);
@@ -161,6 +164,7 @@ public:
 
   void runFromDRAMBASE();
   void dumpGPRegs() { GPRegs.dump(); }
+  void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }
 };
 
