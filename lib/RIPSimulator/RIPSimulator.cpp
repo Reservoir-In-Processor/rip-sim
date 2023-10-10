@@ -78,13 +78,10 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
     States.write(Imm,
                  GPRegs[Inst->getRs1()]); // CSR[Imm] = GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
-    std::cerr << std::hex << "CSRRW " << PS.getMARdVal() << " " << Imm << " "
-              << Inst->getRs1() << " " << Inst->getRd() << "\n";
 
   } else if (Mnemo == "csrrs") {
     // FIXME: is it correct calculation in this stage?
-    CSRVal CV = PS.getMARdVal();   // CV = CSR[Imm]
-    RegVal Imm = PS.getMAImmVal(); // we need Imm Val
+    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
     Res = CV | GPRegs[Inst->getRs1()];
 
     States.write(
@@ -92,8 +89,16 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
         CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);
 
-    std::cerr << std::hex << "CSRRS " << PS.getMARdVal() << " " << Imm << " "
-              << Inst->getRs1() << " " << Inst->getRd() << "\n";
+  } else if (Mnemo == "csrrc") {
+    // FIXME: is it correct calculation in this stage?
+    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
+    Res = CV & !GPRegs[Inst->getRs1()];
+
+    States.write(
+        PS.getMARdVal(),
+        CV & !GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
+    GPRegs.write(Inst->getRd(), CV);
+
   } else {
     // Instructions with writeback
     Res = PS.getMARdVal();
@@ -202,34 +207,14 @@ void RIPSimulator::exec(PipelineStates &) {
     Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
   } else if (Mnemo == "csrrs") {
     Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
-
-    // } else if (Mnemo == "csrrc") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   States.write(CA, GPRegs[Rs1.to_ulong()] & !CV);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
-    // } else if (Mnemo == "csrrwi") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   CSRVal ZImm = Rs1.to_ulong();
-    //   States.write(CA, ZImm);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
-    // } else if (Mnemo == "csrrsi") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   CSRVal ZImm = Rs1.to_ulong();
-    //   States.write(CA, CV | ZImm);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
-    // } else if (Mnemo == "csrrci") {
-    //   CSRAddress CA = Imm.to_ulong() & 0xfff;
-    //   CSRVal CV = States.read(CA);
-    //   CSRVal ZImm = Rs1.to_ulong();
-    //   States.write(CA, CV & !ZImm);
-    //   GPRegs.write(Rd.to_ulong(), CV);
-    //   PC += 4;
+  } else if (Mnemo == "csrrc") {
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
+  } else if (Mnemo == "csrrwi") {
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
+  } else if (Mnemo == "csrrsi") {
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
+  } else if (Mnemo == "csrrci") {
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
     // } else if (Mnemo == "ecall") {
     //   if (Mode == ModeKind::User) {
     //     return Exception::EnvironmentCallFromUMode;
