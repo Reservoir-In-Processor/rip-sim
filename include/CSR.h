@@ -68,10 +68,10 @@ static std::map<CSRAddress, std::string> CSRNames = {
 };
 
 // FIXME: for aligning the output text.
-// static const std::string ABI[12] = {
-//     "  satp  ", " mstatus", " medeleg", " mideleg", "   mie  ", "  mtvec ",
-//     "  mepc  ", " mcause ", "  mtval ", " pmpcfg ", " pmpaddr", " mhartid",
-// };
+static const std::string CSRABI[12] = {
+    "  satp  ", " mstatus", " medeleg", " mideleg", "   mie  ", "  mtvec ",
+    "  mepc  ", " mcause ", "  mtval ", " pmpcfg ", " pmpaddr", " mhartid",
+};
 
 class CSRs {
 private:
@@ -100,14 +100,12 @@ public:
   CSRVal read(CSRAddress Ad);
 
   const void dump() const {
-    // FIXME:need to be aligned
     int i = 0;
-    for (auto iter = CSRMap.begin(); iter != CSRMap.end(); ++iter) {
+    for (auto iter = CSRNames.begin(); iter != CSRNames.end(); ++iter) {
       char ValStr[11];
-      std::snprintf(ValStr, sizeof(ValStr), "0x%08x", States[iter->second]);
-      std::cerr << 'x' << std::dec << std::left << std::setw(2)
-                << std::setfill(' ') << iter->second << "(" << iter->first
-                << ")"
+      std::snprintf(ValStr, sizeof(ValStr), "0x%08x", States[iter->first]);
+      std::cerr << 'x' << std::dec << std::left << std::setw(4)
+                << std::setfill(' ') << iter->first << "(" << CSRABI[i] << ")"
                 << ":=" << std::right << std::setw(18) << std::setfill(' ')
                 << ValStr << ", ";
 
@@ -115,6 +113,7 @@ public:
       if (i % 4 == 0)
         std::cerr << '\n';
     }
+
     std::cerr << '\n';
   }
 };
