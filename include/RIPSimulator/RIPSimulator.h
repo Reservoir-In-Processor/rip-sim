@@ -35,10 +35,13 @@ private:
   // For operands
   RegVal EXRdVal;
   RegVal EXRsVal;
+  RegVal EXImmVal;
   RegVal MARdVal;
+  RegVal MAImmVal;
   RegVal DERs1Val;
   RegVal DERs2Val;
   RegVal DEImmVal;
+  RegVal WBImmVal;
 
   std::optional<Address> BranchPC;
 
@@ -54,7 +57,8 @@ public:
   PipelineStates &operator=(const PipelineStates &) = delete;
 
   PipelineStates()
-      : EXRdVal(0), EXRsVal(0), MARdVal(0), DERs2Val(0), DEImmVal(0) {}
+      : EXRdVal(0), EXRsVal(0), EXImmVal(0), MARdVal(0), MAImmVal(0),
+        DERs2Val(0), DEImmVal(0), WBImmVal(0) {}
 
   void dump();
 
@@ -63,6 +67,9 @@ public:
 
   const RegVal &getEXRsVal() { return EXRsVal; }
   void setEXRsVal(RegVal &V) { EXRsVal = V; }
+
+  const RegVal &getEXImmVal() { return EXImmVal; }
+  void setEXImmVal(RegVal &V) { EXImmVal = V; }
 
   const RegVal &getDERs1Val() { return DERs1Val; }
   void setDERs1Val(const RegVal &V) { DERs1Val = V; }
@@ -75,6 +82,12 @@ public:
 
   const RegVal &getMARdVal() { return MARdVal; }
   void setMARdVal(const RegVal &V) { MARdVal = V; }
+
+  const RegVal &getMAImmVal() { return MAImmVal; }
+  void setMAImmVal(const RegVal &V) { MAImmVal = V; }
+
+  const RegVal &getWBImmVal() { return WBImmVal; }
+  void setWBImmVal(const RegVal &V) { WBImmVal = V; }
 
   const Address &getPCs(STAGES stage) { return PCs[stage]; }
 

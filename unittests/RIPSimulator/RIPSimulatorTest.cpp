@@ -914,16 +914,15 @@ TEST(RIPSimulatorTest, CSRRW) {
       0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
       0x73, 0x90, 0x52, 0x30, // csrrw x0, mtvec, x5
       0x73, 0x25, 0x50, 0x30, // csrrs x10, mtvec, x0
-                              // 0x13, 0x03, 0xf0, 0x00, // addi x6, x0, 15
-                              // 0x73, 0x10, 0x03, 0x18, // csrrw x0, satp, x6
-                              // 0x73, 0x2f, 0x00, 0x18, // csrrs x30, satp, x0
+      0x13, 0x03, 0xf0, 0x00, // addi x6, x0, 15
+      0x73, 0x10, 0x03, 0x18, // csrrw x0, satp, x6
+      0x73, 0x2f, 0x00, 0x18, // csrrs x30, satp, x0
   };
 
-  const GPRegisters EXPECTED = {{5, 14}, {10, 14}};
-  // const GPRegisters EXPECTED = {{5, 14}, {6, 15}, {10, 14}, {30, 15}};
+  const GPRegisters EXPECTED = {{5, 14}, {6, 15}, {10, 14}, {30, 15}};
   const CSRs EXPECTED_C = {
       {MTVEC, 14},
-      // {SATP, 15},
+      {SATP, 15},
   };
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));

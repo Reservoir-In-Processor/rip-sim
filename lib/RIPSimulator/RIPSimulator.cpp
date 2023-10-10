@@ -62,36 +62,51 @@ RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
 void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   const auto &Inst = PS[STAGES::WB];
   std::string Mnemo = Inst->getMnemo();
+  RegVal Res = 0;
 
   if (Mnemo == "sw" || Mnemo == "sh" || Mnemo == "sb") {
     // Instructions without writeback
   } else if (Mnemo == "jalr") {
+    Res = PS.getPCs(MA);
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
   } else if (Mnemo == "csrrw") {
     // FIXME: is it correct calculation in this stage?
-    CSRVal CV = States.read(PS.getMARdVal()); // CV = CSR[Imm]
-    States.write(PS.getMARdVal(),
+    CSRVal CV = PS.getMARdVal();   // CV = CSR[Imm]
+    RegVal Imm = PS.getMAImmVal(); // we need Imm Val
+    Res = GPRegs[Inst->getRs1()];
+
+    States.write(Imm,
                  GPRegs[Inst->getRs1()]); // CSR[Imm] = GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
+    std::cerr << std::hex << "CSRRW " << PS.getMARdVal() << " " << Imm << " "
+              << Inst->getRs1() << " " << Inst->getRd() << "\n";
 
   } else if (Mnemo == "csrrs") {
     // FIXME: is it correct calculation in this stage?
-    CSRVal CV = States.read(PS.getMARdVal()); // CV = CSR[Imm]
+    CSRVal CV = PS.getMARdVal();   // CV = CSR[Imm]
+    RegVal Imm = PS.getMAImmVal(); // we need Imm Val
+    Res = CV | GPRegs[Inst->getRs1()];
+
     States.write(
         PS.getMARdVal(),
         CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);
 
+    std::cerr << std::hex << "CSRRS " << PS.getMARdVal() << " " << Imm << " "
+              << Inst->getRs1() << " " << Inst->getRd() << "\n";
   } else {
     // Instructions with writeback
+    Res = PS.getMARdVal();
     GPRegs.write(Inst->getRd(), PS.getMARdVal());
   }
+  PS.setWBImmVal(Res);
 }
 
 void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   const auto &Inst = PS[STAGES::MA];
   const RegVal MARdVal = PS.getEXRdVal();
   RegVal Res = MARdVal;
+  RegVal Imm = PS.getEXImmVal();
   std::string Mnemo = Inst->getMnemo();
 
   if (Mnemo == "sw") {
@@ -115,11 +130,16 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "lb") {
     Byte V = Mem.readByte(PS.getEXRdVal());
     Res = (signed char)V;
-  } else if (Mnemo == "csrrw") {
-    // pass
+  } else if (Mnemo == "csrrs") {
+    if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
+      std::cerr << "Forwarding from WB to MA."
+                << "\n";
+      Res = PS.getWBImmVal();
+    }
   }
 
   PS.setMARdVal(Res);
+  PS.setMAImmVal(Imm);
 }
 
 const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
@@ -130,6 +150,8 @@ void RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
   // TODO: calc
   RegVal Res = 0;
+  RegVal Imm = PS.getDEImmVal();
+
   std::string Mnemo = Inst->getMnemo();
   // I-type
   if (Mnemo == "addi") {
@@ -177,10 +199,9 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "fence.i") {
     // FIXME: currently expected to be nop
   } else if (Mnemo == "csrrw") {
-    Res = PS.getDEImmVal() & 0xfff; // CSR address as Rd1
-
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
   } else if (Mnemo == "csrrs") {
-    Res = PS.getDEImmVal() & 0xfff; // CSR address
+    Res = States.read(PS.getDEImmVal() & 0xfff); // Res = CSR[Imm]
 
     // } else if (Mnemo == "csrrc") {
     //   CSRAddress CA = Imm.to_ulong() & 0xfff;
@@ -381,6 +402,7 @@ void RIPSimulator::exec(PipelineStates &) {
     PS.setBranchPC(PC + 4);
 
   PS.setEXRdVal(Res);
+  PS.setEXImmVal(Imm);
 }
 
 // register access shuold be done in this phase, exec shuoldn't access
@@ -398,10 +420,12 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
     std::cerr << "Forwarding from MA\n";
+
   } else if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
     std::cerr << "Forwarding from EX\n";
+
   } else {
     PS.setDERs1Val(GPRegs[Inst->getRs1()]);
   }
@@ -410,9 +434,11 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
     std::cerr << "Forwarding from MA\n";
+
   } else if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
     PS.setDERs2Val(PS.getEXRdVal());
     std::cerr << "Forwarding from EX\n";
+
   } else {
     PS.setDERs2Val(GPRegs[Inst->getRs2()]);
   }
