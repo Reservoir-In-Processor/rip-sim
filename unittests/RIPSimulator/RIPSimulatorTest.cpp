@@ -416,6 +416,31 @@ TEST(RIPSimulatorTest, SBLBLBU) {
   }
 }
 
+TEST(RIPSimulatorTest, JALR) {
+  const unsigned char BYTES[] = {
+      0x17, 0x02, 0x00, 0x00, // auipc x4, 0
+      0x67, 0x02, 0xc2, 0x02, // jalr x4, x4, 44
+  };
+
+  const GPRegisters EXPECTED = {{4, DRAM_BASE + 8}};
+  const Address EXPECTED_PC = DRAM_BASE + 44;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, BEQ) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3

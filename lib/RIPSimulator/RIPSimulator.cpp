@@ -65,6 +65,8 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
 
   if (Mnemo == "sw" || Mnemo == "sh" || Mnemo == "sb") {
     // Instructions without writeback
+  } else if (Mnemo == "jalr") {
+    GPRegs.write(Inst->getRd(), PS.getPCs(MA));
   } else {
     // Instructions with writeback
     GPRegs.write(Inst->getRd(), PS.getMARdVal());
@@ -126,11 +128,11 @@ void RIPSimulator::exec(PipelineStates &) {
     Res = (unsigned)PS.getDERs1Val() | PS.getDEImmVal();
   } else if (Mnemo == "andi") {
     Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
-    // } else if (Mnemo == "jalr") {
-    //   // FIXME: should addresss calculation be wrapped?
-    //   Address CurPC = PC;
-    //   PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
-    //   GPRegs.write(Rd.to_ulong(), CurPC + 4);
+  } else if (Mnemo == "jalr") {
+    // FIXME: should addresss calculation be wrapped?
+    Res = PS.getPCs(EX) + 4;
+    Address nextPC = PS.getDERs1Val() + signExtend(PS.getDEImmVal(), 12);
+    PS.setBranchPC(nextPC);
   } else if (Mnemo == "lb") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
