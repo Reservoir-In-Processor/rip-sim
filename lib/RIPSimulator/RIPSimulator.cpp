@@ -347,6 +347,11 @@ void RIPSimulator::exec(PipelineStates &) {
     RegVal Res2 = PS.getDERs2Val();
     PS.setEXRsVal(Res2);
 
+    // U-type
+  } else if (Mnemo == "lui") {
+    Res = PS.getDEImmVal() << 12;
+  } else if (Mnemo == "auipc") {
+    Res = PS.getPCs(EX) + (PS.getDEImmVal() & 0xfffff000);
   } else {
     assert(false && "unimplemented!");
   }
@@ -424,6 +429,11 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
         ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
 
     PS.setDEImmVal(Imm);
+
+  } else if (UTypeKinds.find(Inst->getMnemo()) != UTypeKinds.end()) {
+    unsigned Imm = (Inst->getVal() & 0xfffff000) >> 12;
+    PS.setDEImmVal(Imm);
+
   } else {
     assert(false && "unimplemented!");
   }
