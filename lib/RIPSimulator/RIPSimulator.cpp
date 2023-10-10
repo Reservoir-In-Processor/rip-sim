@@ -63,7 +63,7 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   const auto &Inst = PS[STAGES::WB];
   std::string Mnemo = Inst->getMnemo();
 
-  if (Mnemo == "sw") {
+  if (Mnemo == "sw" || Mnemo == "sh" || Mnemo == "sb") {
     // Instructions without writeback
   } else {
     // Instructions with writeback
@@ -79,9 +79,25 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
 
   if (Mnemo == "sw") {
     Mem.writeWord(MARdVal, PS.getEXRsVal());
+  } else if (Mnemo == "sh") {
+    Mem.writeHalfWord(MARdVal, PS.getEXRsVal());
+  } else if (Mnemo == "sb") {
+    Mem.writeByte(MARdVal, PS.getEXRsVal());
   } else if (Mnemo == "lw") {
     Word V = Mem.readWord(PS.getEXRdVal());
     Res = (signed)V;
+  } else if (Mnemo == "lh") {
+    HalfWord V = Mem.readHalfWord(PS.getEXRdVal());
+    Res = (signed short)V;
+  } else if (Mnemo == "lbu") {
+    Byte V = Mem.readByte(PS.getEXRdVal());
+    Res = (unsigned char)V;
+  } else if (Mnemo == "lhu") {
+    HalfWord V = Mem.readHalfWord(PS.getEXRdVal());
+    Res = (unsigned short)V;
+  } else if (Mnemo == "lb") {
+    Byte V = Mem.readByte(PS.getEXRdVal());
+    Res = (signed char)V;
   }
 
   PS.setMARdVal(Res);
@@ -115,24 +131,20 @@ void RIPSimulator::exec(PipelineStates &) {
     //   Address CurPC = PC;
     //   PC = (GPRegs[Rs1.to_ulong()] + ImmI) & ~1;
     //   GPRegs.write(Rd.to_ulong(), CurPC + 4);
-    // } else if (Mnemo == "lb") {
-    //   // FIXME: unsigned to signed safe cast (not implementation defined
-    //   way) Byte V = Mem.readByte(GPRegs[Rs1.to_ulong()] + ImmI);
-    //   GPRegs.write(Rd.to_ulong(), (signed char)V);
-    //   PC += 4;
-    // } else if (Mnemo == "lh") {
-    //   // FIXME: unsigned to signed safe cast (not implementation defined
-    //   way) HalfWord V = Mem.readHalfWord(GPRegs[Rs1.to_ulong()] + ImmI);
-    //   GPRegs.write(Rd.to_ulong(), (signed short)V);
-    //   PC += 4;
+  } else if (Mnemo == "lb") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
+  } else if (Mnemo == "lh") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "lw") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
-    // } else if (Mnemo == "lbu") {
-    //   // FIXME: unsigned to signed safe cast (not implementation defined way)
-    //   Res = PS.getDERs1Val() + PS.getDEImmVal();
-    // } else if (Mnemo == "lhu") {
-    //   Res = PS.getDERs1Val() + PS.getDEImmVal();
+  } else if (Mnemo == "lbu") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
+  } else if (Mnemo == "lhu") {
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
 
   } else if (Mnemo == "slli") { // FIXME: shamt
     // FIXME: sext?
@@ -319,12 +331,17 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
     }
     // S-type
-    // } else if (Mnemo == "sb") {
-    //   // FIXME: wrap add?
-    //   Res = PS.getDERs1Val() + PS.getDEImmVal();
-    // } else if (Mnemo == "sh") {
-    //   // FIXME: wrap add?
-    //   Res = PS.getDERs1Val() + PS.getDEImmVal();
+  } else if (Mnemo == "sb") {
+    // FIXME: wrap add?
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
+    RegVal Res2 = PS.getDERs2Val();
+    PS.setEXRsVal(Res2);
+
+  } else if (Mnemo == "sh") {
+    Res = PS.getDERs1Val() + PS.getDEImmVal();
+    RegVal Res2 = PS.getDERs2Val();
+    PS.setEXRsVal(Res2);
+
   } else if (Mnemo == "sw") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
     RegVal Res2 = PS.getDERs2Val();
