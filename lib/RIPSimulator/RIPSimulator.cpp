@@ -111,7 +111,7 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   const auto &Inst = PS[STAGES::MA];
   const RegVal MARdVal = PS.getEXRdVal();
   RegVal Res = MARdVal;
-  RegVal Imm = PS.getEXImmVal();
+  unsigned Imm = PS.getEXImmVal();
   std::string Mnemo = Inst->getMnemo();
 
   if (Mnemo == "sw") {
@@ -312,6 +312,10 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() == PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
+
     } else {
       // pass
     }
@@ -319,6 +323,9 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() != PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
+
     } else {
       // pass
     }
@@ -326,6 +333,9 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() < PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
+
     } else {
       // pass
     }
@@ -333,12 +343,17 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() >= PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
+
     } else {
     }
   } else if (Mnemo == "bltu") {
     if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
 
     } else {
     }
@@ -346,6 +361,9 @@ void RIPSimulator::exec(PipelineStates &) {
     if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
+
     } else {
     }
     // S-type
@@ -374,16 +392,22 @@ void RIPSimulator::exec(PipelineStates &) {
     assert(false && "unimplemented!");
   }
 
-  if (INVALID_EX.find(Inst->getMnemo()) != INVALID_EX.end()) {
-    // FIXME: invalide itself, is this right?
-    PS.setInvalid(EX);
-    PS.setInvalid(DE);
-    PS.setInvalid(IF);
-    // TODO: reset PC
-  }
-  // TODO: implemnet Branched PC
-  if (false)
-    PS.setBranchPC(PC + 4);
+  // if (auto NextPC = PS.takeBranchPC()) {
+  //   PS.setInvalid(EX);
+  //   PS.setInvalid(DE);
+  //   PS.setInvalid(IF);
+  // }
+
+  // if (INVALID_EX.find(Inst->getMnemo()) != INVALID_EX.end()) {
+  //   // FIXME: invalide itself, is this right?
+  //   PS.setInvalid(EX);
+  //   PS.setInvalid(DE);
+  //   PS.setInvalid(IF);
+  //   // TODO: reset PC
+  // }
+  // // TODO: implemnet Branched PC
+  // if (false)
+  //   PS.setBranchPC(PC + 4);
 
   PS.setEXRdVal(Res);
   PS.setEXImmVal(Imm);
@@ -480,17 +504,21 @@ void RIPSimulator::runFromDRAMBASE() {
       decode(GPRegs, PS);
     if (PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
-#ifdef DEBUG
-    PS.dump();
-    dumpGPRegs();
-    dumpCSRegs();
-#endif
+
+    PS.fillBubble();
+
     if (PS.isEmpty()) {
       break;
     }
     // TODO:
     if (auto NextPC = PS.takeBranchPC()) {
+      std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
     }
+#ifdef DEBUG
+    PS.dump();
+    dumpGPRegs();
+    dumpCSRegs();
+#endif
   }
 }

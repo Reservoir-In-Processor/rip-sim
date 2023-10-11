@@ -468,6 +468,40 @@ TEST(RIPSimulatorTest, BEQ) {
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
 
+TEST(RIPSimulatorTest, BEQ2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x30, 0x00, // 0x00, addi x16, x0, 3
+      0x93, 0x08, 0x30, 0x00, // 0x04, addi x17, x0, 3
+      0x63, 0x16, 0x18, 0x01, // 0x08, bne x16, x17, 12
+      0x63, 0x06, 0x18, 0x01, // 0x0c, beq x16, x17, 12
+      // jump to 0x0c + 12 = 0x18
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+  };
+
+  const GPRegisters EXPECTED = {{16, 5}, {17, 4}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, BNE) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
@@ -478,6 +512,39 @@ TEST(RIPSimulatorTest, BNE) {
 
   const GPRegisters EXPECTED = {{16, 5}, {17, 3}};
   const Address EXPECTED_PC = DRAM_BASE + 12 + 12;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
+TEST(RIPSimulatorTest, BNE2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi x16, x0, 5
+      0x93, 0x08, 0x30, 0x00, // addi x17, x0, 3
+      0x63, 0x06, 0x18, 0x01, // beq x16, x17, 12
+      0x63, 0x16, 0x18, 0x01, // bne x16, x17, 12 // jump
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+  };
+
+  const GPRegisters EXPECTED = {{16, 7}, {17, 4}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -522,6 +589,40 @@ TEST(RIPSimulatorTest, BLT) {
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
 
+TEST(RIPSimulatorTest, BLT2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0xd0, 0xff, // addi x16, x0, -3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
+      0x63, 0x46, 0x18, 0x01, // blt x16, x17, 12
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+
+  };
+
+  const GPRegisters EXPECTED = {{16, -1}, {17, 6}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, BGE) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x60, 0x00, // addi x16, x0, 6
@@ -532,6 +633,40 @@ TEST(RIPSimulatorTest, BGE) {
 
   const GPRegisters EXPECTED = {{16, 6}, {17, 5}};
   const Address EXPECTED_PC = DRAM_BASE + 12 + 12;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
+TEST(RIPSimulatorTest, BGE2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x60, 0x00, // addi x16, x0, 6
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x63, 0x46, 0x18, 0x01, // blt x16, x17, 12
+      0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+
+  };
+
+  const GPRegisters EXPECTED = {{16, 8}, {17, 6}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -576,6 +711,39 @@ TEST(RIPSimulatorTest, BLTU) {
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
 
+TEST(RIPSimulatorTest, BLTU2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
+      0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+  };
+
+  const GPRegisters EXPECTED = {{16, 5}, {17, 6}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, BGEU) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0xd0, 0xff, // addi x16, x0, -3
@@ -586,6 +754,40 @@ TEST(RIPSimulatorTest, BGEU) {
 
   const GPRegisters EXPECTED = {{16, -3}, {17, 5}};
   const Address EXPECTED_PC = DRAM_BASE + 12 + 12;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
+TEST(RIPSimulatorTest, BGEU2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0xd0, 0xff, // addi x16, x0, -3
+      0x93, 0x08, 0x50, 0x00, // addi x17, x0, 5
+      0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
+      0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
+
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+
+  };
+
+  const GPRegisters EXPECTED = {{16, -1}, {17, 6}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 9;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -626,6 +828,7 @@ TEST(RIPSimulatorTest, JAL) {
       << "PC"
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
+// FIXME: NEED JAL tests after jump!
 
 TEST(RIPSimulatorTest, ZERO1) {
   const unsigned char BYTES[] = {

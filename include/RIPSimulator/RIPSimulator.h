@@ -49,8 +49,8 @@ private:
   std::unique_ptr<Instruction> Insts[STAGENUM];
   Address PCs[STAGENUM];
 
-  bool AreStall[STAGENUM];
-  bool AreInvalid[STAGENUM];
+  bool AreStall[STAGENUM] = {0};
+  bool AreInvalid[STAGENUM] = {0};
 
 public:
   PipelineStates(const PipelineStates &) = delete;
@@ -138,6 +138,15 @@ public:
         return false;
     }
     return true;
+  }
+
+  void fillBubble() {
+    for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
+      if (AreInvalid[Stage]) {
+        Insts[Stage] = nullptr;
+        AreInvalid[Stage] = false;
+      }
+    }
   }
 
   void pushPC(const Address PC) {
