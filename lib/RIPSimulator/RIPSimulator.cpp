@@ -153,7 +153,6 @@ const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
 
 void RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
-  // TODO: calc
   RegVal Res = 0;
   RegVal Imm = PS.getDEImmVal();
 
