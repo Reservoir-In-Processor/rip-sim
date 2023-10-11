@@ -30,7 +30,6 @@ class PipelineStates {
 private:
   // Members are the values we want to dump for every stages
   unsigned FetchedInst;
-  // FIXME: it's enough to be indeces.
 
   // For operands
   RegVal EXRdVal;
