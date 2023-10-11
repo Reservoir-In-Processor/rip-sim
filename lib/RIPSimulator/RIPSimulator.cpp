@@ -137,7 +137,7 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "lb") {
     Byte V = Mem.readByte(PS.getEXRdVal());
     Res = (signed char)V;
-    // FIXME: Forwarding should be decode.
+    // FIXME: Forwarding should be on decode.
     // } else if (Mnemo == "csrrs") {
     //   if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
     //     std::cerr << "Forwarding from WB to MA."
