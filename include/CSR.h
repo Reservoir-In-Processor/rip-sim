@@ -4,6 +4,8 @@
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
+#include <iomanip>
+#include <iostream>
 #include <map>
 #include <string>
 #include <utility>
@@ -65,6 +67,12 @@ static std::map<CSRAddress, std::string> CSRNames = {
     {0x3a0, "pmpcfg"},  {0x3b0, "pmpaddr"}, {0xf14, "mhartid"},
 };
 
+// FIXME: for aligning the output text.
+static const std::string CSRABI[12] = {
+    "  satp  ", " mstatus", " medeleg", " mideleg", "   mie  ", "  mtvec ",
+    "  mepc  ", " mcause ", "  mtval ", " pmpcfg ", " pmpaddr", " mhartid",
+};
+
 class CSRs {
 private:
   CSRVal States[CSR_SIZE];
@@ -90,6 +98,24 @@ public:
 
   void write(CSRAddress Ad, CSRVal Val);
   CSRVal read(CSRAddress Ad);
+
+  const void dump() const {
+    int i = 0;
+    for (auto iter = CSRNames.begin(); iter != CSRNames.end(); ++iter) {
+      char ValStr[11];
+      std::snprintf(ValStr, sizeof(ValStr), "0x%08x", States[iter->first]);
+      std::cerr << 'x' << std::dec << std::left << std::setw(4)
+                << std::setfill(' ') << iter->first << "(" << CSRABI[i] << ")"
+                << ":=" << std::right << std::setw(18) << std::setfill(' ')
+                << ValStr << ", ";
+
+      i++;
+      if (i % 4 == 0)
+        std::cerr << '\n';
+    }
+
+    std::cerr << '\n';
+  }
 };
 
 #endif

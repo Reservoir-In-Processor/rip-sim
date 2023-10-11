@@ -1,49 +1,75 @@
 
 #ifndef RIPSIMULATOR_H
 #define RIPSIMULATOR_H
+#include "Decoder.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
 #include "Memory.h"
 #include "Registers.h"
+#include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 const unsigned STAGENUM = 5;
 enum STAGES {
-  IF,
-  DE,
-  EX,
-  MA,
-  WB,
+  IF, // Instructioh Fetch
+  DE, // DEcode
+  EX, // EXection
+  MA, // MemoryAccess
+  WB, // (Register) Write BAck
+};
+
+static std::map<STAGES, std::string> StageNames = {
+    {STAGES::IF, "IF"}, {STAGES::DE, "DE"}, {STAGES::EX, "EX"},
+    {STAGES::MA, "MA"}, {STAGES::WB, "WB"},
 };
 
 class PipelineStates {
 private:
-  // member are the values we want to dump for every stages
+  // Members are the values we want to dump for every stages
   unsigned FetchedInst;
-  // previous cycle values.
-  RegVal EXRdVal;
-  RegVal MARdVal;
 
+  // For operands
+  RegVal EXRdVal;
+  RegVal EXRs2Val;
+  RegVal EXImmVal;
+  RegVal MARdVal;
+  RegVal MAImmVal;
   RegVal DERs1Val;
   RegVal DERs2Val;
-  Address NextPC;
+  RegVal DEImmVal;
+  RegVal WBImmVal;
+
+  std::optional<Address> BranchPC;
+
   // pipeline bubbles are nullptr
-  std::shared_ptr<Instruction> Insts[STAGENUM];
-  // better way to invalidate values or stall
-  bool AreStall[STAGENUM];
-  bool AreInvalid[STAGENUM];
+  std::unique_ptr<Instruction> Insts[STAGENUM];
+  Address PCs[STAGENUM];
+
+  bool StalledStages[STAGENUM];
+  bool InvalidStages[STAGENUM];
 
 public:
   PipelineStates(const PipelineStates &) = delete;
   PipelineStates &operator=(const PipelineStates &) = delete;
 
-  PipelineStates() {}
-  void dump() { assert(false && "unimplemented!"); }
+  PipelineStates()
+      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), MARdVal(0), MAImmVal(0),
+        DERs2Val(0), DEImmVal(0), WBImmVal(0), StalledStages{0},
+        InvalidStages{0} {}
+
+  void dump();
 
   const RegVal &getEXRdVal() { return EXRdVal; }
   void setEXRdVal(RegVal &V) { EXRdVal = V; }
+
+  const RegVal &getEXRs2Val() { return EXRs2Val; }
+  void setEXRs2Val(RegVal &V) { EXRs2Val = V; }
+
+  const RegVal &getEXImmVal() { return EXImmVal; }
+  void setEXImmVal(RegVal &V) { EXImmVal = V; }
 
   const RegVal &getDERs1Val() { return DERs1Val; }
   void setDERs1Val(const RegVal &V) { DERs1Val = V; }
@@ -51,56 +77,102 @@ public:
   const RegVal &getDERs2Val() { return DERs2Val; }
   void setDERs2Val(const RegVal &V) { DERs2Val = V; }
 
+  const RegVal &getDEImmVal() { return DEImmVal; }
+  void setDEImmVal(const RegVal &V) { DEImmVal = V; }
+
   const RegVal &getMARdVal() { return MARdVal; }
   void setMARdVal(const RegVal &V) { MARdVal = V; }
+
+  const RegVal &getMAImmVal() { return MAImmVal; }
+  void setMAImmVal(const RegVal &V) { MAImmVal = V; }
+
+  const RegVal &getWBImmVal() { return WBImmVal; }
+  void setWBImmVal(const RegVal &V) { WBImmVal = V; }
+
+  const Address &getPCs(STAGES stage) { return PCs[stage]; }
 
   const unsigned &getFetchedInst() { return FetchedInst; }
   void setFetchedInst(const unsigned &V) { FetchedInst = V; }
 
-  const Address &getNextPC() { return NextPC; }
-  void setNextPC(const Address &V) { NextPC = V; }
+  const std::optional<Address> takeBranchPC() {
+    if (BranchPC) {
+      Address BPC = *BranchPC;
+      BranchPC = std::nullopt;
+      return std::make_optional(BPC);
+    } else {
+      return std::nullopt;
+    }
+  }
+  void setBranchPC(const Address &V) { BranchPC = V; }
 
-  const bool isStall(const STAGES &S) { return AreStall[S]; }
-  void setStall(const STAGES &S) { AreStall[S] = true; }
+  const bool isStall(const STAGES &S) { return StalledStages[S]; }
+  void setStall(const STAGES &S) { StalledStages[S] = true; }
 
-  const bool isInvalid(const STAGES &S) { return AreInvalid[S]; }
-  void setInvalid(const STAGES &S) { AreInvalid[S] = true; }
+  const bool isInvalid(const STAGES &S) { return InvalidStages[S]; }
+  void setInvalid(const STAGES &S) { InvalidStages[S] = true; }
 
-  const std::shared_ptr<Instruction> &operator[](unsigned Stage) const {
+  const std::unique_ptr<Instruction> &operator[](STAGES Stage) const {
     assert(Stage < STAGENUM && "Index out of bounds");
     return Insts[Stage];
+  }
+
+  std::unique_ptr<Instruction> &operator[](STAGES Stage) {
+    assert(Stage < STAGENUM && "Index out of bounds");
+    return Insts[Stage];
+  }
+
+  void push(std::unique_ptr<Instruction> InstPtr) {
+    for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
+      Insts[Stage] = std::move(Insts[Stage - 1]);
+    }
+    Insts[STAGES::IF] = std::move(InstPtr);
+  }
+
+  bool isEmpty() {
+    for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
+      if (Insts[Stage] != nullptr)
+        return false;
+    }
+    return true;
+  }
+
+  void fillBubble() {
+    for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
+      if (InvalidStages[Stage]) {
+        Insts[Stage] = nullptr;
+        InvalidStages[Stage] = false;
+      }
+    }
+  }
+
+  void pushPC(const Address PC) {
+    for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
+      PCs[Stage] = std::move(PCs[Stage - 1]);
+    }
+    PCs[STAGES::IF] = std::move(PC);
   }
 };
 
 class RIPSimulator {
 private:
-  Memory M;
+  Memory Mem;
   unsigned CodeSize;
   Address PC;
+  CSRs States;
   unsigned CycleNum;
   PipelineStates PS;
   GPRegisters GPRegs;
-  std::map<Address, std::unique_ptr<Instruction>> PCInstMap;
+  Decoder Dec;
 
 public:
   RIPSimulator(const RIPSimulator &) = delete;
   RIPSimulator &operator=(const RIPSimulator &) = delete;
 
   // move this def to .cpp
-  RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
-    // TODO: parse per 2 bytes for compressed instructions
-    char Buff[4];
-    // starts from DRAM_BASE
-    Address P = DRAM_BASE;
-    // TODO: Write once
-    while (is.read(Buff, 4)) {
-      unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
-      // Raw inst
-      M.writeWord(P, InstVal);
-      CodeSize += 4;
-    }
-  }
+  RIPSimulator(std::istream &is);
   GPRegisters &getGPRegs() { return GPRegs; }
+  // FIXME: is it correct to define CSRs?
+  inline const CSRs &getCSRs() const { return States; }
   // inherently unused arguments, but better to see dependencies
   void writeback(GPRegisters &, PipelineStates &);
   void memoryaccess(Memory &, PipelineStates &);
@@ -108,29 +180,9 @@ public:
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
 
-  void runFromDRAMBASE() {
-    PC = DRAM_BASE;
-    while (true) {
-      writeback(GPRegs, PS);
-
-      // TODO: write address info to CRegs?
-      memoryaccess(M, PS);
-
-      // exec
-      exec(PS);
-
-      decode(GPRegs, PS);
-
-      fetch(M, PS);
-      // TODO: dump all queued instruction, and CRegs?
-#ifdef DEBUG
-      PS.dump();
-      CycleNum++;
-#endif
-    }
-  }
-
+  void runFromDRAMBASE();
   void dumpGPRegs() { GPRegs.dump(); }
+  void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }
 };
 

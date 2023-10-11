@@ -56,6 +56,7 @@ public:
   const unsigned getRd() { return (Val & 0x00000f80) >> 7; }
   const unsigned getRs1() { return (Val & 0x000f8000) >> 15; }
   const unsigned getRs2() { return (Val & 0x01f00000) >> 20; }
+  const unsigned getImm() { return (Val & 0xfff00000) >> 20; }
 
   virtual const std::string &getMnemo() = 0;
 
@@ -63,10 +64,12 @@ public:
     os.write(reinterpret_cast<char *>(&Val), 4);
   }
   virtual void pprint(std::ostream &) = 0;
+  virtual void mprint(std::ostream &) = 0;
   virtual std::optional<Exception> exec(Address &, GPRegisters &, Memory &,
                                         CSRs &, ModeKind &) = 0;
   virtual ~Instruction() {}
 };
+
 namespace {
 template <std::size_t N> int signExtend(const std::bitset<N> &bs) {
   if (bs[N - 1]) {
@@ -130,6 +133,18 @@ public:
   }
 
   const std::string &getMnemo() override { return IT.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    if (IT.getMnemo() == "lb" || IT.getMnemo() == "lh" ||
+        IT.getMnemo() == "lw" || IT.getMnemo() == "lbu" ||
+        IT.getMnemo() == "lhu")
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
+    else
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << ABI[Rs1.to_ulong()] << " " << std::dec << signExtend(Imm);
+  }
+
   void pprint(std::ostream &os) override {
     if (IT.getMnemo() == "lb" || IT.getMnemo() == "lh" ||
         IT.getMnemo() == "lw" || IT.getMnemo() == "lbu" ||
@@ -188,6 +203,12 @@ public:
   }
 
   const std::string &getMnemo() override { return RT.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    os << RT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+       << ABI[Rs1.to_ulong()] << " " << ABI[Rs2.to_ulong()];
+  }
+
   void pprint(std::ostream &os) override {
     os << RT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
        << ABI[Rs1.to_ulong()] << " " << ABI[Rs2.to_ulong()];
@@ -209,6 +230,7 @@ public:
     os << "(HEX LE)";
     os << "\n";
   }
+
   std::optional<Exception> exec(Address &, GPRegisters &, Memory &, CSRs &CSRs,
                                 ModeKind &Mode) override;
 };
@@ -237,6 +259,12 @@ public:
            UT.getOpcode().to_ulong());
   }
   const std::string &getMnemo() override { return UT.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    os << UT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
+       << signExtend(Imm);
+  }
+
   void pprint(std::ostream &os) override {
     os << UT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
        << signExtend(Imm);
@@ -296,6 +324,12 @@ public:
            JT.getOpcode().to_ulong());
   }
   const std::string &getMnemo() override { return JT.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    os << JT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
+       << signExtend(Imm);
+  }
+
   void pprint(std::ostream &os) override {
     os << JT.getMnemo() << " " << ABI[Rd.to_ulong()] << " " << std::dec
        << signExtend(Imm);
@@ -357,6 +391,12 @@ public:
   }
 
   const std::string &getMnemo() override { return ST.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    os << ST.getMnemo() << " " << ABI[Rs2.to_ulong()] << " "
+       << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
+  }
+
   void pprint(std::ostream &os) override {
     os << ST.getMnemo() << " " << ABI[Rs2.to_ulong()] << " "
        << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
@@ -427,6 +467,12 @@ public:
   }
 
   const std::string &getMnemo() override { return BT.getMnemo(); }
+
+  void mprint(std::ostream &os) override {
+    os << BT.getMnemo() << " " << ABI[Rs1.to_ulong()] << " "
+       << ABI[Rs2.to_ulong()] << std::dec << signExtend(Imm);
+  }
+
   void pprint(std::ostream &os) override {
     os << BT.getMnemo() << " " << ABI[Rs1.to_ulong()] << " "
        << ABI[Rs2.to_ulong()] << std::dec << signExtend(Imm);

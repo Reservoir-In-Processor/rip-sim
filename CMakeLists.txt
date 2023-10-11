@@ -93,7 +93,7 @@ add_custom_target(riscvtests
 
 # FIXME: do dhry
 add_custom_target(dhrystone
-  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 30
   DEPENDS Dhrystone
 )
 
