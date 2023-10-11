@@ -96,7 +96,7 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
 
     States.write(
         PS.getMARdVal(),
-        CV & !GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
+        CV & ~GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);
 
   } else {
