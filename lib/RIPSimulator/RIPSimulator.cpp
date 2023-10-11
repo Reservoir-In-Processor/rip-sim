@@ -167,7 +167,6 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "xori") {
     Res = (unsigned)PS.getDERs1Val() ^ PS.getDEImmVal();
   } else if (Mnemo == "ori") {
-    // FIXME: sext?
     Res = (unsigned)PS.getDERs1Val() | PS.getDEImmVal();
   } else if (Mnemo == "andi") {
     Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
