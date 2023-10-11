@@ -175,8 +175,13 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "jalr") {
     // FIXME: should addresss calculation be wrapped?
     Res = PS.getPCs(EX) + 4;
+
     Address nextPC = PS.getDERs1Val() + signExtend(PS.getDEImmVal(), 12);
+    std::cerr << "jalr " << PS.getDERs1Val() << " " << PS.getDEImmVal() << "\n";
     PS.setBranchPC(nextPC);
+    PS.setInvalid(DE);
+    PS.setInvalid(IF);
+
   } else if (Mnemo == "lb") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
@@ -306,13 +311,14 @@ void RIPSimulator::exec(PipelineStates &) {
     Res = PS.getPCs(EX) + 4;
     Address nextPC = PS.getPCs(EX) + signExtend(PS.getDEImmVal(), 20);
     PS.setBranchPC(nextPC);
+    PS.setInvalid(DE);
+    PS.setInvalid(IF);
 
     // B-type
   } else if (Mnemo == "beq") {
     if (PS.getDERs1Val() == PS.getDERs2Val()) {
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
       PS.setBranchPC(nextPC);
-
       PS.setInvalid(DE);
       PS.setInvalid(IF);
 
@@ -391,12 +397,6 @@ void RIPSimulator::exec(PipelineStates &) {
   } else {
     assert(false && "unimplemented!");
   }
-
-  // if (auto NextPC = PS.takeBranchPC()) {
-  //   PS.setInvalid(EX);
-  //   PS.setInvalid(DE);
-  //   PS.setInvalid(IF);
-  // }
 
   // if (INVALID_EX.find(Inst->getMnemo()) != INVALID_EX.end()) {
   //   // FIXME: invalide itself, is this right?
@@ -514,6 +514,7 @@ void RIPSimulator::runFromDRAMBASE() {
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
+      std::cerr << std::hex << PC << "\n";
     }
 #ifdef DEBUG
     PS.dump();

@@ -441,6 +441,35 @@ TEST(RIPSimulatorTest, JALR) {
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
 
+TEST(RIPSimulatorTest, JALR2) {
+  const unsigned char BYTES[] = {
+      0x17, 0x02, 0x00, 0x00, // 0x00, auipc x4, 0 // x4 = 0x00
+      0x67, 0x02, 0xc2, 0x00, // 0x04, jalr x4, x4, 12
+      // PC = 0x8000 + 12, x4  = 08
+
+      0x13, 0x08, 0x18, 0x00, // 0x08, addi x16, x16, 1 // should be skipped
+      0x13, 0x02, 0x12, 0x00, // 0x0c, addi x4, x4, 1 // shouldn't be skipped
+  };
+
+  const GPRegisters EXPECTED = {{4, DRAM_BASE + 4 + 4 + 1}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 4;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, BEQ) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x30, 0x00, // addi x16, x0, 3
@@ -476,11 +505,11 @@ TEST(RIPSimulatorTest, BEQ2) {
       0x63, 0x06, 0x18, 0x01, // 0x0c, beq x16, x17, 12
       // jump to 0x0c + 12 = 0x18
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
   };
 
   const GPRegisters EXPECTED = {{16, 5}, {17, 4}};
@@ -536,11 +565,11 @@ TEST(RIPSimulatorTest, BNE2) {
       0x63, 0x06, 0x18, 0x01, // beq x16, x17, 12
       0x63, 0x16, 0x18, 0x01, // bne x16, x17, 12 // jump
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
   };
 
   const GPRegisters EXPECTED = {{16, 7}, {17, 4}};
@@ -596,11 +625,11 @@ TEST(RIPSimulatorTest, BLT2) {
       0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
       0x63, 0x46, 0x18, 0x01, // blt x16, x17, 12
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
 
   };
 
@@ -657,11 +686,11 @@ TEST(RIPSimulatorTest, BGE2) {
       0x63, 0x46, 0x18, 0x01, // blt x16, x17, 12
       0x63, 0x56, 0x18, 0x01, // bge x16, x17, 12
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
 
   };
 
@@ -718,11 +747,11 @@ TEST(RIPSimulatorTest, BLTU2) {
       0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
       0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
   };
 
   const GPRegisters EXPECTED = {{16, 5}, {17, 6}};
@@ -778,11 +807,11 @@ TEST(RIPSimulatorTest, BGEU2) {
       0x63, 0x66, 0x18, 0x01, // bltu x16, x17, 12
       0x63, 0x76, 0x18, 0x01, // bgeu x16, x17, 12
 
-      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // should be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x18, addi x16, x16, 1 // shouldn't be skipped
-      0x13, 0x08, 0x18, 0x00, // 0x1c, addi x16, x16, 1 // shouldn't be skipped
-      0x93, 0x88, 0x18, 0x00, // 0x20, addi x17, x17, 1
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // addi x16, x16, 1 // shouldn't be skipped
+      0x93, 0x88, 0x18, 0x00, // addi x17, x17, 1
 
   };
 
@@ -828,7 +857,36 @@ TEST(RIPSimulatorTest, JAL) {
       << "PC"
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
-// FIXME: NEED JAL tests after jump!
+
+TEST(RIPSimulatorTest, JAL2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0xd0, 0xff, // 0x00 addi x16, x0, -3
+      0x6f, 0x09, 0xc0, 0x00, // 0x04 jal x18, 12
+
+      0x13, 0x08, 0x18, 0x00, // 0x08, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x0c, addi x16, x16, 1 // should be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x10, addi x16, x16, 1 // shouldn't be skipped
+      0x13, 0x08, 0x18, 0x00, // 0x14, addi x16, x16, 1 // shouldn't be skipped
+  };
+
+  const GPRegisters EXPECTED = {{16, -1}, {18, DRAM_BASE + 8}};
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 6;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
 
 TEST(RIPSimulatorTest, ZERO1) {
   const unsigned char BYTES[] = {
