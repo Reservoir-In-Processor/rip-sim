@@ -510,7 +510,6 @@ void RIPSimulator::runFromDRAMBASE() {
     if (PS.isEmpty()) {
       break;
     }
-    // TODO:
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
