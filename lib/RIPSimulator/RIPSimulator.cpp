@@ -168,11 +168,11 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "sltiu") {
     Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDEImmVal();
   } else if (Mnemo == "xori") {
-    Res = (unsigned)PS.getDERs1Val() ^ PS.getDEImmVal();
+    Res = PS.getDERs1Val() ^ PS.getDEImmVal();
   } else if (Mnemo == "ori") {
-    Res = (unsigned)PS.getDERs1Val() | PS.getDEImmVal();
+    Res = PS.getDERs1Val() | PS.getDEImmVal();
   } else if (Mnemo == "andi") {
-    Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
+    Res = PS.getDERs1Val() & PS.getDEImmVal();
   } else if (Mnemo == "jalr") {
     Res = PS.getPCs(EX) + 4;
 
