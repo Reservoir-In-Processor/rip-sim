@@ -175,7 +175,6 @@ void RIPSimulator::exec(PipelineStates &) {
     Res = PS.getPCs(EX) + 4;
 
     Address nextPC = PS.getDERs1Val() + signExtend(PS.getDEImmVal(), 12);
-    std::cerr << "jalr " << PS.getDERs1Val() << " " << PS.getDEImmVal() << "\n";
     PS.setBranchPC(nextPC);
     PS.setInvalid(DE);
     PS.setInvalid(IF);
@@ -319,9 +318,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
-      // pass
     }
   } else if (Mnemo == "bne") {
     if (PS.getDERs1Val() != PS.getDERs2Val()) {
@@ -329,9 +325,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
-      // pass
     }
   } else if (Mnemo == "blt") {
     if (PS.getDERs1Val() < PS.getDERs2Val()) {
@@ -339,9 +332,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
-      // pass
     }
   } else if (Mnemo == "bge") {
     if (PS.getDERs1Val() >= PS.getDERs2Val()) {
@@ -349,8 +339,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
     }
   } else if (Mnemo == "bltu") {
     if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
@@ -358,8 +346,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
     }
   } else if (Mnemo == "bgeu") {
     if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
@@ -367,8 +353,6 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
-
-    } else {
     }
     // S-type
   } else if (Mnemo == "sb") {
@@ -450,24 +434,24 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   }
 
   // Decode immdediate value
-  if (ITypeKinds.find(Inst->getMnemo()) != ITypeKinds.end()) {
+  if (ITypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getImm(), 12);
 
-  } else if (STypeKinds.find(Inst->getMnemo()) != STypeKinds.end()) {
+  } else if (STypeKinds.count(Inst->getMnemo())) {
     unsigned Offset =
         (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) & 0x1f);
     Imm = signExtend(Offset, 12);
 
-  } else if (RTypeKinds.find(Inst->getMnemo()) != RTypeKinds.end()) {
+  } else if (RTypeKinds.count(Inst->getMnemo())) {
     // no Imm
-  } else if (JTypeKinds.find(Inst->getMnemo()) != JTypeKinds.end()) {
+  } else if (JTypeKinds.count(Inst->getMnemo())) {
     Imm = ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
           ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
 
-  } else if (BTypeKinds.find(Inst->getMnemo()) != BTypeKinds.end()) {
+  } else if (BTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
           ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
-  } else if (UTypeKinds.find(Inst->getMnemo()) != UTypeKinds.end()) {
+  } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
   } else {
     assert(false && "unimplemented!");

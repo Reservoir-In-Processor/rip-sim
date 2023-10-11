@@ -120,10 +120,6 @@ public:
     return Insts[Stage];
   }
 
-  std::unique_ptr<Instruction> take(STAGES Stage) {
-    return std::move(Insts[Stage]);
-  }
-
   void push(std::unique_ptr<Instruction> InstPtr) {
     for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
       Insts[Stage] = std::move(Insts[Stage - 1]);
