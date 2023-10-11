@@ -72,11 +72,11 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   } else if (Mnemo == "csrrw") {
     // FIXME: is it correct calculation in this stage?
     CSRVal CV = PS.getMARdVal();   // CV = CSR[Imm]
-    RegVal Imm = PS.getMAImmVal(); // we need Imm Val
+    RegVal CSRAddr = PS.getMAImmVal();
     Res = GPRegs[Inst->getRs1()];
 
-    States.write(Imm,
-                 GPRegs[Inst->getRs1()]); // CSR[Imm] = GPReg[rs1]
+    States.write(CSRAddr,
+                 GPRegs[Inst->getRs1()]); // CSR[CSRAddr] = GPReg[rs1]
     GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
 
   } else if (Mnemo == "csrrs") {
