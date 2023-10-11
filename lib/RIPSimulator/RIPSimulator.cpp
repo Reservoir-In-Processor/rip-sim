@@ -71,7 +71,7 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
   } else if (Mnemo == "csrrw") {
     // FIXME: is it correct calculation in this stage?
-    CSRVal CV = PS.getMARdVal();   // CV = CSR[Imm]
+    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
     RegVal CSRAddr = PS.getMAImmVal();
     Res = GPRegs[Inst->getRs1()];
 
@@ -400,7 +400,7 @@ void RIPSimulator::exec(PipelineStates &) {
 void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // FIXME: PS indexing seems not consistent(it's not only instructions)
   const auto &Inst = PS[STAGES::DE];
-  unsigned Imm = 0;
+  int Imm = 0;
 
   // FIXME: this is incorrect, because U-type and J-type instr's Rs1 or Rs2
   // is a part of immediate. Check if the inst is one of those.
@@ -447,12 +447,15 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   } else if (JTypeKinds.count(Inst->getMnemo())) {
     Imm = ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
           ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
+    Imm = signExtend(Imm, 20);
 
   } else if (BTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
           ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
+    Imm = signExtend(Imm, 12);
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
+    Imm = signExtend(Imm, 20);
   } else {
     assert(false && "unimplemented!");
   }
