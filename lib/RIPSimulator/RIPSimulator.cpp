@@ -394,6 +394,7 @@ void RIPSimulator::exec(PipelineStates &) {
 void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // FIXME: PS indexing seems not consistent(it's not only instructions)
   const auto &Inst = PS[STAGES::DE];
+  unsigned Imm = 0;
 
   // FIXME: this is incorrect, because U-type and J-type instr's Rs1 or Rs2
   // is a part of immediate. Check if the inst is one of those.
@@ -428,32 +429,28 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
 
   // Decode immdediate value
   if (ITypeKinds.find(Inst->getMnemo()) != ITypeKinds.end()) {
-    PS.setDEImmVal(signExtend(Inst->getImm(), 12));
+    Imm = signExtend(Inst->getImm(), 12);
 
   } else if (STypeKinds.find(Inst->getMnemo()) != STypeKinds.end()) {
     unsigned Offset =
         (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) & 0x1f);
-    PS.setDEImmVal(signExtend(Offset, 12));
+    Imm = signExtend(Offset, 12);
 
   } else if (RTypeKinds.find(Inst->getMnemo()) != RTypeKinds.end()) {
     // no Imm
   } else if (JTypeKinds.find(Inst->getMnemo()) != JTypeKinds.end()) {
-    unsigned Imm =
-        ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
-        ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
-    PS.setDEImmVal(Imm);
+    Imm = ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
+          ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
 
   } else if (BTypeKinds.find(Inst->getMnemo()) != BTypeKinds.end()) {
-    unsigned Imm =
-        (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
-        ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
-    PS.setDEImmVal(Imm);
+    Imm = (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
+          ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
   } else if (UTypeKinds.find(Inst->getMnemo()) != UTypeKinds.end()) {
-    unsigned Imm = (Inst->getVal() & 0xfffff000) >> 12;
-    PS.setDEImmVal(Imm);
+    Imm = (Inst->getVal() & 0xfffff000) >> 12;
   } else {
     assert(false && "unimplemented!");
   }
+  PS.setDEImmVal(Imm);
   // TODO: stall 1 cycle if the inst is load;
 }
 void RIPSimulator::fetch(Memory &, PipelineStates &) {
