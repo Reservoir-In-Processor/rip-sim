@@ -19,7 +19,7 @@ void PipelineStates::dump() {
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     std::cerr << StageNames[(STAGES)Stage] << ": ";
     if (Insts[Stage] != nullptr) {
-      std::cerr << std::hex << "PC=" << PCs[Stage] << " ";
+      std::cerr << std::hex << "PC=0x" << PCs[Stage] << " ";
       Insts[Stage]->mprint(std::cerr);
       std::cerr << ", ";
     } else
