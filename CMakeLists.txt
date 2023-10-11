@@ -78,7 +78,23 @@ add_subdirectory(unittests)
 
 # FIXME: work filter
 add_custom_target(unittests
-  COMMAND ${CMAKE_COMMAND} -E env GTEST_FILTER="-RV32M/RiscvTests.*:-RV32I/RiscvTests.*" ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  DEPENDS ${ALL_TESTS}
+)
+
+# TODO: add those 
+# add_custom_target(asm-unittests
+#   COMMAND ctest -R "SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
+#   DEPENDS ${ALL_TESTS}
+# )
+
+add_custom_target(sim-unittests
+  COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
+  DEPENDS ${ALL_TESTS}
+)
+
+add_custom_target(rip-unittests
+  COMMAND ctest -R "RIPSimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
   DEPENDS ${ALL_TESTS}
 )
 
