@@ -69,35 +69,36 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   } else if (Mnemo == "jalr") {
     Res = PS.getPCs(MA);
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
-  } else if (Mnemo == "csrrw") {
-    // FIXME: is it correct calculation in this stage?
-    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
-    RegVal CSRAddr = PS.getMAImmVal();
-    Res = GPRegs[Inst->getRs1()];
+    // FIXME: CSR wite backs come here.
+    //  } else if (Mnemo == "csrrw") {
+    //    // FIXME: is it correct calculation in this stage?
+    //    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
+    //    RegVal CSRAddr = PS.getMAImmVal();
+    //    Res = GPRegs[Inst->getRs1()];
 
-    States.write(CSRAddr,
-                 GPRegs[Inst->getRs1()]); // CSR[CSRAddr] = GPReg[rs1]
-    GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
+    //   States.write(CSRAddr,
+    //                GPRegs[Inst->getRs1()]); // CSR[CSRAddr] = GPReg[rs1]
+    //   GPRegs.write(Inst->getRd(), CV);      // Reg[Rd] = CSR[Imm]
 
-  } else if (Mnemo == "csrrs") {
-    // FIXME: is it correct calculation in this stage?
-    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
-    Res = CV | GPRegs[Inst->getRs1()];
+    // } else if (Mnemo == "csrrs") {
+    //   // FIXME: is it correct calculation in this stage?
+    //   CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
+    //   Res = CV | GPRegs[Inst->getRs1()];
 
-    States.write(
-        PS.getMARdVal(),
-        CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
-    GPRegs.write(Inst->getRd(), CV);
+    //   States.write(
+    //       PS.getMARdVal(),
+    //       CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
+    //   GPRegs.write(Inst->getRd(), CV);
 
-  } else if (Mnemo == "csrrc") {
-    // FIXME: is it correct calculation in this stage?
-    CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
-    Res = CV & !GPRegs[Inst->getRs1()];
+    // } else if (Mnemo == "csrrc") {
+    //   // FIXME: is it correct calculation in this stage?
+    //   CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
+    //   Res = CV & !GPRegs[Inst->getRs1()];
 
-    States.write(
-        PS.getMARdVal(),
-        CV & ~GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
-    GPRegs.write(Inst->getRd(), CV);
+    //   States.write(
+    //       PS.getMARdVal(),
+    //       CV & ~GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
+    //   GPRegs.write(Inst->getRd(), CV);
 
   } else {
     // Instructions with writeback
@@ -121,6 +122,7 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "sb") {
     Mem.writeByte(MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "lw") {
+    // FIXME: unsigned to signed safe cast (not implementation defined way)
     Word V = Mem.readWord(PS.getEXRdVal());
     Res = (signed)V;
   } else if (Mnemo == "lh") {
@@ -135,12 +137,13 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "lb") {
     Byte V = Mem.readByte(PS.getEXRdVal());
     Res = (signed char)V;
-  } else if (Mnemo == "csrrs") {
-    if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
-      std::cerr << "Forwarding from WB to MA."
-                << "\n";
-      Res = PS.getWBImmVal();
-    }
+    // FIXME: Forwarding should be decode.
+    // } else if (Mnemo == "csrrs") {
+    //   if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
+    //     std::cerr << "Forwarding from WB to MA."
+    //               << "\n";
+    //     Res = PS.getWBImmVal();
+    // }
   }
 
   PS.setMARdVal(Res);
@@ -171,7 +174,6 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "andi") {
     Res = (unsigned)PS.getDERs1Val() & PS.getDEImmVal();
   } else if (Mnemo == "jalr") {
-    // FIXME: should addresss calculation be wrapped?
     Res = PS.getPCs(EX) + 4;
 
     Address nextPC = PS.getDERs1Val() + signExtend(PS.getDEImmVal(), 12);
@@ -180,21 +182,16 @@ void RIPSimulator::exec(PipelineStates &) {
     PS.setInvalid(IF);
 
   } else if (Mnemo == "lb") {
-    // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "lh") {
-    // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "lw") {
-    // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "lbu") {
-    // FIXME: unsigned to signed safe cast (not implementation defined way)
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "lhu") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "slli") { // FIXME: shamt
-    // FIXME: sext?
     Res = (unsigned)PS.getDERs1Val() << PS.getDEImmVal();
   } else if (Mnemo == "srli") {
     Res = (unsigned)PS.getDERs1Val() >> PS.getDEImmVal();
@@ -387,9 +384,6 @@ void RIPSimulator::exec(PipelineStates &) {
   //   PS.setInvalid(IF);
   //   // TODO: reset PC
   // }
-  // // TODO: implemnet Branched PC
-  // if (false)
-  //   PS.setBranchPC(PC + 4);
 
   PS.setEXRdVal(Res);
   PS.setEXImmVal(Imm);
