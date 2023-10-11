@@ -164,7 +164,7 @@ void RIPSimulator::exec(PipelineStates &) {
   if (Mnemo == "addi") {
     Res = PS.getDERs1Val() + PS.getDEImmVal();
   } else if (Mnemo == "slti") {
-    Res = (signed)PS.getDERs1Val() < PS.getDEImmVal();
+    Res = PS.getDERs1Val() < PS.getDEImmVal();
   } else if (Mnemo == "sltiu") {
     Res = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDEImmVal();
   } else if (Mnemo == "xori") {
