@@ -77,7 +77,7 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   } else if (Mnemo == "jalr") {
     Res = PS.getPCs(MA);
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
-  } else if (Mnemo == "csrrw") {
+  } else if (Mnemo == "csrrw") { // FIXME: should be merged
     RegVal RdVal = PS.getMARdVal();
     RegVal CV = PS.getMACSRVal();
 
@@ -95,7 +95,34 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
     States.write(CSRAddr, CV);
     GPRegs.write(Inst->getRd(), RdVal);
 
+  } else if (Mnemo == "csrrc") {
+    RegVal RdVal = PS.getMARdVal();
+    RegVal CV = PS.getMACSRVal();
+
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
+
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
+
   } else if (Mnemo == "csrrwi") {
+    RegVal RdVal = PS.getMARdVal();
+    RegVal CV = PS.getMACSRVal();
+
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
+
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
+
+  } else if (Mnemo == "csrrsi") {
+    RegVal RdVal = PS.getMARdVal();
+    RegVal CV = PS.getMACSRVal();
+
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
+
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
+
+  } else if (Mnemo == "csrrci") {
     RegVal RdVal = PS.getMARdVal();
     RegVal CV = PS.getMACSRVal();
 
@@ -218,15 +245,18 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "csrrs") {
     CV = PS.getDECSRVal() | PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-    // } else if (Mnemo == "csrrc") {
-    //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
+  } else if (Mnemo == "csrrc") {
+    CV = PS.getDECSRVal() & ~PS.getDERs1Val();
+    RdVal = PS.getDECSRVal();
   } else if (Mnemo == "csrrwi") {
     CV = PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-    // } else if (Mnemo == "csrrsi") {
-    //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
-    // } else if (Mnemo == "csrrci") {
-    //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
+  } else if (Mnemo == "csrrsi") {
+    CV = PS.getDERs1Val() | PS.getDECSRVal();
+    RdVal = PS.getDECSRVal();
+  } else if (Mnemo == "csrrci") {
+    CV = PS.getDECSRVal() & ~PS.getDERs1Val();
+    RdVal = PS.getDECSRVal();
     // } else if (Mnemo == "ecall") {
     //   if (Mode == ModeKind::User) {
     //     return Exception::EnvironmentCallFromUMode;
@@ -415,8 +445,9 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // is a part of immediate. Check if the inst is one of those.
 
   if (CSR_INSTs.count(Inst->getMnemo())) {
-    if (Inst->getMnemo() == "csrrwi") { // FIXME: other csr insts with zimm.
-      PS.setDERs1Val(Inst->getRs1());
+    if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
+        Inst->getMnemo() == "csrrci") {
+      PS.setDERs1Val((unsigned int)Inst->getRs1());
     } else {
       // Register access on Rs1
       if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
