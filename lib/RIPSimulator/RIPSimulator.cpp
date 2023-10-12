@@ -40,7 +40,6 @@ void PipelineStates::dump() {
       break;
 
     case STAGES::MA:
-      std::cerr << "RdVal=" << MARdVal << ", ";
       std::cerr << "CSRVal=" << MACSRVal << ", ";
       std::cerr << "RdVal=" << MARdVal << "\n";
 
