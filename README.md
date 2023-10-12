@@ -18,6 +18,27 @@ ninja -Cbuild
 
 ## run unit tests
 
+### All
+
+```sh
+ninja -Cbuild unittests
+```
+
+### Instruction Level Simulator
+
+```sh
+ninja -Cbuild sim-unittests
+```
+
+### Rip Simulator
+
+```sh
+ninja -Cbuild rip-unittests
+```
+
+
+## run all unit tests
+
 ```sh
 ninja -Cbuild unittests
 ```
