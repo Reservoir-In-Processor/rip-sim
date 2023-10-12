@@ -1142,33 +1142,33 @@ TEST(RIPSimulatorTest, FENCE_AS_NOP) {
   }
 }
 
-// TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
-//   const unsigned char BYTES[] = {
-//       0x73, 0x50, 0x26, 0x34, // csrrwi x0, mcause, 12
-//       0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
-//       0x73, 0xd0, 0x46, 0xf1, // csrrwi x0, mhartid, 13
-//       0x73, 0x25, 0x40, 0xf1, // csrrs x10, mhartid, x0
-//   };
+TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
+  const unsigned char BYTES[] = {
+      0x73, 0x50, 0x26, 0x34, // csrrwi x0, mcause, 12
+      0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
+      0x73, 0xd0, 0x46, 0xf1, // csrrwi x0, mhartid, 13
+      0x73, 0x25, 0x40, 0xf1, // csrrs x10, mhartid, x0
+  };
 
-//   const GPRegisters EXPECTED = {{10, 13}, {30, 12}};
-//   const CSRs EXPECTED_C = {{MCAUSE, 12}, {MHARTID, 13}};
-//   std::stringstream ss;
-//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  const GPRegisters EXPECTED = {{10, 13}, {30, 12}};
+  const CSRs EXPECTED_C = {{MCAUSE, 12}, {MHARTID, 13}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
-//   RIPSimulator RSim(ss);
-//   RSim.runFromDRAMBASE();
-//   const GPRegisters &Res = RSim.getGPRegs();
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
 
-//   for (unsigned i = 0; i < 32; ++i) {
-//     EXPECT_EQ(Res[i], EXPECTED[i])
-//         << "Register:" << i << ", expected: " << EXPECTED[i]
-//         << ", got: " << Res[i];
-//   }
-//   const CSRs &ResC = RSim.getCSRs();
-//   for (CSRAddress CA : {MCAUSE, MHARTID}) {
-//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
-//   }
-// }
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MCAUSE, MHARTID}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
 
 TEST(RIPSimulatorTest, CSRRW) {
   const unsigned char BYTES[] = {

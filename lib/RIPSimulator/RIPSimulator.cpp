@@ -77,42 +77,32 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   } else if (Mnemo == "jalr") {
     Res = PS.getPCs(MA);
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
-    // FIXME: CSR wite backs come here.
   } else if (Mnemo == "csrrw") {
-    // FIXME: is it correct calculation in this stage?
-    RegVal RdVal = PS.getMARdVal(); // CV = CSR[Imm]
-    RegVal CV = PS.getMACSRVal();
-
-    RegVal CSRAddr = PS.getMAImmVal();
-    // Res = GPRegs[Inst->getRs1()];
-
-    States.write(CSRAddr, CV);          // CSR[CSRAddr] = GPReg[rs1]
-    GPRegs.write(Inst->getRd(), RdVal); // Reg[Rd] = CSR[Imm]
-
-  } else if (Mnemo == "csrrs") {
-    // FIXME: is it correct calculation in this stage?
     RegVal RdVal = PS.getMARdVal();
     RegVal CV = PS.getMACSRVal();
 
-    RegVal CSRAddr = PS.getMAImmVal();
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
 
-    States.write(CSRAddr, CV);          // CSR[CSRAddr] = GPReg[rs1]
-    GPRegs.write(Inst->getRd(), RdVal); // Reg[Rd] = CSR[Imm]
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
 
-    //   States.write(
-    //       PS.getMARdVal(),
-    //       CV | GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] | GPReg[rs1]
-    //   GPRegs.write(Inst->getRd(), CV);
+  } else if (Mnemo == "csrrs") {
+    RegVal RdVal = PS.getMARdVal();
+    RegVal CV = PS.getMACSRVal();
 
-    // } else if (Mnemo == "csrrc") {
-    //   // FIXME: is it correct calculation in this stage?
-    //   CSRVal CV = PS.getMARdVal(); // CV = CSR[Imm]
-    //   Res = CV & !GPRegs[Inst->getRs1()];
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
 
-    //   States.write(
-    //       PS.getMARdVal(),
-    //       CV & ~GPRegs[Inst->getRs1()]); // CSR[Imm] = CSR[Imm] & ~GPReg[rs1]
-    //   GPRegs.write(Inst->getRd(), CV);
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
+
+  } else if (Mnemo == "csrrwi") {
+    RegVal RdVal = PS.getMARdVal();
+    RegVal CV = PS.getMACSRVal();
+
+    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
+
+    States.write(CSRAddr, CV);
+    GPRegs.write(Inst->getRd(), RdVal);
 
   } else {
     // Instructions with writeback
@@ -125,6 +115,7 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
 void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   const auto &Inst = PS[STAGES::MA];
   const RegVal MARdVal = PS.getEXRdVal();
+  const RegVal MACSRVal = PS.getEXCSRVal();
   RegVal Res = MARdVal;
   unsigned Imm = PS.getEXImmVal();
   std::string Mnemo = Inst->getMnemo();
@@ -161,7 +152,7 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   }
 
   PS.setMARdVal(Res);
-  PS.setMACSRVal(Res);
+  PS.setMACSRVal(MACSRVal);
   PS.setMAImmVal(Imm);
 }
 
@@ -169,8 +160,9 @@ const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
                                           "bge",  "bltu",  "bgeu",  "jal",
                                           "jalr", "ecall", "ebreak"};
 
-const std::set<std::string> CSR_INSTs = {"csrrw",
-                                         "csrrs"}; // FIXME: add more CSR
+const std::set<std::string> CSR_INSTs = {
+    "csrrw",  "csrrs",  "csrrc",
+    "csrrwi", "csrrsi", "csrrci"}; // FIXME: ecall, ebreak, uret, sret, mret?
 
 void RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
@@ -228,8 +220,9 @@ void RIPSimulator::exec(PipelineStates &) {
     RdVal = PS.getDECSRVal();
     // } else if (Mnemo == "csrrc") {
     //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
-    // } else if (Mnemo == "csrrwi") {
-    //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
+  } else if (Mnemo == "csrrwi") {
+    CV = PS.getDERs1Val();
+    RdVal = PS.getDECSRVal();
     // } else if (Mnemo == "csrrsi") {
     //   RdVal = States.read(PS.getDEImmVal() & 0xfff); // RdVal = CSR[Imm]
     // } else if (Mnemo == "csrrci") {
@@ -422,21 +415,23 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // is a part of immediate. Check if the inst is one of those.
 
   if (CSR_INSTs.count(Inst->getMnemo())) {
-    // FIXME: CSR forwarding comes here
-
-    // Register access on Rs1
-    if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
-      // MA forward
-      PS.setDERs1Val(PS.getMARdVal());
-      std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
-
-    } else if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
-      // EX forward
-      PS.setDERs1Val(PS.getEXRdVal());
-      std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
-
+    if (Inst->getMnemo() == "csrrwi") { // FIXME: other csr insts with zimm.
+      PS.setDERs1Val(Inst->getRs1());
     } else {
-      PS.setDERs1Val(GPRegs[Inst->getRs1()]);
+      // Register access on Rs1
+      if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
+        // MA forward
+        PS.setDERs1Val(PS.getMARdVal());
+        std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
+
+      } else if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
+        // EX forward
+        PS.setDERs1Val(PS.getEXRdVal());
+        std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
+
+      } else {
+        PS.setDERs1Val(GPRegs[Inst->getRs1()]);
+      }
     }
 
     // Register access on CSR
