@@ -35,10 +35,13 @@ private:
   RegVal EXRdVal;
   RegVal EXRs2Val;
   RegVal EXImmVal;
+  RegVal EXCSRVal;
   RegVal MARdVal;
   RegVal MAImmVal;
+  RegVal MACSRVal;
   RegVal DERs1Val;
   RegVal DERs2Val;
+  RegVal DECSRVal;
   RegVal DEImmVal;
   RegVal WBImmVal;
 
@@ -56,9 +59,9 @@ public:
   PipelineStates &operator=(const PipelineStates &) = delete;
 
   PipelineStates()
-      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), MARdVal(0), MAImmVal(0),
-        DERs2Val(0), DEImmVal(0), WBImmVal(0), StalledStages{0},
-        InvalidStages{0} {}
+      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), EXCSRVal(0), MARdVal(0),
+        MAImmVal(0), MACSRVal(0), DERs2Val(0), DECSRVal(0), DEImmVal(0),
+        WBImmVal(0), StalledStages{0}, InvalidStages{0} {}
 
   void dump();
 
@@ -71,11 +74,17 @@ public:
   const RegVal &getEXImmVal() { return EXImmVal; }
   void setEXImmVal(RegVal &V) { EXImmVal = V; }
 
+  const RegVal &getEXCSRVal() { return EXCSRVal; }
+  void setEXCSRVal(RegVal &V) { EXCSRVal = V; }
+
   const RegVal &getDERs1Val() { return DERs1Val; }
   void setDERs1Val(const RegVal &V) { DERs1Val = V; }
 
   const RegVal &getDERs2Val() { return DERs2Val; }
   void setDERs2Val(const RegVal &V) { DERs2Val = V; }
+
+  const RegVal &getDECSRVal() { return DECSRVal; }
+  void setDECSRVal(const RegVal &V) { DECSRVal = V; }
 
   const RegVal &getDEImmVal() { return DEImmVal; }
   void setDEImmVal(const RegVal &V) { DEImmVal = V; }
@@ -85,6 +94,9 @@ public:
 
   const RegVal &getMAImmVal() { return MAImmVal; }
   void setMAImmVal(const RegVal &V) { MAImmVal = V; }
+
+  const RegVal &getMACSRVal() { return MACSRVal; }
+  void setMACSRVal(const RegVal &V) { MACSRVal = V; }
 
   const RegVal &getWBImmVal() { return WBImmVal; }
   void setWBImmVal(const RegVal &V) { WBImmVal = V; }
