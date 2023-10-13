@@ -1,6 +1,7 @@
 
 #ifndef RIPSIMULATOR_H
 #define RIPSIMULATOR_H
+#include "BranchPredictor.h"
 #include "Decoder.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
@@ -171,10 +172,11 @@ private:
   unsigned CodeSize;
   Address PC;
   CSRs States;
-  unsigned CycleNum;
+  unsigned StagesNum;
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
+  BranchPredictor BP;
 
 public:
   RIPSimulator(const RIPSimulator &) = delete;
