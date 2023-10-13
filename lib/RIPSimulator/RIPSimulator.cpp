@@ -233,7 +233,7 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "srli") {
     RdVal = (unsigned)PS.getDERs1Val() >> PS.getDEImmVal();
   } else if (Mnemo == "srai") {
-    RdVal = (signed)PS.getDERs1Val() >> PS.getDEImmVal();
+    RdVal = PS.getDERs1Val() >> PS.getDEImmVal();
   } else if (Mnemo == "fence") {
     // FIXME: currently expected to be nop
   } else if (Mnemo == "fence.i") {
