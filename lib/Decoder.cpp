@@ -61,7 +61,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
 
   case 0b0010111: // auipc
     InstPtr = std::make_unique<UInstruction>(UTypeKinds.find("auipc")->second,
-                                             Rd, InstVal & 0xfffff000);
+                                             Rd, (InstVal & 0xfffff000) >> 12);
     break;
   case 0b0110011:
     if (Funct3 == 0b000 && Funct7 == 0b0000000) { // add
