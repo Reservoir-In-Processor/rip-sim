@@ -216,6 +216,7 @@ public:
   void run();
   bool proceedNStage(unsigned N);
 
+  void runRiscvTests();
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }

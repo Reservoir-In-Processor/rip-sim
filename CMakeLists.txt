@@ -107,6 +107,12 @@ add_custom_target(riscvtests
   DEPENDS RiscvTests
 )
 
+add_subdirectory(rip-riscvtests)
+add_custom_target(rip-riscvtests
+  COMMAND ctest --test-dir ./rip-riscvtests/ --output-on-failure --timeout 10
+  DEPENDS RIPRiscvTests
+)
+
 # FIXME: do dhry
 add_custom_target(dhrystone
   COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 5
