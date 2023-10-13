@@ -240,36 +240,31 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     }
 
     // Previous Privilege mode for Machine mode.
-    ModeKind MPP = (ModeKind)((MSTATUSVal >> 11) & 0b11);
+    ModeKind MPPVal = (ModeKind)((MSTATUSVal >> 11) & 0b11);
 
-    if (MPP == ModeKind::User) {
-      // FIXME: add methods?
-      // set MPREV=0
-      // MPREV: Modify privilege bit. 17-th bit of MSTATUS
-      States.write(MSTATUS, MSTATUS & 0xfffdffff);
+    if (MPPVal == ModeKind::User) {
+      States.setMPREV(0);
       // FIXME: riscv-tests expects UserMode?
       // Mode = ModeKind::User;
-    } else if (MPP == ModeKind::Supervisor) {
+    } else if (MPPVal == ModeKind::Supervisor) {
       // set MPREV=0
-      std::cerr << "Supervisor!\n";
-      States.write(MSTATUS, MSTATUS & 0xfffdffff);
+      States.setMPREV(0);
       Mode = ModeKind::Supervisor;
-    } else if (MPP == ModeKind::Machine) {
+    } else if (MPPVal == ModeKind::Machine) {
       Mode = ModeKind::Machine;
     } else
       return Exception::IllegalInstruction;
     // set MIE to MPIE;
     // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
     // MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
-    bool MPIE = (bool)((MSTATUSVal >> 7) & 1);
-    CSRVal ResVal = (MSTATUSVal & 0xfffffff7) | (MPIE << 3);
+    bool MPIEVal = (bool)((MSTATUSVal >> 7) & 1);
+    States.setMIE(MPIEVal);
 
     // Set MPIE to 1
-    ResVal |= 0b10000000;
+    States.setMPIE(true);
 
     // Set MPP to 0
-    ResVal &= 0xffffe7ff;
-    States.write(MSTATUS, ResVal);
+    States.setMPP((ModeKind)0);
     // R-type
   } else if (Mnemo == "add") {
     RdVal = PS.getDERs1Val() + PS.getDERs2Val();
@@ -550,10 +545,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   PS.setDEImmVal(Imm);
   // TODO: stall 1 cycle if the inst is load;
 }
-void RIPSimulator::fetch(Memory &, PipelineStates &) {
-  // const auto &Inst = PS[STAGES::IF];
-  // FIXME: how and when can I change PC?
-}
+void RIPSimulator::fetch(Memory &, PipelineStates &) {}
 
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
@@ -619,7 +611,6 @@ void RIPSimulator::runFromDRAMBASE() {
         }
 
         PC = VecVal & (~1);
-        std::cerr << "PC becomes " << PC << "\n";
 
         States.write(MEPC, ExceptionPC & (~1));
 
@@ -651,13 +642,11 @@ void RIPSimulator::runFromDRAMBASE() {
 
         MSTATUSVal = States.read(MSTATUS);
         bool MIE = (bool)((MSTATUSVal >> 3) & 1);
-        States.write(MSTATUS, (MSTATUSVal & 0xffffff7f) | (MIE << 7));
+        States.setMPIE(MIE);
 
-        // Set MIE to 0
-        States.write(MSTATUS, MSTATUSVal & 0xfffffff7);
+        States.setMIE(0);
 
-        // set MPP to prev mode
-        States.write(MSTATUS, (MSTATUSVal & 0xffffe7ff) | (PrevMode << 11));
+        States.setMPP(PrevMode);
 
       } else {
         assert(false && "Non-Machine mode is unimplemented!");

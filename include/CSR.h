@@ -99,6 +99,48 @@ public:
   void write(CSRAddress Ad, CSRVal Val);
   CSRVal read(CSRAddress Ad);
 
+  /// get MSTATUS MPREV bit
+  /// MPREV: Modify privilege bit. 17-th bit of MSTATUS
+  const inline bool getMPREV() { return (read(MSTATUS) & 0xfffdffff) >> 17; }
+
+  /// set MSTATUS MPREV bit
+  /// MPREV: Modify privilege bit. 17-th bit of MSTATUS
+  void setMPREV(bool Val) {
+    write(MSTATUS, (read(MSTATUS) & 0xfffdffff) | ((int)Val << 17));
+  }
+
+  /// get MSTATUS MIE bit
+  /// MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
+  const inline bool getMIE() { return (read(MSTATUS) & 0xfffffff7) >> 3; }
+
+  /// set MSTATUS MIE bit
+  /// MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
+  void setMIE(bool Val) {
+    write(MSTATUS, (read(MSTATUS) & 0xfffffff7) | ((int)Val << 3));
+  }
+
+  /// get MSTATUS MPIE bit
+  /// MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
+  const inline bool getMPIE() { return (read(MSTATUS) & 0xffffff7f) >> 7; }
+
+  /// set MSTATUS MPIE bit
+  /// MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
+  void setMPIE(bool Val) {
+    write(MSTATUS, (read(MSTATUS) & 0xffffff7f) | ((int)Val << 7));
+  }
+
+  /// get MSTATUS MPP bit
+  /// MPP: Machine Privious Priviledge. 12-11-th bits of MSTATUS
+  const inline ModeKind getMPP() {
+    return (ModeKind)((read(MSTATUS) & 0xffffe7ff) >> 11 & 0b11);
+  }
+
+  /// set MSTATUS MPP bit
+  /// MPP: Machine Privious Priviledge. 12/11-th bits of MSTATUS
+  void setMPP(ModeKind Val) {
+    write(MSTATUS, (read(MSTATUS) & 0xffffe7ff) | ((int)Val << 11));
+  }
+
   const void dump() const {
     int i = 0;
     for (auto iter = CSRNames.begin(); iter != CSRNames.end(); ++iter) {
