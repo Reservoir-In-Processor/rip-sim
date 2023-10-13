@@ -22,8 +22,10 @@ public:
 
   void BranchHit() {
     HitNum++;
+#ifdef DEBUG
     std::cerr << "Branch pred: hit "
               << "\n";
+#endif
   }
   void BranchMiss() {
     MissNum++;
