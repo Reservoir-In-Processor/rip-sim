@@ -78,7 +78,7 @@ add_subdirectory(unittests)
 
 # FIXME: work filter
 add_custom_target(unittests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 5
   DEPENDS ${ALL_TESTS}
 )
 
@@ -89,12 +89,12 @@ add_custom_target(unittests
 # )
 
 add_custom_target(sim-unittests
-  COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
   DEPENDS ${ALL_TESTS}
 )
 
 add_custom_target(rip-unittests
-  COMMAND ctest -R "RIPSimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
+  COMMAND ctest -R "RIPSimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
   DEPENDS ${ALL_TESTS}
 )
 
@@ -103,13 +103,13 @@ file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
 add_subdirectory(riscvtests)
 # FIXME: do riscvtests
 add_custom_target(riscvtests
-  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure
+  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure --timeout 10
   DEPENDS RiscvTests
 )
 
 # FIXME: do dhry
 add_custom_target(dhrystone
-  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 30
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 5
   DEPENDS Dhrystone
 )
 
