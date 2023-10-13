@@ -309,161 +309,83 @@ void RIPSimulator::exec(PipelineStates &) {
 
     // B-type
   } else if (Mnemo == "beq") {
-    if (PS.getDERs1Val() == PS.getDERs2Val()) {
-      BP.setEXBranched(true);
-
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+    if (((PS.getDERs1Val() == PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
+        (!(PS.getDERs1Val() == PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+      BP.setEXBranched(PS.getDERs1Val() == PS.getDERs2Val());
+      BP.BranchHit();
     } else {
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
   } else if (Mnemo == "bne") {
-    if (PS.getDERs1Val() != PS.getDERs2Val()) {
-
-      BP.setEXBranched(true);
-
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+    if (((PS.getDERs1Val() != PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
+        (!(PS.getDERs1Val() != PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+      BP.setEXBranched(PS.getDERs1Val() != PS.getDERs2Val());
+      BP.BranchHit();
     } else {
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
   } else if (Mnemo == "blt") {
-    if (PS.getDERs1Val() < PS.getDERs2Val()) { // Branch
-      BP.setEXBranched(true);
+    if (((PS.getDERs1Val() < PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
+        (!(PS.getDERs1Val() < PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+      BP.setEXBranched(PS.getDERs1Val() < PS.getDERs2Val());
 
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
-    } else { // not Branch
-
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + 4;
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchHit();
+    } else {
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
   } else if (Mnemo == "bge") {
-    if (PS.getDERs1Val() >= PS.getDERs2Val()) {
-      BP.setEXBranched(true);
-
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+    if (((PS.getDERs1Val() >= PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
+        (!(PS.getDERs1Val() >= PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+      BP.setEXBranched(PS.getDERs1Val() >= PS.getDERs2Val());
+      BP.BranchHit();
     } else {
-
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
   } else if (Mnemo == "bltu") {
-    if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
-      BP.setEXBranched(true);
+    if ((((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) &&
+         BP.getDEBranchTaken()) ||
+        (!((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) &&
+         !BP.getDEBranchTaken())) {
+      BP.setEXBranched((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val());
 
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchHit();
     } else {
-
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
   } else if (Mnemo == "bgeu") {
-    if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
-      BP.setEXBranched(true);
-
-      if (BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+    if ((((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) &&
+         BP.getDEBranchTaken()) ||
+        (!((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) &&
+         !BP.getDEBranchTaken())) {
+      BP.setEXBranched((unsigned)PS.getDERs1Val() >=
+                       (unsigned)PS.getDERs2Val());
+      BP.BranchHit();
     } else {
-
-      BP.setEXBranched(false);
-      if (!BP.getDEBranchTaken()) {
-        BP.BranchHit();
-      } else {
-        BP.BranchMiss();
-        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-        PS.setBranchPC(nextPC);
-        PS.setInvalid(DE);
-        PS.setInvalid(IF);
-      }
+      BP.BranchMiss();
+      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      PS.setBranchPC(nextPC);
+      PS.setInvalid(DE);
+      PS.setInvalid(IF);
     }
     // S-type
   } else if (Mnemo == "sb") {
