@@ -323,7 +323,7 @@ void RIPSimulator::exec(PipelineStates &) {
       }
     } else {
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (!BP.getDEBranchPred()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
