@@ -517,9 +517,6 @@ void RIPSimulator::fetch(Memory &, PipelineStates &) {
   // FIXME: how and when can I change PC?
 }
 
-const std::set<std::string> BranchInsts = {"beq",  "blt",  "bge",
-                                           "bltu", "bgeu", "bne"};
-
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
@@ -557,7 +554,7 @@ void RIPSimulator::runFromDRAMBASE() {
     }
 
     // Branch prediction
-    if (PS[STAGES::DE] && BranchInsts.count(PS[STAGES::DE]->getMnemo())) {
+    if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
       std::cerr << "Branch " << BP.getDEBranchTaken() << "\n";
 
       if (BP.getDEBranchTaken()) {
