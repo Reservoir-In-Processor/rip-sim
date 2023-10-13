@@ -40,6 +40,26 @@ TEST(RIPSimulatorTest, ADDI_FORWARD) {
   }
 }
 
+TEST(RIPSimulatorTest, ADDI_FORWARD2) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x50, 0x00, // addi  x16, x0, 5
+      0x13, 0x08, 0x30, 0x00, // addi  x16, x0, 3
+      0x13, 0x09, 0xa8, 0x00, // addi  x18, x16, 10
+  };
+
+  const GPRegisters EXPECTED = {{16, 3}, {18, 13}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i]);
+  }
+}
+
 TEST(RIPSimulatorTest, SLTI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0xd0, 0xff, // addi, x16, x0, -3
