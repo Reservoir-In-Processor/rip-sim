@@ -4,18 +4,18 @@
 
 class BranchPredictor {
 private:
-  bool DEBranchPred;
+  bool DEBranchTaken;
   bool EXBranched;
   int HitNum;
   int MissNum;
 
 public:
-  BranchPredictor() : DEBranchPred(0), EXBranched(0), HitNum(0), MissNum(0) {}
+  BranchPredictor() : DEBranchTaken(0), EXBranched(0), HitNum(0), MissNum(0) {}
 
-  const bool &getDEBranchPred() {
-    return DEBranchPred;
+  const bool &getDEBranchTaken() {
+    return DEBranchTaken;
   } // TODO: other predictors
-  void setDEBranchPred(bool &V) { DEBranchPred = V; }
+  void setDEBranchTaken(bool &V) { DEBranchTaken = V; }
 
   const bool &getEXBranched() { return EXBranched; }
   void setEXBranched(bool B) { EXBranched = B; }

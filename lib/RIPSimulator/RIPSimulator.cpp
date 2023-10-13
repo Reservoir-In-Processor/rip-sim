@@ -312,7 +312,7 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() == PS.getDERs2Val()) {
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -323,7 +323,7 @@ void RIPSimulator::exec(PipelineStates &) {
       }
     } else {
       BP.setEXBranched(false);
-      if (!BP.getDEBranchPred()) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -338,7 +338,7 @@ void RIPSimulator::exec(PipelineStates &) {
 
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -349,7 +349,7 @@ void RIPSimulator::exec(PipelineStates &) {
       }
     } else {
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (BP.getDEBranchTaken() == false) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -363,7 +363,7 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() < PS.getDERs2Val()) { // Branch
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
 
       } else {
@@ -376,7 +376,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else { // not Branch
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (BP.getDEBranchTaken() == false) {
         BP.BranchHit();
 
       } else {
@@ -391,7 +391,7 @@ void RIPSimulator::exec(PipelineStates &) {
     if (PS.getDERs1Val() >= PS.getDERs2Val()) {
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -403,7 +403,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (BP.getDEBranchTaken() == false) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -417,7 +417,7 @@ void RIPSimulator::exec(PipelineStates &) {
     if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -429,7 +429,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (BP.getDEBranchTaken() == false) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -443,7 +443,7 @@ void RIPSimulator::exec(PipelineStates &) {
     if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
       BP.setEXBranched(true);
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -455,7 +455,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchPred() == false) {
+      if (BP.getDEBranchTaken() == false) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -579,7 +579,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     Imm = signExtend(Imm, 12);
 
     bool BranchPred = BP.getEXBranched();
-    BP.setDEBranchPred(BranchPred);
+    BP.setDEBranchTaken(BranchPred);
 
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
@@ -636,9 +636,9 @@ void RIPSimulator::runFromDRAMBASE() {
 
     // Branch prediction
     if (PS[STAGES::DE] && BranchInsts.count(PS[STAGES::DE]->getMnemo())) {
-      std::cerr << "Branch " << BP.getDEBranchPred() << "\n";
+      std::cerr << "Branch " << BP.getDEBranchTaken() << "\n";
 
-      if (BP.getDEBranchPred()) {
+      if (BP.getDEBranchTaken()) {
         PC = PS.getPCs(DE) + PS.getDEImmVal();
       }
     }
