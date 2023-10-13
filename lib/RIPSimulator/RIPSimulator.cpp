@@ -54,7 +54,7 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), StagesNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -323,11 +323,37 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "blt") {
-    if (PS.getDERs1Val() < PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+    if (PS.getDERs1Val() < PS.getDERs2Val()) { // Branch
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        std::cerr << "Branch pred: hit "
+                  << "\n";
+
+      } else {
+
+        std::cerr << "Branch pred: miss"
+                  << "\n";
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else { // not Branch
+
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        std::cerr << "Branch pred: hit "
+                  << "\n";
+
+      } else {
+        std::cerr << "Branch pred: miss"
+                  << "\n";
+        Address nextPC = PS.getPCs(EX) + 4;
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
   } else if (Mnemo == "bge") {
     if (PS.getDERs1Val() >= PS.getDERs2Val()) {
@@ -462,6 +488,10 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     Imm = (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
           ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
     Imm = signExtend(Imm, 12);
+
+    bool BranchPred = BP.getEXBranched();
+    BP.setDEBranchPred(BranchPred);
+
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
     Imm = signExtend(Imm, 20);
@@ -476,6 +506,9 @@ void RIPSimulator::fetch(Memory &, PipelineStates &) {
   // FIXME: how and when can I change PC?
 }
 
+const std::set<std::string> BranchInsts = {"beq",  "blt",  "bge",
+                                           "bltu", "bgeu", "bne"};
+
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
@@ -487,7 +520,6 @@ void RIPSimulator::runFromDRAMBASE() {
     }
     PS.push(std::move(InstPtr));
     // FIXME: might this be wrong if branch prediction happens.
-    CycleNum++;
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
     if (PS[STAGES::MA] != nullptr)
@@ -502,13 +534,27 @@ void RIPSimulator::runFromDRAMBASE() {
     PS.fillBubble();
 
     if (PS.isEmpty()) {
+      std::cerr << std::dec << "Total stages: " << StagesNum << "\n";
       break;
     }
-    if (auto NextPC = PS.takeBranchPC()) {
-      std::cerr << std::hex << "Branch from " << PC << " to ";
-      PC = *NextPC;
-      std::cerr << std::hex << PC << "\n";
+
+    // Branch prediction
+    if (PS[STAGES::DE] && BranchInsts.count(PS[STAGES::DE]->getMnemo())) {
+      std::cerr << "Branch " << BP.getDEBranchPred() << "\n";
+
+      if (BP.getDEBranchPred()) {
+        PC = PS.getPCs(DE) + PS.getDEImmVal();
+      }
     }
+
+    if (auto NextPC = PS.takeBranchPC()) {
+      std::cerr << std::hex << "Branch from 0x" << PC << " to ";
+      PC = *NextPC;
+      std::cerr << std::hex << "0x" << PC << "\n";
+    }
+
+    StagesNum++;
+
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
