@@ -349,7 +349,7 @@ void RIPSimulator::exec(PipelineStates &) {
       }
     } else {
       BP.setEXBranched(false);
-      if (BP.getDEBranchTaken() == false) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -376,7 +376,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else { // not Branch
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchTaken() == false) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
 
       } else {
@@ -403,7 +403,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchTaken() == false) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -429,7 +429,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchTaken() == false) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
@@ -455,7 +455,7 @@ void RIPSimulator::exec(PipelineStates &) {
     } else {
 
       BP.setEXBranched(false);
-      if (BP.getDEBranchTaken() == false) {
+      if (!BP.getDEBranchTaken()) {
         BP.BranchHit();
       } else {
         BP.BranchMiss();
