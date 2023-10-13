@@ -207,6 +207,7 @@ public:
   bool handleException(Exception &E);
 
   void runFromDRAMBASE();
+  void runRiscvTests();
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }

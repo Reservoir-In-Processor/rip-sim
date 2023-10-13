@@ -1,0 +1,84 @@
+#include "RIPSimulator/RIPSimulator.h"
+#include <filesystem>
+#include <fstream>
+#include <gtest/gtest.h>
+#include <iostream>
+#include <string>
+#include <vector>
+
+class RIPRiscvTests : public ::testing::TestWithParam<std::string> {};
+void RIPSimulator::runRiscvTests() {
+  PC = DRAM_BASE;
+  PC = DRAM_BASE;
+
+  while (true) {
+    auto InstPtr = Dec.decode(Mem.readWord(PC));
+    PS.pushPC(PC);
+
+    if (PS.getPCs(STAGES::WB) == 0x804c) {
+      break;
+    }
+    if (InstPtr) {
+      PC += 4;
+    }
+    PS.push(std::move(InstPtr));
+    // FIXME: might this be wrong if branch prediction happens.
+    CycleNum++;
+    if (PS[STAGES::WB] != nullptr)
+      writeback(GPRegs, PS);
+    if (PS[STAGES::MA] != nullptr)
+      memoryaccess(Mem, PS);
+    if (PS[STAGES::EX] != nullptr)
+      exec(PS);
+    if (PS[STAGES::DE] != nullptr)
+      decode(GPRegs, PS);
+    if (PS[STAGES::IF] != nullptr)
+      fetch(Mem, PS);
+
+    PS.fillBubble();
+
+    if (PS.isEmpty()) {
+      break;
+    }
+    if (auto NextPC = PS.takeBranchPC()) {
+      std::cerr << std::hex << "Branch from " << PC << " to ";
+      PC = *NextPC;
+      std::cerr << std::hex << PC << "\n";
+    }
+#ifdef DEBUG
+    PS.dump();
+    dumpGPRegs();
+    dumpCSRegs();
+#endif
+  }
+}
+
+std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
+                                               const std::string &prefix) {
+  std::vector<std::string> binFiles;
+
+  for (const auto &entry : std::filesystem::directory_iterator(directory)) {
+    if (entry.is_regular_file() && entry.path().extension() == ".bin" &&
+        entry.path().filename().string().substr(0, prefix.size()) == prefix) {
+      binFiles.push_back(entry.path().string());
+    }
+  }
+
+  return binFiles;
+}
+
+TEST_P(RIPRiscvTests, RIPRiscvTests) {
+  std::string FileName = GetParam();
+  auto Files = std::ifstream(FileName);
+  RIPSimulator RSim(Files);
+  RSim.runRiscvTests();
+  const GPRegisters &Res = RSim.getGPRegs();
+  EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
+}
+INSTANTIATE_TEST_SUITE_P(
+    RV32I, RIPRiscvTests,
+    ::testing::ValuesIn(getBinFilesWithPrefix("../rip-tests", "rv32ui-p-")));
+
+INSTANTIATE_TEST_SUITE_P(
+    RV32M, RIPRiscvTests,
+    ::testing::ValuesIn(getBinFilesWithPrefix("../rip-tests", "rv32um-p-")));
