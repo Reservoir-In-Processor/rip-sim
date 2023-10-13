@@ -12,7 +12,9 @@ private:
 public:
   BranchPredictor() : DEBranchPred(0), EXBranched(0), HitNum(0), MissNum(0) {}
 
-  const bool &getDEBranchPred() { return DEBranchPred; }
+  const bool &getDEBranchPred() {
+    return DEBranchPred;
+  } // TODO: other predictors
   void setDEBranchPred(bool &V) { DEBranchPred = V; }
 
   const bool &getEXBranched() { return EXBranched; }
