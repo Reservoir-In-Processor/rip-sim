@@ -57,7 +57,8 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is)
+    : PC(DRAM_BASE), Mode(ModeKind::Machine), CycleNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -142,7 +143,7 @@ const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
                                           "bge",  "bltu",  "bgeu",  "jal",
                                           "jalr", "ecall", "ebreak"};
 
-void RIPSimulator::exec(PipelineStates &) {
+std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
   RegVal RdVal = 0;
   RegVal CV = 0;
@@ -200,19 +201,19 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "csrrc" || Mnemo == "csrrci") {
     CV = PS.getDECSRVal() & ~PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-    // } else if (Mnemo == "ecall") {
-    //   if (Mode == ModeKind::User) {
-    //     return Exception::EnvironmentCallFromUMode;
-    //   } else if (Mode == ModeKind::Supervisor) {
-    //     return Exception::EnvironmentCallFromSMode;
-    //   } else if (Mode == ModeKind::Machine) {
-    //     return Exception::EnvironmentCallFromMMode;
-    //   } else {
-    //     // FIXME: is this illegal inst?
-    //     return Exception::IllegalInstruction;
-    //   }
-    // } else if (Mnemo == "ebreak") {
-    //   return Exception::Breakpoint;
+  } else if (Mnemo == "ecall") {
+    if (Mode == ModeKind::User) {
+      return Exception::EnvironmentCallFromUMode;
+    } else if (Mode == ModeKind::Supervisor) {
+      return Exception::EnvironmentCallFromSMode;
+    } else if (Mode == ModeKind::Machine) {
+      return Exception::EnvironmentCallFromMMode;
+    } else {
+      // FIXME: is this illegal inst?
+      return Exception::IllegalInstruction;
+    }
+  } else if (Mnemo == "ebreak") {
+    return Exception::Breakpoint;
 
     // R-type
   } else if (Mnemo == "add") {
@@ -340,6 +341,7 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
     // S-type
   } else if (Mnemo == "sb" || Mnemo == "sw" || Mnemo == "sh") {
     // FIXME: wrap add?
@@ -350,7 +352,6 @@ void RIPSimulator::exec(PipelineStates &) {
     RdVal = PS.getDEImmVal() << 12;
   } else if (Mnemo == "auipc") {
     RdVal = PS.getPCs(EX) + (PS.getDEImmVal() << 12);
-
   } else {
     assert(false && "unimplemented!");
   }
@@ -358,6 +359,8 @@ void RIPSimulator::exec(PipelineStates &) {
   PS.setEXRdVal(RdVal);
   PS.setEXCSRVal(CV);
   PS.setEXImmVal(Imm);
+
+  return std::nullopt;
 }
 
 namespace {
@@ -501,7 +504,8 @@ void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
   while (true) {
-    // actual fetch
+    // actual fetch and decode
+    std::cerr << "PC=" << PC << "\n";
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -515,6 +519,22 @@ void RIPSimulator::runFromDRAMBASE() {
     }
 
     PS.clearStall();
+
+    std::optional<Exception> E = std::nullopt;
+    if (PS[STAGES::WB] != nullptr)
+      writeback(GPRegs, PS);
+    if (PS[STAGES::MA] != nullptr)
+      memoryaccess(Mem, PS);
+    if (PS[STAGES::EX] != nullptr)
+      E = exec(PS);
+    if (PS[STAGES::DE] != nullptr)
+      decode(GPRegs, PS);
+    if (PS[STAGES::IF] != nullptr)
+      fetch(Mem, PS);
+
+    // Exception handling
+    // TODO: move those handler to some functions i.e. take_trap
+    PS.fillBubble();
 
     if (PS.isEmpty()) {
       break;

@@ -33,7 +33,7 @@ void Simulator::execFromDRAMBASE() {
       Address ExceptionPC = PC;
       ModeKind PrevMode = Mode;
       unsigned Cause = *E;
-      // FIXME: tmporary exit with break
+      // FIXME: temporary exit with break
       if (E == Exception::Breakpoint) {
         std::cerr << "breaked\n";
         break;

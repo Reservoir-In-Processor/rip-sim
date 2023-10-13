@@ -2,6 +2,7 @@
 #ifndef RIPSIMULATOR_H
 #define RIPSIMULATOR_H
 #include "Decoder.h"
+#include "Exceptions.h"
 #include "InstructionTypes.h"
 #include "Instructions.h"
 #include "Memory.h"
@@ -14,9 +15,9 @@
 
 const unsigned STAGENUM = 5;
 enum STAGES {
-  IF, // Instructioh Fetch
+  IF, // Instruction Fetch
   DE, // DEcode
-  EX, // EXection
+  EX, // EXecution
   MA, // MemoryAccess
   WB, // (Register) Write BAck
 };
@@ -181,6 +182,7 @@ private:
   unsigned CodeSize;
   Address PC;
   CSRs States;
+  ModeKind Mode;
   unsigned CycleNum;
   PipelineStates PS;
   GPRegisters GPRegs;
@@ -198,7 +200,7 @@ public:
   // inherently unused arguments, but better to see dependencies
   void writeback(GPRegisters &, PipelineStates &);
   void memoryaccess(Memory &, PipelineStates &);
-  void exec(PipelineStates &);
+  std::optional<Exception> exec(PipelineStates &);
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
 
