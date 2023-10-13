@@ -300,7 +300,7 @@ std::optional<Exception> UInstruction::exec(Address &PC, GPRegisters &GPRegs,
     GPRegs.write(Rd.to_ulong(), ImmI << 12);
     PC += 4;
   } else if (Mnemo == "auipc") {
-    GPRegs.write(Rd.to_ulong(), PC + (ImmI & 0xfffff000));
+    GPRegs.write(Rd.to_ulong(), PC + (ImmI << 12));
     PC += 4;
   } else
     assert(false && "not exist");

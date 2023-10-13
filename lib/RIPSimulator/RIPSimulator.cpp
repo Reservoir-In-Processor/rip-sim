@@ -372,7 +372,7 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "lui") {
     Res = PS.getDEImmVal() << 12;
   } else if (Mnemo == "auipc") {
-    Res = PS.getPCs(EX) + (PS.getDEImmVal() & 0xfffff000);
+    Res = PS.getPCs(EX) + (PS.getDEImmVal() << 12);
   } else {
     assert(false && "unimplemented!");
   }
