@@ -310,30 +310,64 @@ void RIPSimulator::exec(PipelineStates &) {
     // B-type
   } else if (Mnemo == "beq") {
     if (PS.getDERs1Val() == PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else {
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
   } else if (Mnemo == "bne") {
     if (PS.getDERs1Val() != PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else {
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
   } else if (Mnemo == "blt") {
     if (PS.getDERs1Val() < PS.getDERs2Val()) { // Branch
       BP.setEXBranched(true);
 
       if (BP.getDEBranchPred()) {
-        std::cerr << "Branch pred: hit "
-                  << "\n";
+        BP.BranchHit();
 
       } else {
-
-        std::cerr << "Branch pred: miss"
-                  << "\n";
+        BP.BranchMiss();
         Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
         PS.setBranchPC(nextPC);
         PS.setInvalid(DE);
@@ -343,12 +377,10 @@ void RIPSimulator::exec(PipelineStates &) {
 
       BP.setEXBranched(false);
       if (BP.getDEBranchPred() == false) {
-        std::cerr << "Branch pred: hit "
-                  << "\n";
+        BP.BranchHit();
 
       } else {
-        std::cerr << "Branch pred: miss"
-                  << "\n";
+        BP.BranchMiss();
         Address nextPC = PS.getPCs(EX) + 4;
         PS.setBranchPC(nextPC);
         PS.setInvalid(DE);
@@ -357,24 +389,81 @@ void RIPSimulator::exec(PipelineStates &) {
     }
   } else if (Mnemo == "bge") {
     if (PS.getDERs1Val() >= PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else {
+
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
   } else if (Mnemo == "bltu") {
     if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else {
+
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
   } else if (Mnemo == "bgeu") {
     if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+      BP.setEXBranched(true);
+
+      if (BP.getDEBranchPred()) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+    } else {
+
+      BP.setEXBranched(false);
+      if (BP.getDEBranchPred() == false) {
+        BP.BranchHit();
+      } else {
+        BP.BranchMiss();
+        Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+        PS.setBranchPC(nextPC);
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
     }
     // S-type
   } else if (Mnemo == "sb") {
@@ -557,7 +646,14 @@ void RIPSimulator::runFromDRAMBASE() {
     PS.fillBubble();
 
     if (PS.isEmpty()) {
+      std::cerr << "========== BEGIN STATS ============"
+                << "\n";
       std::cerr << std::dec << "Total stages: " << StagesNum << "\n";
+      BP.printStat();
+      std::cerr << "=========== END STATS ============="
+                << "\n";
+      std::cerr << "\n";
+
       break;
     }
 
