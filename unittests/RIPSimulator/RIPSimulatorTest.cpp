@@ -1142,66 +1142,148 @@ TEST(RIPSimulatorTest, FENCE_AS_NOP) {
   }
 }
 
-// TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
-//   const unsigned char BYTES[] = {
-//       0x73, 0x50, 0x26, 0x34, // csrrwi x0, mcause, 12
-//       0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
-//       0x73, 0xd0, 0x46, 0xf1, // csrrwi x0, mhartid, 13
-//       0x73, 0x25, 0x40, 0xf1, // csrrs x10, mhartid, x0
-//   };
+TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
+  const unsigned char BYTES[] = {
+      0x73, 0x50, 0x26, 0x34, // csrrwi x0, mcause, 12
+      0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
+      0x73, 0xd0, 0x46, 0xf1, // csrrwi x0, mhartid, 13
+      0x73, 0x25, 0x40, 0xf1, // csrrs x10, mhartid, x0
+  };
 
-//   const GPRegisters EXPECTED = {{10, 13}, {30, 12}};
-//   const CSRs EXPECTED_C = {{MCAUSE, 12}, {MHARTID, 13}};
-//   std::stringstream ss;
-//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  const GPRegisters EXPECTED = {{10, 13}, {30, 12}};
+  const CSRs EXPECTED_C = {{MCAUSE, 12}, {MHARTID, 13}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
-//   RIPSimulator RSim(ss);
-//   RSim.runFromDRAMBASE();
-//   const GPRegisters &Res = RSim.getGPRegs();
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
 
-//   for (unsigned i = 0; i < 32; ++i) {
-//     EXPECT_EQ(Res[i], EXPECTED[i])
-//         << "Register:" << i << ", expected: " << EXPECTED[i]
-//         << ", got: " << Res[i];
-//   }
-//   const CSRs &ResC = RSim.getCSRs();
-//   for (CSRAddress CA : {MCAUSE, MHARTID}) {
-//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
-//   }
-// }
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MCAUSE, MHARTID}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
 
-// TEST(RIPSimulatorTest, CSRRW) {
-//   const unsigned char BYTES[] = {
-//       0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
-//       0x73, 0x90, 0x52, 0x30, // csrrw x0, mtvec, x5
-//       0x73, 0x25, 0x50, 0x30, // csrrs x10, mtvec, x0
-//       0x13, 0x03, 0xf0, 0x00, // addi x6, x0, 15
-//       0x73, 0x10, 0x03, 0x18, // csrrw x0, satp, x6
-//       0x73, 0x2f, 0x00, 0x18, // csrrs x30, satp, x0
-//   };
+TEST(RIPSimulatorTest, CSRRS_CSRRSI) {
+  const unsigned char BYTES[] = {
+      0x73, 0x60, 0x26, 0x34, // csrrsi x0, mcause, 12
+      0x73, 0x2f, 0x20, 0x34, // csrrs x30, mcause, x0
+  };
 
-//   const GPRegisters EXPECTED = {{5, 14}, {6, 15}, {10, 14}, {30, 15}};
-//   const CSRs EXPECTED_C = {
-//       {MTVEC, 14},
-//       {SATP, 15},
-//   };
-//   std::stringstream ss;
-//   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  const GPRegisters EXPECTED = {{30, 12}};
+  const CSRs EXPECTED_C = {{MCAUSE, 12}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
-//   RIPSimulator RSim(ss);
-//   RSim.runFromDRAMBASE();
-//   const GPRegisters &Res = RSim.getGPRegs();
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
 
-//   for (unsigned i = 0; i < 32; ++i) {
-//     EXPECT_EQ(Res[i], EXPECTED[i])
-//         << "Register:" << i << ", expected: " << EXPECTED[i]
-//         << ", got: " << Res[i];
-//   }
-//   const CSRs &ResC = RSim.getCSRs();
-//   for (CSRAddress CA : {MTVEC, SATP}) {
-//     EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
-//   }
-// }
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MCAUSE, MHARTID}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
+
+TEST(RIPSimulatorTest, CSRRS_CSRRCI) {
+  const unsigned char BYTES[] = {
+      0x13, 0x00, 0x10, 0x00, // addi x0, x0, 1
+      0xf3, 0x11, 0x20, 0x34, // csrrw x3, mcause, x0
+      0xf3, 0x71, 0x21, 0x34, // csrrci x3, mcause, 2
+  };
+
+  const GPRegisters EXPECTED = {{3, 1}};
+  const CSRs EXPECTED_C = {{MCAUSE, 1}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MCAUSE, MHARTID}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
+
+TEST(RIPSimulatorTest, CSRRW) {
+  const unsigned char BYTES[] = {
+      0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
+      0x73, 0x90, 0x52, 0x30, // csrrw x0, mtvec, x5
+      0x73, 0x25, 0x50, 0x30, // csrrs x10, mtvec, x0
+      0x13, 0x03, 0xf0, 0x00, // addi x6, x0, 15
+      0x73, 0x10, 0x03, 0x18, // csrrw x0, satp, x6
+      0x73, 0x2f, 0x00, 0x18, // csrrs x30, satp, x0
+  };
+
+  const GPRegisters EXPECTED = {{5, 14}, {6, 15}, {10, 14}, {30, 15}};
+  const CSRs EXPECTED_C = {
+      {MTVEC, 14},
+      {SATP, 15},
+  };
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MTVEC, SATP}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
+
+TEST(RIPSimulatorTest, CSRRC) {
+  const unsigned char BYTES[] = {
+      0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
+      0x73, 0x90, 0x52, 0x30, // csrrw x0, mtvec, x5
+      0x73, 0x35, 0x50, 0x30, // csrrc x10, mtvec, x0
+  };
+
+  const GPRegisters EXPECTED = {{5, 14}, {10, 14}};
+  const CSRs EXPECTED_C = {
+      {MTVEC, 14},
+  };
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+  const CSRs &ResC = RSim.getCSRs();
+  for (CSRAddress CA : {MTVEC, SATP}) {
+    EXPECT_EQ(ResC[CA], EXPECTED_C[CA]);
+  }
+}
 
 // TEST(RIPSimulatorTest, ECALLMMODE) {
 //   const unsigned char BYTES[] = {
