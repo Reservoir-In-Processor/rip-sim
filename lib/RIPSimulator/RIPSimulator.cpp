@@ -51,6 +51,8 @@ void PipelineStates::dump() {
     }
   }
 }
+const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
+                                         "csrrwi", "csrrsi", "csrrci"};
 
 RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
@@ -71,57 +73,15 @@ void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   std::string Mnemo = Inst->getMnemo();
   RegVal Res = 0;
 
-  if (Mnemo == "sw" || Mnemo == "sh" || Mnemo == "sb") {
+  if (Mnemo == "sw" || Mnemo == "sh" ||
+      Mnemo == "sb") { // FIXME: how about other insts?
     // Instructions without writeback
+
   } else if (Mnemo == "jalr") {
     Res = PS.getPCs(MA);
     GPRegs.write(Inst->getRd(), PS.getPCs(MA));
-  } else if (Mnemo == "csrrw") { // FIXME: should be merged
-    RegVal RdVal = PS.getMARdVal();
-    RegVal CV = PS.getMACSRVal();
 
-    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
-
-    States.write(CSRAddr, CV);
-    GPRegs.write(Inst->getRd(), RdVal);
-
-  } else if (Mnemo == "csrrs") {
-    RegVal RdVal = PS.getMARdVal();
-    RegVal CV = PS.getMACSRVal();
-
-    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
-
-    States.write(CSRAddr, CV);
-    GPRegs.write(Inst->getRd(), RdVal);
-
-  } else if (Mnemo == "csrrc") {
-    RegVal RdVal = PS.getMARdVal();
-    RegVal CV = PS.getMACSRVal();
-
-    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
-
-    States.write(CSRAddr, CV);
-    GPRegs.write(Inst->getRd(), RdVal);
-
-  } else if (Mnemo == "csrrwi") {
-    RegVal RdVal = PS.getMARdVal();
-    RegVal CV = PS.getMACSRVal();
-
-    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
-
-    States.write(CSRAddr, CV);
-    GPRegs.write(Inst->getRd(), RdVal);
-
-  } else if (Mnemo == "csrrsi") {
-    RegVal RdVal = PS.getMARdVal();
-    RegVal CV = PS.getMACSRVal();
-
-    RegVal CSRAddr = PS.getMAImmVal() & 0xfff;
-
-    States.write(CSRAddr, CV);
-    GPRegs.write(Inst->getRd(), RdVal);
-
-  } else if (Mnemo == "csrrci") {
+  } else if (CSR_INSTs.count(Mnemo)) {
     RegVal RdVal = PS.getMARdVal();
     RegVal CV = PS.getMACSRVal();
 
@@ -185,10 +145,6 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
 const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
                                           "bge",  "bltu",  "bgeu",  "jal",
                                           "jalr", "ecall", "ebreak"};
-
-const std::set<std::string> CSR_INSTs = {
-    "csrrw",  "csrrs",  "csrrc",
-    "csrrwi", "csrrsi", "csrrci"}; // FIXME: ecall, ebreak, uret, sret, mret?
 
 void RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
@@ -439,9 +395,6 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   // FIXME: PS indexing seems not consistent(it's not only instructions)
   const auto &Inst = PS[STAGES::DE];
   int Imm = 0;
-
-  // FIXME: this is incorrect, because U-type and J-type instr's Rs1 or Rs2
-  // is a part of immediate. Check if the inst is one of those.
 
   if (CSR_INSTs.count(Inst->getMnemo())) {
     if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
