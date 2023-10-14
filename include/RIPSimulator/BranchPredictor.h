@@ -4,40 +4,55 @@
 
 class BranchPredictor {
 private:
-  bool DEBranchTaken;
-  bool EXBranched;
-  int HitNum;
-  int MissNum;
+  int StatsHitNum;
+  int StatsMissNum;
 
 public:
-  BranchPredictor() : DEBranchTaken(0), EXBranched(0), HitNum(0), MissNum(0) {}
+  bool PrevPredict;
+  BranchPredictor(const BranchPredictor &) = delete;
+  BranchPredictor &operator=(const BranchPredictor &) = delete;
 
-  const bool &getDEBranchTaken() {
-    return DEBranchTaken;
-  } // TODO: other predictors
-  void setDEBranchTaken(bool &V) { DEBranchTaken = V; }
+  BranchPredictor() : StatsHitNum(0), StatsMissNum(0) {}
 
-  const bool &getEXBranched() { return EXBranched; }
-  void setEXBranched(bool B) { EXBranched = B; }
+  virtual void Learn(bool &) = 0;
+  virtual bool Predict() = 0;
 
-  void BranchHit() {
-    HitNum++;
+  void StatsUpdate(bool cond) {
+    if (cond ^ PrevPredict) {
+      StatsMissNum++;
 #ifdef DEBUG
-    std::cerr << "Branch pred: hit "
-              << "\n";
+      std::cerr << "Branch pred: miss "
+                << "\n";
 #endif
-  }
-  void BranchMiss() {
-    MissNum++;
-    std::cerr << "Branch pred: miss"
-              << "\n";
+    } else {
+      StatsHitNum++;
+#ifdef DEBUG
+      std::cerr << "Branch pred: hit "
+                << "\n";
+#endif
+    }
   }
 
   void printStat() {
-    std::cerr << "BP accuracy: " << (double)HitNum / (HitNum + MissNum)
-              << " (Hit :" << HitNum << ", Miss :" << MissNum << ")"
+    std::cerr << "BP accuracy: "
+              << (double)StatsHitNum / (StatsHitNum + StatsMissNum)
+              << " (Hit :" << StatsHitNum << ", Miss :" << StatsMissNum << ")"
               << "\n";
   }
+
+  virtual ~BranchPredictor() {}
+};
+
+class OneBitBranchPredictor : public BranchPredictor {
+private:
+  /// Result of Prediction
+  bool NextPred;
+
+public:
+  OneBitBranchPredictor() : BranchPredictor(), NextPred(0) {}
+
+  void Learn(bool &cond) override { NextPred = cond; }
+  bool Predict() override { return NextPred; }
 };
 
 #endif

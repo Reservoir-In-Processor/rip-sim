@@ -176,14 +176,15 @@ private:
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
-  BranchPredictor BP;
+  std::unique_ptr<BranchPredictor> BP;
 
 public:
   RIPSimulator(const RIPSimulator &) = delete;
   RIPSimulator &operator=(const RIPSimulator &) = delete;
 
   // move this def to .cpp
-  RIPSimulator(std::istream &is);
+  RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr);
+
   GPRegisters &getGPRegs() { return GPRegs; }
   // FIXME: is it correct to define CSRs?
   inline const CSRs &getCSRs() const { return States; }

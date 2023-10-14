@@ -54,7 +54,9 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), StagesNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is,
+                           std::unique_ptr<BranchPredictor> BP)
+    : PC(DRAM_BASE), StagesNum(0), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -309,78 +311,136 @@ void RIPSimulator::exec(PipelineStates &) {
 
     // B-type
   } else if (Mnemo == "beq") {
-    if (!((PS.getDERs1Val() == PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
-      BP.setEXBranched(PS.getDERs1Val() == PS.getDERs2Val());
-      BP.BranchHit();
+    bool Cond = PS.getDERs1Val() == PS.getDERs2Val();
+    signed Offset;
+
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) { // if Branch failed
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
   } else if (Mnemo == "bne") {
-    if (!((PS.getDERs1Val() != PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
-      BP.setEXBranched(PS.getDERs1Val() != PS.getDERs2Val());
-      BP.BranchHit();
+    bool Cond = PS.getDERs1Val() != PS.getDERs2Val();
+
+    signed Offset;
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
   } else if (Mnemo == "blt") {
-    if (!((PS.getDERs1Val() < PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
-      BP.setEXBranched(PS.getDERs1Val() < PS.getDERs2Val());
-      BP.BranchHit();
-
+    bool Cond = PS.getDERs1Val() < PS.getDERs2Val();
+    signed Offset;
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    std::cerr << "Cond " << Cond << "\n";
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
   } else if (Mnemo == "bge") {
-    if (!((PS.getDERs1Val() >= PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
-      BP.setEXBranched(PS.getDERs1Val() >= PS.getDERs2Val());
-      BP.BranchHit();
+    bool Cond = PS.getDERs1Val() >= PS.getDERs2Val();
 
+    signed Offset;
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
   } else if (Mnemo == "bltu") {
-    if (!(((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) ^
-          BP.getDEBranchTaken())) {
-      BP.setEXBranched((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val());
-      BP.BranchHit();
-
+    bool Cond = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val();
+    signed Offset;
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
   } else if (Mnemo == "bgeu") {
-    if (!(((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) ^
-          BP.getDEBranchTaken())) {
-      BP.setEXBranched((unsigned)PS.getDERs1Val() >=
-                       (unsigned)PS.getDERs2Val());
-      BP.BranchHit();
+    bool Cond = (unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val();
 
+    signed Offset;
+    if (Cond) {
+      Offset = PS.getDEImmVal();
     } else {
-      BP.BranchMiss();
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
+      Offset = 4;
+    }
+    Address nextPC = PS.getPCs(EX) + Offset;
+
+    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
       PS.setBranchPC(nextPC);
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
+    if (BP) {
+      BP->Learn(Cond); // FIXME: and PS?
+      BP->StatsUpdate(Cond);
+    }
+
     // S-type
   } else if (Mnemo == "sb") {
     // FIXME: wrap add?
@@ -494,9 +554,6 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
           ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
     Imm = signExtend(Imm, 12);
 
-    bool BranchPred = BP.getEXBranched();
-    BP.setDEBranchTaken(BranchPred);
-
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
     Imm = signExtend(Imm, 20);
@@ -539,7 +596,7 @@ void RIPSimulator::runFromDRAMBASE() {
       std::cerr << "========== BEGIN STATS ============"
                 << "\n";
       std::cerr << std::dec << "Total stages: " << StagesNum << "\n";
-      BP.printStat();
+      // BP->printStat();
       std::cerr << "=========== END STATS ============="
                 << "\n";
       std::cerr << "\n";
@@ -548,11 +605,13 @@ void RIPSimulator::runFromDRAMBASE() {
     }
 
     // Branch prediction
-    if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
-      std::cerr << "Branch " << BP.getDEBranchTaken() << "\n";
+    if (BP) {
+      if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
+        std::cerr << "Branch " << BP->Predict() << "\n";
 
-      if (BP.getDEBranchTaken()) {
-        PC = PS.getPCs(DE) + PS.getDEImmVal();
+        if (BP->Predict()) {
+          PC = PS.getPCs(DE) + PS.getDEImmVal();
+        }
       }
     }
 
