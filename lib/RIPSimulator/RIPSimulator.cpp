@@ -660,20 +660,6 @@ void RIPSimulator::runFromDRAMBASE() {
       break;
     }
     // FIXME: might this be wrong if branch prediction happens.
-
-    if (PS[STAGES::WB] != nullptr)
-      writeback(GPRegs, PS);
-    if (PS[STAGES::MA] != nullptr)
-      memoryaccess(Mem, PS);
-    if (!PS.isStall(STAGES::EX) && PS[STAGES::EX] != nullptr)
-      exec(PS);
-    if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
-      decode(GPRegs, PS);
-    if (!PS.isStall(STAGES::IF) && PS[STAGES::IF] != nullptr)
-      fetch(Mem, PS);
-
-    PS.fillBubble();
-
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
