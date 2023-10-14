@@ -80,6 +80,7 @@ jobs:
       run: |
         cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
         ninja -Cbuild riscvtests
+        ninja -Cbuild rip-riscvtests
 
   dump-fib:
     runs-on: ubuntu-latest
