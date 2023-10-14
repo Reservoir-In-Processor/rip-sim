@@ -7,44 +7,59 @@
 #include <vector>
 
 class RIPRiscvTests : public ::testing::TestWithParam<std::string> {};
+
 void RIPSimulator::runRiscvTests() {
-  PC = DRAM_BASE;
   PC = DRAM_BASE;
 
   while (true) {
-    auto InstPtr = Dec.decode(Mem.readWord(PC));
-    PS.pushPC(PC);
 
     if (PS.getPCs(STAGES::WB) == 0x804c) {
       break;
     }
-    if (InstPtr) {
-      PC += 4;
+    // actual fetch and decode
+    if (!PS.isStall(STAGES::IF)) {
+      auto InstPtr = Dec.decode(Mem.readWord(PC));
+      PS.proceedPC(PC);
+      if (InstPtr) {
+        PC += 4;
+      }
+      PS.proceed(std::move(InstPtr));
+    } else {
+      PS.proceedPC(-1);
+      PS.proceed(nullptr);
     }
-    PS.push(std::move(InstPtr));
-    // FIXME: might this be wrong if branch prediction happens.
-    CycleNum++;
+
+    PS.clearStall();
+
+    std::optional<Exception> E = std::nullopt;
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
     if (PS[STAGES::EX] != nullptr)
-      exec(PS);
+      E = exec(PS);
     if (PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
     if (PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
+
+    // Exception handling
+    // TODO: move those handler to some functions i.e. take_trap
+    if (E && !handleException(*E))
+      break;
 
     PS.fillBubble();
 
     if (PS.isEmpty()) {
       break;
     }
+    // FIXME: might this be wrong if branch prediction happens.
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
       std::cerr << std::hex << PC << "\n";
     }
+    CycleNum++;
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
