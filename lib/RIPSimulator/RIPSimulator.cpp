@@ -74,17 +74,15 @@ RIPSimulator::RIPSimulator(std::istream &is)
 
 void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   const auto &Inst = PS[STAGES::WB];
+  // FIXME: use it just in time, generally.
   std::string Mnemo = Inst->getMnemo();
   RegVal Res = 0;
 
-  if (Mnemo == "sw" || Mnemo == "sh" ||
-      Mnemo == "sb") { // FIXME: how about other insts?
+  if (BTypeKinds.count(Mnemo) || STypeKinds.count(Mnemo) || Mnemo == "fence" ||
+      Mnemo == "fence.i") { // FIXME: how about other insts?
     // Instructions without writeback
-
-  } else if (Mnemo == "jalr") {
-    Res = PS.getPCs(MA);
-    GPRegs.write(Inst->getRd(), PS.getPCs(MA));
-
+    // TODO: don't set any value and return early.
+    PS.setWBImmVal(0);
   } else if (CSR_INSTs.count(Mnemo)) {
     RegVal RdVal = PS.getMARdVal();
     RegVal CV = PS.getMACSRVal();
@@ -421,6 +419,7 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
     return false;
   // TODO: check the Rs1 is exist for the Inst type.
   if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+      !BTypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
       Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
@@ -430,6 +429,7 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
     return true;
   }
   if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+      !BTypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
       Inst->getRs1() == PS[STAGES::MA]->getRd()) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
@@ -477,6 +477,7 @@ static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
     return false;
 
   if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+      !BTypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
       Inst->getRs2() == PS[STAGES::EX]->getRd()) {
 
     PS.setDERs2Val(PS.getEXRdVal());
@@ -485,6 +486,7 @@ static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
 #endif
     return true;
   } else if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+             !BTypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
              Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
 #ifdef DEBUG
