@@ -309,8 +309,7 @@ void RIPSimulator::exec(PipelineStates &) {
 
     // B-type
   } else if (Mnemo == "beq") {
-    if (((PS.getDERs1Val() == PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
-        (!(PS.getDERs1Val() == PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+    if (!((PS.getDERs1Val() == PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
       BP.setEXBranched(PS.getDERs1Val() == PS.getDERs2Val());
       BP.BranchHit();
     } else {
@@ -321,8 +320,7 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "bne") {
-    if (((PS.getDERs1Val() != PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
-        (!(PS.getDERs1Val() != PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+    if (!((PS.getDERs1Val() != PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
       BP.setEXBranched(PS.getDERs1Val() != PS.getDERs2Val());
       BP.BranchHit();
     } else {
@@ -333,11 +331,10 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "blt") {
-    if (((PS.getDERs1Val() < PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
-        (!(PS.getDERs1Val() < PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+    if (!((PS.getDERs1Val() < PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
       BP.setEXBranched(PS.getDERs1Val() < PS.getDERs2Val());
-
       BP.BranchHit();
+
     } else {
       BP.BranchMiss();
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
@@ -346,10 +343,10 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "bge") {
-    if (((PS.getDERs1Val() >= PS.getDERs2Val()) && BP.getDEBranchTaken()) ||
-        (!(PS.getDERs1Val() >= PS.getDERs2Val()) && !BP.getDEBranchTaken())) {
+    if (!((PS.getDERs1Val() >= PS.getDERs2Val()) ^ BP.getDEBranchTaken())) {
       BP.setEXBranched(PS.getDERs1Val() >= PS.getDERs2Val());
       BP.BranchHit();
+
     } else {
       BP.BranchMiss();
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
@@ -358,13 +355,11 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "bltu") {
-    if ((((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) &&
-         BP.getDEBranchTaken()) ||
-        (!((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) &&
-         !BP.getDEBranchTaken())) {
+    if (!(((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) ^
+          BP.getDEBranchTaken())) {
       BP.setEXBranched((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val());
-
       BP.BranchHit();
+
     } else {
       BP.BranchMiss();
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
@@ -373,13 +368,12 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
   } else if (Mnemo == "bgeu") {
-    if ((((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) &&
-         BP.getDEBranchTaken()) ||
-        (!((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) &&
-         !BP.getDEBranchTaken())) {
+    if (!(((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) ^
+          BP.getDEBranchTaken())) {
       BP.setEXBranched((unsigned)PS.getDERs1Val() >=
                        (unsigned)PS.getDERs2Val());
       BP.BranchHit();
+
     } else {
       BP.BranchMiss();
       Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
