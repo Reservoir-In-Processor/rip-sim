@@ -390,6 +390,29 @@ TEST(RIPSimulatorTest, SWLW) {
   }
 }
 
+TEST(RIPSimulatorTest, LW_WR) {
+  const unsigned char BYTES[] = {
+      0x13, 0x08, 0x00, 0x80, // addi x16, x0, 1
+      0x23, 0x2e, 0x01, 0xff, // sw x16, -4(sp)
+      0x03, 0x29, 0xc1, 0xff, // lw x18, -4(sp)
+      0x13, 0x09, 0x39, 0x00, // addi x18, x18, 3
+  };
+
+  const GPRegisters EXPECTED = {{16, 1}, {18, 4}};
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  RIPSimulator RSim(ss);
+  RSim.runFromDRAMBASE();
+  const GPRegisters &Res = RSim.getGPRegs();
+
+  for (unsigned i = 0; i < 32; ++i) {
+    EXPECT_EQ(Res[i], EXPECTED[i])
+        << "Register:" << i << ", expected: " << EXPECTED[i]
+        << ", got: " << Res[i];
+  }
+}
+
 TEST(RIPSimulatorTest, SHLHLHU) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x00, 0x80, // addi x16, x0, -2048

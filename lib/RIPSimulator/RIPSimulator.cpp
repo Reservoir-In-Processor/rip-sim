@@ -432,14 +432,16 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   }
 
   // Register access on Rs2
-  if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
-    PS.setDERs2Val(PS.getEXRdVal());
-    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
-  } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
-    PS.setDERs2Val(PS.getMARdVal());
-    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
-  } else {
-    PS.setDERs2Val(GPRegs[Inst->getRs2()]);
+  if (!ITypeKinds.count(Inst->getMnemo())) {
+    if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
+      PS.setDERs2Val(PS.getEXRdVal());
+      std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
+    } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
+      PS.setDERs2Val(PS.getMARdVal());
+      std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
+    } else {
+      PS.setDERs2Val(GPRegs[Inst->getRs2()]);
+    }
   }
 
   // Decode immediate value
