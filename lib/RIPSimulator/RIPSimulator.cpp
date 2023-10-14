@@ -57,8 +57,8 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-
-RIPSimulator::RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP)
+RIPSimulator::RIPSimulator(std::istream &is,
+                           std::unique_ptr<BranchPredictor> BP)
     : PC(DRAM_BASE), Mode(ModeKind::Machine), StagesNum(0), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
@@ -736,11 +736,10 @@ void RIPSimulator::runFromDRAMBASE() {
       PS.proceed(nullptr);
     }
 
-
     PS.clearStall();
 
     std::optional<Exception> E = std::nullopt;
-  
+
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
     if (PS[STAGES::MA] != nullptr)
