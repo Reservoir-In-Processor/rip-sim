@@ -53,10 +53,25 @@ public:
   void setVal(unsigned V) { Val = V; }
 
   const unsigned getVal() { return Val; }
-  const unsigned getRd() { return (Val & 0x00000f80) >> 7; }
-  const unsigned getRs1() { return (Val & 0x000f8000) >> 15; }
-  const unsigned getRs2() { return (Val & 0x01f00000) >> 20; }
-  const unsigned getImm() { return (Val & 0xfff00000) >> 20; }
+  const unsigned getRd() {
+    if (STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()))
+      assert(false && "This inst don't have rd!");
+    return (Val & 0x00000f80) >> 7;
+  }
+  const unsigned getRs1() {
+    if (UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()))
+      assert(false && "This inst don't have rs1!");
+    return (Val & 0x000f8000) >> 15;
+  }
+  const unsigned getRs2() {
+    assert(false && "This inst don't have rs2!");
+    return (Val & 0x01f00000) >> 20;
+  }
+  const unsigned getImm() {
+    if (!ITypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not I-inst!");
+    return (Val & 0xfff00000) >> 20;
+  }
 
   virtual const std::string &getMnemo() = 0;
 
