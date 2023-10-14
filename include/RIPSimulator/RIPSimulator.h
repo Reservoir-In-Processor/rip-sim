@@ -203,6 +203,8 @@ public:
   std::optional<Exception> exec(PipelineStates &);
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
+  // FIXME: currently return recoverable or not.
+  bool handleException(Exception &E);
 
   void runFromDRAMBASE();
   void dumpGPRegs() { GPRegs.dump(); }
