@@ -3,7 +3,7 @@
 #include <set>
 
 namespace {
-// BitWidth < 32
+/// BitWidth < 32
 int signExtend(const unsigned Imm, unsigned BitWidth) {
   if ((Imm >> (BitWidth - 1)) & 1) {
     return (~0 ^ ((int)(pow(2, BitWidth) - 1))) | (signed)Imm;
@@ -128,13 +128,6 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   } else if (Mnemo == "lb") {
     Byte V = Mem.readByte(PS.getEXRdVal());
     Res = (signed char)V;
-    // FIXME: Forwarding should be on decode.
-    // } else if (Mnemo == "csrrs") {
-    //   if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
-    //     std::cerr << "Forwarding from WB to MA."
-    //               << "\n";
-    //     Res = PS.getWBImmVal();
-    // }
   }
 
   PS.setMARdVal(Res);
@@ -377,18 +370,87 @@ void RIPSimulator::exec(PipelineStates &) {
     assert(false && "unimplemented!");
   }
 
-  // if (INVALID_EX.find(Inst->getMnemo()) != INVALID_EX.end()) {
-  //   // FIXME: invalide itself, is this right?
-  //   PS.setInvalid(EX);
-  //   PS.setInvalid(DE);
-  //   PS.setInvalid(IF);
-  //   // TODO: reset PC
-  // }
-
   PS.setEXRdVal(RdVal);
   PS.setEXCSRVal(CV);
   PS.setEXImmVal(Imm);
 }
+
+namespace {
+
+static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+  if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
+    return false;
+  // TODO: check the Rs1 is exist for the Inst type.
+  if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
+    // EX forward
+    PS.setDERs1Val(PS.getEXRdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
+    // MA forward
+    PS.setDERs1Val(PS.getMARdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+
+  if (!CSR_INSTs.count(Inst->getMnemo()))
+    return false;
+  if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+      (Inst->getImm() == PS[STAGES::EX]->getImm())) {
+
+    PS.setDECSRVal(PS.getEXCSRVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
+              << PS.getEXCSRVal() << "\n";
+#endif
+    return true;
+  }
+  if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+      (Inst->getImm() == PS[STAGES::MA]->getImm())) {
+    PS.setDECSRVal(PS.getMACSRVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+  // TODO: list all of them.
+  if (ITypeKinds.count(Inst->getMnemo()) ||
+      UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
+    return false;
+
+  if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
+    PS.setDERs2Val(PS.getEXRdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
+    PS.setDERs2Val(PS.getMARdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+} // namespace
 
 // register access shuold be done in this phase, exec shuoldn't access
 // GPRegs directly.
@@ -398,50 +460,22 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   int Imm = 0;
 
   // Register access on Rs1
+  // FIXME: we can forward if EX or MA is also immediate CSR instructions.
   if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
       Inst->getMnemo() == "csrrci") {
     PS.setDERs1Val((unsigned int)Inst->getRs1());
-  } else if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
-    // EX forward
-    PS.setDERs1Val(PS.getEXRdVal());
-    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
-  } else if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
-    // MA forward
-    PS.setDERs1Val(PS.getMARdVal());
-    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
-  } else {
+  } else if (!forwardRs1(Inst, PS, GPRegs)) {
     PS.setDERs1Val(GPRegs[Inst->getRs1()]);
   }
 
   // Register access on CSR
-  if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-      (Inst->getImm() == PS[STAGES::EX]->getImm())) {
-
-    PS.setDECSRVal(PS.getEXCSRVal());
-    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
-              << PS.getEXCSRVal() << "\n";
-
-  } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-             (Inst->getImm() == PS[STAGES::MA]->getImm())) {
-
-    PS.setDECSRVal(PS.getMACSRVal());
-    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
-
-  } else {
+  if (!forwardCSR(Inst, PS, GPRegs)) {
     PS.setDECSRVal(States[Inst->getImm()]);
   }
 
   // Register access on Rs2
-  if (!ITypeKinds.count(Inst->getMnemo())) {
-    if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
-      PS.setDERs2Val(PS.getEXRdVal());
-      std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
-    } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
-      PS.setDERs2Val(PS.getMARdVal());
-      std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
-    } else {
-      PS.setDERs2Val(GPRegs[Inst->getRs2()]);
-    }
+  if (!forwardRs2(Inst, PS, GPRegs)) {
+    PS.setDERs2Val(GPRegs[Inst->getRs2()]);
   }
 
   // Decode immediate value
