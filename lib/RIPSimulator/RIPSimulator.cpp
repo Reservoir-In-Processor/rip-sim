@@ -420,7 +420,8 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
   if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
     return false;
   // TODO: check the Rs1 is exist for the Inst type.
-  if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
+  if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+      Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
 #ifdef DEBUG
@@ -428,7 +429,8 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
 #endif
     return true;
   }
-  if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
+  if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+      Inst->getRs1() == PS[STAGES::MA]->getRd()) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
 #ifdef DEBUG
@@ -445,6 +447,7 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
   if (!CSR_INSTs.count(Inst->getMnemo()))
     return false;
   if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+      !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
       (Inst->getImm() == PS[STAGES::EX]->getImm())) {
 
     PS.setDECSRVal(PS.getEXCSRVal());
@@ -455,6 +458,7 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
     return true;
   }
   if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+      !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
       (Inst->getImm() == PS[STAGES::MA]->getImm())) {
     PS.setDECSRVal(PS.getMACSRVal());
 #ifdef DEBUG
@@ -472,13 +476,16 @@ static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
       UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
     return false;
 
-  if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
+  if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+      Inst->getRs2() == PS[STAGES::EX]->getRd()) {
+
     PS.setDERs2Val(PS.getEXRdVal());
 #ifdef DEBUG
     std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
 #endif
     return true;
-  } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
+  } else if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+             Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
 #ifdef DEBUG
     std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
