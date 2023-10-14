@@ -173,10 +173,15 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "lb" || Mnemo == "lh" || Mnemo == "lw" ||
              Mnemo == "lbu" || Mnemo == "lhu") {
     RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-    // FIXME: we can see that stall is necessary by calculating address on
-    // DECODE?
-    PS.setStall(STAGES::DE);
-    PS.setStall(STAGES::IF);
+    // FIXME: checking Rs1 checks on this is annoying now.
+    if (!UTypeKinds.count(Inst->getMnemo()) ||
+        !JTypeKinds.count(Inst->getMnemo()) && PS[STAGES::DE])
+      if (auto IRd = Inst->getRd(); IRd == PS[STAGES::DE]->getRs1() ||
+                                    (!ITypeKinds.count(Inst->getMnemo()) &&
+                                     IRd == PS[STAGES::DE]->getRs2())) {
+        PS.setStall(STAGES::DE);
+        PS.setStall(STAGES::IF);
+      }
   } else if (Mnemo == "slli") { // FIXME: shamt
     RdVal = (unsigned)PS.getDERs1Val() << PS.getDEImmVal();
   } else if (Mnemo == "srli") {
@@ -283,6 +288,8 @@ void RIPSimulator::exec(PipelineStates &) {
 
     // J-type
   } else if (Mnemo == "jal") {
+
+    // FIXME: we can obviously predict those address.
     RdVal = PS.getPCs(EX) + 4;
     Address nextPC = PS.getPCs(EX) + signExtend(PS.getDEImmVal(), 20);
     PS.setBranchPC(nextPC);

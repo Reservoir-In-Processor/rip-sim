@@ -61,7 +61,7 @@ public:
   PipelineStates()
       : EXRdVal(0), EXRs2Val(0), EXImmVal(0), EXCSRVal(0), MARdVal(0),
         MAImmVal(0), MACSRVal(0), DERs2Val(0), DECSRVal(0), DEImmVal(0),
-        StalledStages{0}, InvalidStages{0} {}
+        WBImmVal(0), StalledStages{0}, InvalidStages{0} {}
 
   void dump();
 
@@ -118,6 +118,8 @@ public:
   void setBranchPC(const Address &V) { BranchPC = V; }
 
   const bool isStall(const STAGES &S) { return StalledStages[S]; }
+  // FIMXE: stall is contiguous, so set the stage and following stages may be
+  // enough?
   void setStall(const STAGES &S) { StalledStages[S] = true; }
   void clearStall() {
     for (int Stage = STAGES::WB; STAGES::IF <= Stage; --Stage)
