@@ -174,8 +174,9 @@ void RIPSimulator::exec(PipelineStates &) {
              Mnemo == "lbu" || Mnemo == "lhu") {
     RdVal = PS.getDERs1Val() + PS.getDEImmVal();
     // FIXME: checking Rs1 checks on this is annoying now.
-    if (!UTypeKinds.count(Inst->getMnemo()) ||
-        !JTypeKinds.count(Inst->getMnemo()) && PS[STAGES::DE])
+    if ((!UTypeKinds.count(Inst->getMnemo()) ||
+         !JTypeKinds.count(Inst->getMnemo())) &&
+        PS[STAGES::DE])
       if (auto IRd = Inst->getRd(); IRd == PS[STAGES::DE]->getRs1() ||
                                     (!ITypeKinds.count(Inst->getMnemo()) &&
                                      IRd == PS[STAGES::DE]->getRs2())) {
