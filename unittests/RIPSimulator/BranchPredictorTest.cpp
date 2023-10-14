@@ -5,14 +5,14 @@ TEST(RIPSimulatorTest, FOR_LOOP) {
   const unsigned char BYTES[] = {
       0x93, 0x02, 0x00, 0x00, // addi x5, x0, 0
       0x93, 0x82, 0x12, 0x00, // addi x5, x5, 1
-      0x13, 0x03, 0x50, 0x00, // addi x6, x0, 5
+      0x13, 0x03, 0x30, 0x00, // addi x6, x0, 3
       0xe3, 0xcc, 0x62, 0xfe, // blt x5, x6, -8
       0x93, 0x80, 0x10, 0x00, // addi x1, x1, 1
       0x13, 0x00, 0x00, 0x00, // addi x0, x0, 0
       0x13, 0x00, 0x00, 0x00, // addi x0, x0, 0
   };
 
-  const GPRegisters EXPECTED = {{1, 1}, {5, 5}, {6, 5}};
+  const GPRegisters EXPECTED = {{1, 1}, {5, 3}, {6, 3}};
 
   const Address EXPECTED_PC = DRAM_BASE + 4 * 7;
   std::stringstream ss;

@@ -4,28 +4,28 @@
 
 class BranchPredictor {
 private:
-  int StatsHitNum;
-  int StatsMissNum;
+  int HitNum;
+  int MissNum;
 
 public:
-  bool PrevPredict;
+  bool PrevPred;
   BranchPredictor(const BranchPredictor &) = delete;
   BranchPredictor &operator=(const BranchPredictor &) = delete;
 
-  BranchPredictor() : StatsHitNum(0), StatsMissNum(0) {}
+  BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0) {}
 
   virtual void Learn(bool &) = 0;
   virtual bool Predict() = 0;
 
   void StatsUpdate(bool cond) {
-    if (cond ^ PrevPredict) {
-      StatsMissNum++;
+    if (cond ^ PrevPred) {
+      MissNum++;
 #ifdef DEBUG
       std::cerr << "Branch pred: miss "
                 << "\n";
 #endif
     } else {
-      StatsHitNum++;
+      HitNum++;
 #ifdef DEBUG
       std::cerr << "Branch pred: hit "
                 << "\n";
@@ -34,9 +34,8 @@ public:
   }
 
   void printStat() {
-    std::cerr << "BP accuracy: "
-              << (double)StatsHitNum / (StatsHitNum + StatsMissNum)
-              << " (Hit :" << StatsHitNum << ", Miss :" << StatsMissNum << ")"
+    std::cerr << "BP accuracy: " << (double)HitNum / (HitNum + MissNum)
+              << " (Hit :" << HitNum << ", Miss :" << MissNum << ")"
               << "\n";
   }
 
@@ -52,7 +51,10 @@ public:
   OneBitBranchPredictor() : BranchPredictor(), NextPred(0) {}
 
   void Learn(bool &cond) override { NextPred = cond; }
-  bool Predict() override { return NextPred; }
+  bool Predict() override {
+    PrevPred = NextPred;
+    return NextPred;
+  }
 };
 
 #endif

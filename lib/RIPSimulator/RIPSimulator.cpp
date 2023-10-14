@@ -356,89 +356,99 @@ void RIPSimulator::exec(PipelineStates &) {
 
   } else if (Mnemo == "blt") {
     bool Cond = PS.getDERs1Val() < PS.getDERs2Val();
-    signed Offset;
-    if (Cond) {
-      Offset = PS.getDEImmVal();
+
+    signed Offset = PS.getDEImmVal();
+    Address NextPC = PS.getPCs(EX) + Offset;
+    if (!BP) {
+      if (Cond) {
+        PC = NextPC;
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+
     } else {
-      Offset = 4;
-    }
-    std::cerr << "Cond " << Cond << "\n";
-    Address nextPC = PS.getPCs(EX) + Offset;
+      if (BP->PrevPred ^ Cond) {
+        if (Cond) {
+          PS.setBranchPC(NextPC);
+        }
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-
-    if (BP) {
-      BP->Learn(Cond); // FIXME: and PS?
       BP->StatsUpdate(Cond);
+      BP->Learn(Cond);
     }
 
   } else if (Mnemo == "bge") {
     bool Cond = PS.getDERs1Val() >= PS.getDERs2Val();
+    signed Offset = PS.getDEImmVal();
+    Address NextPC = PS.getPCs(EX) + Offset;
+    if (!BP) {
+      if (Cond) {
+        PC = NextPC;
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    signed Offset;
-    if (Cond) {
-      Offset = PS.getDEImmVal();
     } else {
-      Offset = 4;
-    }
-    Address nextPC = PS.getPCs(EX) + Offset;
+      if (BP->PrevPred ^ Cond) {
+        if (Cond) {
+          PS.setBranchPC(NextPC);
+        }
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-
-    if (BP) {
-      BP->Learn(Cond); // FIXME: and PS?
       BP->StatsUpdate(Cond);
+      BP->Learn(Cond);
     }
 
   } else if (Mnemo == "bltu") {
     bool Cond = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val();
-    signed Offset;
-    if (Cond) {
-      Offset = PS.getDEImmVal();
+    signed Offset = PS.getDEImmVal();
+    Address NextPC = PS.getPCs(EX) + Offset;
+    if (!BP) {
+      if (Cond) {
+        PC = NextPC;
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+
     } else {
-      Offset = 4;
-    }
-    Address nextPC = PS.getPCs(EX) + Offset;
+      if (BP->PrevPred ^ Cond) {
+        if (Cond) {
+          PS.setBranchPC(NextPC);
+        }
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-
-    if (BP) {
-      BP->Learn(Cond); // FIXME: and PS?
       BP->StatsUpdate(Cond);
+      BP->Learn(Cond);
     }
 
   } else if (Mnemo == "bgeu") {
     bool Cond = (unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val();
+    signed Offset = PS.getDEImmVal();
+    Address NextPC = PS.getPCs(EX) + Offset;
+    if (!BP) {
+      if (Cond) {
+        PC = NextPC;
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    signed Offset;
-    if (Cond) {
-      Offset = PS.getDEImmVal();
     } else {
-      Offset = 4;
-    }
-    Address nextPC = PS.getPCs(EX) + Offset;
+      if (BP->PrevPred ^ Cond) {
+        if (Cond) {
+          PS.setBranchPC(NextPC);
+        }
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
 
-    if (!(PS.getPCs(STAGES::DE) == nextPC)) {
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-
-    if (BP) {
-      BP->Learn(Cond); // FIXME: and PS?
       BP->StatsUpdate(Cond);
+      BP->Learn(Cond);
     }
 
     // S-type
@@ -590,13 +600,12 @@ void RIPSimulator::runFromDRAMBASE() {
     if (PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
 
-    PS.fillBubble();
-
     if (PS.isEmpty()) {
       std::cerr << "========== BEGIN STATS ============"
                 << "\n";
       std::cerr << std::dec << "Total stages: " << StagesNum << "\n";
-      // BP->printStat();
+      if (BP)
+        BP->printStat();
       std::cerr << "=========== END STATS ============="
                 << "\n";
       std::cerr << "\n";
@@ -606,11 +615,14 @@ void RIPSimulator::runFromDRAMBASE() {
 
     // Branch prediction
     if (BP) {
+      bool pred = BP->Predict();
       if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
-        std::cerr << "Branch " << BP->Predict() << "\n";
+        std::cerr << "Branch Pred: " << pred << "\n";
 
-        if (BP->Predict()) {
+        if (pred) {
           PC = PS.getPCs(DE) + PS.getDEImmVal();
+          std::cerr << std::hex << "jump to: " << PC << "\n";
+          PS.setInvalid(IF);
         }
       }
     }
@@ -621,6 +633,7 @@ void RIPSimulator::runFromDRAMBASE() {
       std::cerr << std::hex << "0x" << PC << "\n";
     }
 
+    PS.fillBubble();
     StagesNum++;
 
 #ifdef DEBUG
