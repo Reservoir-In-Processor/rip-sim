@@ -140,7 +140,26 @@ public:
         IT.getMnemo() == "lhu")
       os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
          << "(" << std::dec << signExtend(Imm) << ")" << ABI[Rs1.to_ulong()];
-    else
+    else if ((int)IT.getMnemo().rfind("csr") != -1 &&
+             (int)IT.getMnemo().rfind("i") == -1) {
+      CSRAddress CSRAddr = (unsigned)signExtend(Imm);
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << " " << std::dec
+         << (CSRNames.count(CSRAddr) ? CSRNames.find(CSRAddr)->second
+                                     : std::to_string(CSRAddr))
+         << " " << ABI[Rs1.to_ulong()];
+    } else if ((int)IT.getMnemo().rfind("csr") != -1 &&
+               (int)IT.getMnemo().rfind("i") != -1) {
+      CSRAddress CSRAddr = (unsigned)signExtend(Imm);
+      os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
+         << " " << std::dec
+         << (CSRNames.count(CSRAddr) ? CSRNames.find(CSRAddr)->second
+                                     : std::to_string(CSRAddr))
+         << " " << Rs1.to_ulong();
+    } else if (IT.getMnemo() == "ecall" || IT.getMnemo() == "ebreak" ||
+               (int)IT.getMnemo().rfind("ret") != -1) {
+      os << IT.getMnemo();
+    } else
       os << IT.getMnemo() << " " << ABI[Rd.to_ulong()] << " "
          << ABI[Rs1.to_ulong()] << " " << std::dec << signExtend(Imm);
   }

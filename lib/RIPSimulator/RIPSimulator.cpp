@@ -57,7 +57,8 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is)
+    : PC(DRAM_BASE), Mode(ModeKind::Machine), CycleNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -142,7 +143,7 @@ const std::set<std::string> INVALID_EX = {"lbu",  "lhu",   "beq",   "blt",
                                           "bge",  "bltu",  "bgeu",  "jal",
                                           "jalr", "ecall", "ebreak"};
 
-void RIPSimulator::exec(PipelineStates &) {
+std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
   const auto &Inst = PS[STAGES::EX];
   RegVal RdVal = 0;
   RegVal CV = 0;
@@ -200,20 +201,70 @@ void RIPSimulator::exec(PipelineStates &) {
   } else if (Mnemo == "csrrc" || Mnemo == "csrrci") {
     CV = PS.getDECSRVal() & ~PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-    // } else if (Mnemo == "ecall") {
-    //   if (Mode == ModeKind::User) {
-    //     return Exception::EnvironmentCallFromUMode;
-    //   } else if (Mode == ModeKind::Supervisor) {
-    //     return Exception::EnvironmentCallFromSMode;
-    //   } else if (Mode == ModeKind::Machine) {
-    //     return Exception::EnvironmentCallFromMMode;
-    //   } else {
-    //     // FIXME: is this illegal inst?
-    //     return Exception::IllegalInstruction;
-    //   }
-    // } else if (Mnemo == "ebreak") {
-    //   return Exception::Breakpoint;
+  } else if (Mnemo == "ecall") {
+    if (Mode == ModeKind::User) {
+      return Exception::EnvironmentCallFromUMode;
+    } else if (Mode == ModeKind::Supervisor) {
+      return Exception::EnvironmentCallFromSMode;
+    } else if (Mode == ModeKind::Machine) {
+      return Exception::EnvironmentCallFromMMode;
+    } else {
+      // FIXME: is this illegal inst?
+      return Exception::IllegalInstruction;
+    }
+  } else if (Mnemo == "ebreak") {
+    return Exception::Breakpoint;
+  } else if (Mnemo == "mret") {
+    // FIXME: state read, multiple state writing (and mode change) happens,
+    // how can we divide these into stages?
 
+    Address nextPC = States.read(MEPC);
+    // FIXME: Forwarding happens on "mret" reading ???
+    if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+        (MEPC == PS[STAGES::MA]->getImm())) {
+      nextPC = PS.getMACSRVal();
+      std::cerr << "Exception: Forwarding MEPC val from MA : "
+                << "\n";
+    }
+    PS.setBranchPC(nextPC);
+    PS.setInvalid(DE);
+    PS.setInvalid(IF);
+    // FIXME: add MSTATUS handle methods
+    // FIXME: Forwarding happens on "mret" reading ???
+    CSRVal MSTATUSVal = States.read(MSTATUS);
+    if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+        (MSTATUS == PS[STAGES::MA]->getImm())) {
+      MSTATUSVal = PS.getMACSRVal();
+      std::cerr << "Exception: Forwarding MSTATUS val from MA : "
+                << "\n";
+    }
+
+    // Previous Privilege mode for Machine mode.
+    ModeKind MPPVal = (ModeKind)((MSTATUSVal >> 11) & 0b11);
+
+    if (MPPVal == ModeKind::User) {
+      States.setMPREV(0);
+      // FIXME: riscv-tests expects UserMode?
+      // Mode = ModeKind::User;
+    } else if (MPPVal == ModeKind::Supervisor) {
+      // set MPREV=0
+      States.setMPREV(0);
+      Mode = ModeKind::Supervisor;
+    } else if (MPPVal == ModeKind::Machine) {
+      Mode = ModeKind::Machine;
+    } else
+      return Exception::IllegalInstruction;
+    // set MIE to MPIE;
+    // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
+    // MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
+    bool MPIEVal = (bool)((MSTATUSVal >> 7) & 1);
+    States.setMIE(MPIEVal);
+
+    // Set MPIE to 1
+    States.setMPIE(true);
+
+    // Set MPP to 0
+    States.setMPP((ModeKind)0);
     // R-type
   } else if (Mnemo == "add") {
     RdVal = PS.getDERs1Val() + PS.getDERs2Val();
@@ -340,6 +391,7 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(DE);
       PS.setInvalid(IF);
     }
+
     // S-type
   } else if (Mnemo == "sb" || Mnemo == "sw" || Mnemo == "sh") {
     // FIXME: wrap add?
@@ -350,7 +402,6 @@ void RIPSimulator::exec(PipelineStates &) {
     RdVal = PS.getDEImmVal() << 12;
   } else if (Mnemo == "auipc") {
     RdVal = PS.getPCs(EX) + (PS.getDEImmVal() << 12);
-
   } else {
     assert(false && "unimplemented!");
   }
@@ -358,6 +409,8 @@ void RIPSimulator::exec(PipelineStates &) {
   PS.setEXRdVal(RdVal);
   PS.setEXCSRVal(CV);
   PS.setEXImmVal(Imm);
+
+  return std::nullopt;
 }
 
 namespace {
@@ -492,16 +545,85 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   PS.setDEImmVal(Imm);
   // TODO: stall 1 cycle if the inst is load;
 }
-void RIPSimulator::fetch(Memory &, PipelineStates &) {
-  // const auto &Inst = PS[STAGES::IF];
-  // FIXME: how and when can I change PC?
+void RIPSimulator::fetch(Memory &, PipelineStates &) {}
+
+bool RIPSimulator::handleException(Exception &E) {
+  PS.setInvalid(DE);
+  PS.setInvalid(IF);
+  Address ExceptionPC = PS.getPCs(EX);
+  ModeKind PrevMode = Mode;
+  unsigned Cause = E;
+  // FIXME: temporary exit with break
+  if (E == Exception::Breakpoint) {
+    std::cerr << "break happens\n";
+    return false;
+  }
+  // TODO: move those on exec and write back.
+  // PC change should be on exec.
+  if (Mode == ModeKind::Machine) {
+    CSRVal VecVal = States.read(MTVEC);
+    // FIXME: Forwarding happens on exception handling?
+    if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+        (MTVEC == PS[STAGES::EX]->getImm())) {
+      VecVal = PS.getEXCSRVal();
+      std::cerr << "Exception: Forwarding MTVEC val from EX : "
+                << "\n";
+    } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+               (MTVEC == PS[STAGES::MA]->getImm())) {
+      VecVal = PS.getMACSRVal();
+      std::cerr << "Exception: Forwarding MTVEC val from MA : "
+                << "\n";
+    }
+
+    PC = VecVal & (~1);
+
+    States.write(MEPC, ExceptionPC & (~1));
+
+    States.write(MCAUSE, Cause);
+
+    // Machine Trap Value Register
+    States.write(MTVAL, trap_val(E, ExceptionPC, PS[STAGES::EX]->getVal()));
+
+    // set MPIE to MIE;
+    // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of
+    // MSTATUS MPIE: Previous Interrupt-Enable bit for machine mode. 7-th
+    // bit of MSTATUS
+
+    // FIXME: Forwarding happens on exception handling?
+    CSRVal MSTATUSVal = States.read(MSTATUS);
+    if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+        (MSTATUS == PS[STAGES::EX]->getImm())) {
+      MSTATUSVal = PS.getEXCSRVal();
+      std::cerr << "Exception: Forwarding MSTATUS val from EX : "
+                << "\n";
+    } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+               (MSTATUS == PS[STAGES::MA]->getImm())) {
+      MSTATUSVal = PS.getMACSRVal();
+      std::cerr << "Exception: Forwarding MSTATUS val from MA : "
+                << "\n";
+    }
+
+    MSTATUSVal = States.read(MSTATUS);
+    bool MIE = (bool)((MSTATUSVal >> 3) & 1);
+    States.setMPIE(MIE);
+
+    States.setMIE(0);
+
+    States.setMPP(PrevMode);
+
+  } else {
+    assert(false && "Non-Machine mode is unimplemented!");
+    return false;
+  }
+  return true;
 }
 
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
   while (true) {
-    // actual fetch
+    // actual fetch and decode
+    std::cerr << "PC=" << PC << "\n";
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -516,24 +638,29 @@ void RIPSimulator::runFromDRAMBASE() {
 
     PS.clearStall();
 
-    if (PS.isEmpty()) {
-      break;
-    }
-    // FIXME: might this be wrong if branch prediction happens.
-
+    std::optional<Exception> E = std::nullopt;
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
-    if (!PS.isStall(STAGES::EX) && PS[STAGES::EX] != nullptr)
-      exec(PS);
-    if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
+    if (PS[STAGES::EX] != nullptr)
+      E = exec(PS);
+    if (PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
-    if (!PS.isStall(STAGES::IF) && PS[STAGES::IF] != nullptr)
+    if (PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
+
+    // Exception handling
+    // TODO: move those handler to some functions i.e. take_trap
+    if (E && !handleException(*E))
+      break;
 
     PS.fillBubble();
 
+    if (PS.isEmpty()) {
+      break;
+    }
+    // FIXME: might this be wrong if branch prediction happens.
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
