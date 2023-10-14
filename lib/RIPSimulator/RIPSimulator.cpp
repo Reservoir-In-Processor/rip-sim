@@ -3,7 +3,7 @@
 #include <set>
 
 namespace {
-// BitWidth < 32
+/// BitWidth < 32
 int signExtend(const unsigned Imm, unsigned BitWidth) {
   if ((Imm >> (BitWidth - 1)) & 1) {
     return (~0 ^ ((int)(pow(2, BitWidth) - 1))) | (signed)Imm;
@@ -18,6 +18,9 @@ void PipelineStates::dump() {
   // TODO: dump stall,
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     std::cerr << StageNames[(STAGES)Stage] << ": ";
+    if (isStall((STAGES)Stage))
+      std::cerr << std::hex << "(Stalled) ";
+
     if (Insts[Stage] != nullptr) {
       std::cerr << std::hex << "PC=0x" << PCs[Stage] << " ";
       Insts[Stage]->mprint(std::cerr);
@@ -114,27 +117,20 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
     Mem.writeByte(MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "lw") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
-    Word V = Mem.readWord(PS.getEXRdVal());
+    Word V = Mem.readWord(MARdVal);
     Res = (signed)V;
   } else if (Mnemo == "lh") {
-    HalfWord V = Mem.readHalfWord(PS.getEXRdVal());
+    HalfWord V = Mem.readHalfWord(MARdVal);
     Res = (signed short)V;
   } else if (Mnemo == "lbu") {
-    Byte V = Mem.readByte(PS.getEXRdVal());
+    Byte V = Mem.readByte(MARdVal);
     Res = (unsigned char)V;
   } else if (Mnemo == "lhu") {
-    HalfWord V = Mem.readHalfWord(PS.getEXRdVal());
+    HalfWord V = Mem.readHalfWord(MARdVal);
     Res = (unsigned short)V;
   } else if (Mnemo == "lb") {
-    Byte V = Mem.readByte(PS.getEXRdVal());
+    Byte V = Mem.readByte(MARdVal);
     Res = (signed char)V;
-    // FIXME: Forwarding should be on decode.
-    // } else if (Mnemo == "csrrs") {
-    //   if (PS[STAGES::WB] && Imm == PS[STAGES::WB]->getImm()) {
-    //     std::cerr << "Forwarding from WB to MA."
-    //               << "\n";
-    //     Res = PS.getWBImmVal();
-    // }
   }
 
   PS.setMARdVal(Res);
@@ -168,48 +164,40 @@ void RIPSimulator::exec(PipelineStates &) {
     RdVal = PS.getDERs1Val() & PS.getDEImmVal();
   } else if (Mnemo == "jalr") {
     RdVal = PS.getPCs(EX) + 4;
-
+    // FIXME: we can obviously predict those address.
     Address nextPC = PS.getDERs1Val() + signExtend(PS.getDEImmVal(), 12);
     PS.setBranchPC(nextPC);
     PS.setInvalid(DE);
     PS.setInvalid(IF);
 
-  } else if (Mnemo == "lb") {
+  } else if (Mnemo == "lb" || Mnemo == "lh" || Mnemo == "lw" ||
+             Mnemo == "lbu" || Mnemo == "lhu") {
     RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-  } else if (Mnemo == "lh") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-  } else if (Mnemo == "lw") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-  } else if (Mnemo == "lbu") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-  } else if (Mnemo == "lhu") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
+    // FIXME: checking Rs1 checks on this is annoying now.
+    if ((!UTypeKinds.count(Inst->getMnemo()) ||
+         !JTypeKinds.count(Inst->getMnemo())) &&
+        PS[STAGES::DE])
+      if (auto IRd = Inst->getRd(); IRd == PS[STAGES::DE]->getRs1() ||
+                                    (!ITypeKinds.count(Inst->getMnemo()) &&
+                                     IRd == PS[STAGES::DE]->getRs2())) {
+        PS.setStall(STAGES::DE);
+        PS.setStall(STAGES::IF);
+      }
   } else if (Mnemo == "slli") { // FIXME: shamt
     RdVal = (unsigned)PS.getDERs1Val() << PS.getDEImmVal();
   } else if (Mnemo == "srli") {
     RdVal = (unsigned)PS.getDERs1Val() >> PS.getDEImmVal();
   } else if (Mnemo == "srai") {
     RdVal = PS.getDERs1Val() >> PS.getDEImmVal();
-  } else if (Mnemo == "fence") {
+  } else if (Mnemo == "fence" || Mnemo == "fence.i") {
     // FIXME: currently expected to be nop
-  } else if (Mnemo == "fence.i") {
-    // FIXME: currently expected to be nop
-  } else if (Mnemo == "csrrw") {
+  } else if (Mnemo == "csrrw" || Mnemo == "csrrwi") {
     CV = PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-  } else if (Mnemo == "csrrs") {
+  } else if (Mnemo == "csrrs" || Mnemo == "csrrsi") {
     CV = PS.getDECSRVal() | PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
-  } else if (Mnemo == "csrrc") {
-    CV = PS.getDECSRVal() & ~PS.getDERs1Val();
-    RdVal = PS.getDECSRVal();
-  } else if (Mnemo == "csrrwi") {
-    CV = PS.getDERs1Val();
-    RdVal = PS.getDECSRVal();
-  } else if (Mnemo == "csrrsi") {
-    CV = PS.getDERs1Val() | PS.getDECSRVal();
-    RdVal = PS.getDECSRVal();
-  } else if (Mnemo == "csrrci") {
+  } else if (Mnemo == "csrrc" || Mnemo == "csrrci") {
     CV = PS.getDECSRVal() & ~PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
     // } else if (Mnemo == "ecall") {
@@ -301,6 +289,8 @@ void RIPSimulator::exec(PipelineStates &) {
 
     // J-type
   } else if (Mnemo == "jal") {
+
+    // FIXME: we can obviously predict those address.
     RdVal = PS.getPCs(EX) + 4;
     Address nextPC = PS.getPCs(EX) + signExtend(PS.getDEImmVal(), 20);
     PS.setBranchPC(nextPC);
@@ -351,22 +341,10 @@ void RIPSimulator::exec(PipelineStates &) {
       PS.setInvalid(IF);
     }
     // S-type
-  } else if (Mnemo == "sb") {
+  } else if (Mnemo == "sb" || Mnemo == "sw" || Mnemo == "sh") {
     // FIXME: wrap add?
     RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Rs2 = PS.getDERs2Val();
-    PS.setEXRs2Val(Rs2);
-
-  } else if (Mnemo == "sh") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Rs2 = PS.getDERs2Val();
-    PS.setEXRs2Val(Rs2);
-
-  } else if (Mnemo == "sw") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
-    RegVal Rs2 = PS.getDERs2Val();
-    PS.setEXRs2Val(Rs2);
-
+    PS.setEXRs2Val(PS.getDERs2Val());
     // U-type
   } else if (Mnemo == "lui") {
     RdVal = PS.getDEImmVal() << 12;
@@ -377,18 +355,87 @@ void RIPSimulator::exec(PipelineStates &) {
     assert(false && "unimplemented!");
   }
 
-  // if (INVALID_EX.find(Inst->getMnemo()) != INVALID_EX.end()) {
-  //   // FIXME: invalide itself, is this right?
-  //   PS.setInvalid(EX);
-  //   PS.setInvalid(DE);
-  //   PS.setInvalid(IF);
-  //   // TODO: reset PC
-  // }
-
   PS.setEXRdVal(RdVal);
   PS.setEXCSRVal(CV);
   PS.setEXImmVal(Imm);
 }
+
+namespace {
+
+static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+  if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
+    return false;
+  // TODO: check the Rs1 is exist for the Inst type.
+  if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
+    // EX forward
+    PS.setDERs1Val(PS.getEXRdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
+    // MA forward
+    PS.setDERs1Val(PS.getMARdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+
+  if (!CSR_INSTs.count(Inst->getMnemo()))
+    return false;
+  if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+      (Inst->getImm() == PS[STAGES::EX]->getImm())) {
+
+    PS.setDECSRVal(PS.getEXCSRVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
+              << PS.getEXCSRVal() << "\n";
+#endif
+    return true;
+  }
+  if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+      (Inst->getImm() == PS[STAGES::MA]->getImm())) {
+    PS.setDECSRVal(PS.getMACSRVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
+                       PipelineStates &PS, GPRegisters &GPRegs) {
+  // TODO: list all of them.
+  if (ITypeKinds.count(Inst->getMnemo()) ||
+      UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
+    return false;
+
+  if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
+    PS.setDERs2Val(PS.getEXRdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
+    PS.setDERs2Val(PS.getMARdVal());
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
+#endif
+    return true;
+  }
+  return false;
+}
+
+} // namespace
 
 // register access shuold be done in this phase, exec shuoldn't access
 // GPRegs directly.
@@ -398,47 +445,21 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   int Imm = 0;
 
   // Register access on Rs1
+  // FIXME: we can forward if EX or MA is also immediate CSR instructions.
   if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
       Inst->getMnemo() == "csrrci") {
     PS.setDERs1Val((unsigned int)Inst->getRs1());
-  } else if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
-    // EX forward
-    PS.setDERs1Val(PS.getEXRdVal());
-    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
-  } else if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
-    // MA forward
-    PS.setDERs1Val(PS.getMARdVal());
-    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
-  } else {
+  } else if (!forwardRs1(Inst, PS, GPRegs)) {
     PS.setDERs1Val(GPRegs[Inst->getRs1()]);
   }
 
   // Register access on CSR
-  if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-      (Inst->getImm() == PS[STAGES::EX]->getImm())) {
-
-    PS.setDECSRVal(PS.getEXCSRVal());
-    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
-              << PS.getEXCSRVal() << "\n";
-
-  } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-             (Inst->getImm() == PS[STAGES::MA]->getImm())) {
-
-    PS.setDECSRVal(PS.getMACSRVal());
-    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
-
-  } else {
+  if (!forwardCSR(Inst, PS, GPRegs)) {
     PS.setDECSRVal(States[Inst->getImm()]);
   }
 
   // Register access on Rs2
-  if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
-    PS.setDERs2Val(PS.getEXRdVal());
-    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
-  } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
-    PS.setDERs2Val(PS.getMARdVal());
-    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
-  } else {
+  if (!forwardRs2(Inst, PS, GPRegs)) {
     PS.setDERs2Val(GPRegs[Inst->getRs2()]);
   }
 
@@ -480,35 +501,45 @@ void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
   while (true) {
-    auto InstPtr = Dec.decode(Mem.readWord(PC));
-    PS.pushPC(PC);
-    if (InstPtr) {
-      PC += 4;
+    // actual fetch
+    if (!PS.isStall(STAGES::IF)) {
+      auto InstPtr = Dec.decode(Mem.readWord(PC));
+      PS.proceedPC(PC);
+      if (InstPtr) {
+        PC += 4;
+      }
+      PS.proceed(std::move(InstPtr));
+    } else {
+      PS.proceedPC(-1);
+      PS.proceed(nullptr);
     }
-    PS.push(std::move(InstPtr));
-    // FIXME: might this be wrong if branch prediction happens.
-    CycleNum++;
-    if (PS[STAGES::WB] != nullptr)
-      writeback(GPRegs, PS);
-    if (PS[STAGES::MA] != nullptr)
-      memoryaccess(Mem, PS);
-    if (PS[STAGES::EX] != nullptr)
-      exec(PS);
-    if (PS[STAGES::DE] != nullptr)
-      decode(GPRegs, PS);
-    if (PS[STAGES::IF] != nullptr)
-      fetch(Mem, PS);
 
-    PS.fillBubble();
+    PS.clearStall();
 
     if (PS.isEmpty()) {
       break;
     }
+    // FIXME: might this be wrong if branch prediction happens.
+
+    if (PS[STAGES::WB] != nullptr)
+      writeback(GPRegs, PS);
+    if (PS[STAGES::MA] != nullptr)
+      memoryaccess(Mem, PS);
+    if (!PS.isStall(STAGES::EX) && PS[STAGES::EX] != nullptr)
+      exec(PS);
+    if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
+      decode(GPRegs, PS);
+    if (!PS.isStall(STAGES::IF) && PS[STAGES::IF] != nullptr)
+      fetch(Mem, PS);
+
+    PS.fillBubble();
+
     if (auto NextPC = PS.takeBranchPC()) {
       std::cerr << std::hex << "Branch from " << PC << " to ";
       PC = *NextPC;
       std::cerr << std::hex << PC << "\n";
     }
+    CycleNum++;
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();

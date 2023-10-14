@@ -66,13 +66,13 @@ public:
   void dump();
 
   const RegVal &getEXRdVal() { return EXRdVal; }
-  void setEXRdVal(RegVal &V) { EXRdVal = V; }
+  void setEXRdVal(const RegVal &V) { EXRdVal = V; }
 
   const RegVal &getEXRs2Val() { return EXRs2Val; }
-  void setEXRs2Val(RegVal &V) { EXRs2Val = V; }
+  void setEXRs2Val(const RegVal &V) { EXRs2Val = V; }
 
   const RegVal &getEXImmVal() { return EXImmVal; }
-  void setEXImmVal(RegVal &V) { EXImmVal = V; }
+  void setEXImmVal(const RegVal &V) { EXImmVal = V; }
 
   const RegVal &getEXCSRVal() { return EXCSRVal; }
   void setEXCSRVal(RegVal &V) { EXCSRVal = V; }
@@ -118,7 +118,13 @@ public:
   void setBranchPC(const Address &V) { BranchPC = V; }
 
   const bool isStall(const STAGES &S) { return StalledStages[S]; }
+  // FIMXE: stall is contiguous, so set the stage and following stages may be
+  // enough?
   void setStall(const STAGES &S) { StalledStages[S] = true; }
+  void clearStall() {
+    for (int Stage = STAGES::WB; STAGES::IF <= Stage; --Stage)
+      StalledStages[Stage] = false;
+  }
 
   const bool isInvalid(const STAGES &S) { return InvalidStages[S]; }
   void setInvalid(const STAGES &S) { InvalidStages[S] = true; }
@@ -133,8 +139,10 @@ public:
     return Insts[Stage];
   }
 
-  void push(std::unique_ptr<Instruction> InstPtr) {
+  void proceed(std::unique_ptr<Instruction> InstPtr) {
     for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
+      if (isStall((STAGES)(Stage - 1)))
+        return;
       Insts[Stage] = std::move(Insts[Stage - 1]);
     }
     Insts[STAGES::IF] = std::move(InstPtr);
@@ -157,8 +165,10 @@ public:
     }
   }
 
-  void pushPC(const Address PC) {
+  void proceedPC(const Address PC) {
     for (int Stage = STAGES::WB; STAGES::IF < Stage; --Stage) {
+      if (isStall((STAGES)(Stage - 1)))
+        return;
       PCs[Stage] = std::move(PCs[Stage - 1]);
     }
     PCs[STAGES::IF] = std::move(PC);
