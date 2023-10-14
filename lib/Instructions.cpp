@@ -141,7 +141,6 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     CSRVal MSTATUSVal = States.read(MSTATUS);
     // Previous Privilege mode for Machine mode.
     ModeKind MPP = (ModeKind)((MSTATUSVal >> 11) & 0b11);
-
     if (MPP == ModeKind::User) {
       // FIXME: add methods?
       // set MPREV=0
