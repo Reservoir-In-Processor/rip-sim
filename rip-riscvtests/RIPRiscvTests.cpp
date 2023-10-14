@@ -63,7 +63,6 @@ void RIPSimulator::runRiscvTests() {
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
-    dumpCSRegs();
 #endif
   }
 }
