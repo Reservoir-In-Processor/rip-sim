@@ -621,9 +621,15 @@ bool RIPSimulator::handleException(Exception &E) {
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
-  while (true) {
+  while (!proceedNStage(1)) {
+  }
+
+  return;
+}
+
+bool RIPSimulator::proceedNStage(unsigned N) {
+  while (N--) {
     // actual fetch and decode
-    std::cerr << "PC=" << PC << "\n";
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -651,7 +657,6 @@ void RIPSimulator::runFromDRAMBASE() {
       fetch(Mem, PS);
 
     // Exception handling
-    // TODO: move those handler to some functions i.e. take_trap
     if (E && !handleException(*E))
       break;
 
@@ -670,7 +675,7 @@ void RIPSimulator::runFromDRAMBASE() {
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
-    dumpCSRegs();
 #endif
   }
+  return PS.isEmpty();
 }

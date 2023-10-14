@@ -195,6 +195,7 @@ public:
   // move this def to .cpp
   RIPSimulator(std::istream &is);
   GPRegisters &getGPRegs() { return GPRegs; }
+  PipelineStates &getPipelineStates() { return PS; }
   // FIXME: is it correct to define CSRs?
   inline const CSRs &getCSRs() const { return States; }
   // inherently unused arguments, but better to see dependencies
@@ -207,9 +208,12 @@ public:
   bool handleException(Exception &E);
 
   void runFromDRAMBASE();
+  bool proceedNStage(unsigned N);
+
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }
+  void setPC(Address Ad) { PC = Ad; };
 };
 
 #endif
