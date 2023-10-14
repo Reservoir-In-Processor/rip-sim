@@ -208,7 +208,7 @@ public:
   bool handleException(Exception &E);
 
   void runFromDRAMBASE();
-  void proceedNStage(unsigned N);
+  bool proceedNStage(unsigned N);
 
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
