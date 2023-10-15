@@ -379,8 +379,9 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
       }
 
     } else {
+      bool Pred = BP->Predict();
 
-      if (BP->Pred ^ Cond) {
+      if (Pred ^ Cond) {
         if (Cond) {
           PS.setBranchPC(NextPC);
         } else {
@@ -390,7 +391,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
         PS.setInvalid(IF);
       }
 
-      BP->StatsUpdate(Cond);
+      BP->StatsUpdate(Cond, Pred);
       BP->Learn(Cond);
     }
 
