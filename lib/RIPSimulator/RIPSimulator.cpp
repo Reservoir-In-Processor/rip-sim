@@ -631,8 +631,10 @@ void RIPSimulator::runFromDRAMBASE() {
 
   while (true) {
     // actual fetch and decode
+#ifdef DEBUG
     std::cerr << std::dec << "Num Stages=" << getNumStages() << " " << std::hex
               << "PC=0x" << PC << "\n";
+#endif
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -683,24 +685,34 @@ void RIPSimulator::runFromDRAMBASE() {
       break;
     }
 
-    // Branch prediction
+    // FIXME: BP should be in DE?
     if (BP) {
       bool pred = BP->Predict();
       if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
+
+#ifdef DEBUG
         std::cerr << "Branch Pred: " << pred << "\n";
+#endif
 
         if (pred) {
           PC = PS.getPCs(DE) + PS.getDEImmVal();
+
+#ifdef DEBUG
           std::cerr << std::hex << "jump to: " << PC << "\n";
+#endif
           PS.setInvalid(IF);
         }
       }
     }
 
     if (auto NextPC = PS.takeBranchPC()) {
+#ifdef DEBUG
       std::cerr << std::hex << "Branch from 0x" << PC << " to ";
+#endif
       PC = *NextPC;
+#ifdef DEBUG
       std::cerr << std::hex << "0x" << PC << "\n";
+#endif
     }
 
     PS.fillBubble();
