@@ -74,7 +74,16 @@ RIPSimulator::RIPSimulator(std::istream &is,
 }
 
 void RIPSimulator::dumpStats() {
+  std::cerr << "========== BEGIN STATS ============"
+            << "\n";
+
   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+
+  if (BP)
+    BP->printStat();
+  std::cerr << "=========== END STATS ============="
+            << "\n";
+  std::cerr << "\n";
 }
 
 void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
@@ -686,19 +695,8 @@ void RIPSimulator::runFromDRAMBASE() {
 
     if (PS.isEmpty()) {
 #ifdef DEBUG
-      std::cerr << "========== BEGIN STATS ============"
-
-                << "\n";
-
       dumpStats();
-
-      if (BP)
-        BP->printStat();
-      std::cerr << "=========== END STATS ============="
-                << "\n";
-      std::cerr << "\n";
 #endif
-
       break;
     }
 
