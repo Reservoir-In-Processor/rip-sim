@@ -35,4 +35,8 @@ TEST(RIPSimulatorTest, FOR_LOOP) {
   EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
       << "PC"
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+
+  EXPECT_EQ(RSim.getNumStages(), 24)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }

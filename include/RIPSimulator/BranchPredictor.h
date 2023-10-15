@@ -45,15 +45,15 @@ public:
 class OneBitBranchPredictor : public BranchPredictor {
 private:
   /// Result of Prediction
-  bool NextPred;
+  bool Pred;
 
 public:
-  OneBitBranchPredictor() : BranchPredictor(), NextPred(0) {}
+  OneBitBranchPredictor() : BranchPredictor(), Pred(0) {}
 
-  void Learn(bool &cond) override { NextPred = cond; }
+  void Learn(bool &cond) override { Pred = cond; }
   bool Predict() override {
-    PrevPred = NextPred;
-    return NextPred;
+    PrevPred = Pred;
+    return Pred;
   }
 };
 

@@ -185,7 +185,7 @@ private:
   CSRs States;
 
   ModeKind Mode;
-  unsigned StagesNum;
+  unsigned NumStages;
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
@@ -201,6 +201,7 @@ public:
   GPRegisters &getGPRegs() { return GPRegs; }
   // FIXME: is it correct to define CSRs?
   inline const CSRs &getCSRs() const { return States; }
+  unsigned getNumStages() { return NumStages; }
   // inherently unused arguments, but better to see dependencies
   void writeback(GPRegisters &, PipelineStates &);
   void memoryaccess(Memory &, PipelineStates &);
