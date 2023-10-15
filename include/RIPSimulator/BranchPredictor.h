@@ -33,7 +33,7 @@ public:
   }
 
   void printStat() {
-    std::cerr << "BP accuracy: " << (double)HitNum / (HitNum + MissNum)
+    std::cerr << " BP accuracy: " << (double)HitNum / (HitNum + MissNum)
               << " (Hit :" << HitNum << ", Miss :" << MissNum << ")"
               << "\n";
   }

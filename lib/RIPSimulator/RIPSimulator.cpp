@@ -73,6 +73,10 @@ RIPSimulator::RIPSimulator(std::istream &is,
   }
 }
 
+void RIPSimulator::dumpStats() {
+  std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+}
+
 void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
   const auto &Inst = PS[STAGES::WB];
   std::string Mnemo = Inst->getMnemo();
@@ -662,14 +666,19 @@ void RIPSimulator::runFromDRAMBASE() {
       break;
 
     if (PS.isEmpty()) {
+#ifdef DEBUG
       std::cerr << "========== BEGIN STATS ============"
+
                 << "\n";
-      std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+
+      dumpStats();
+
       if (BP)
         BP->printStat();
       std::cerr << "=========== END STATS ============="
                 << "\n";
       std::cerr << "\n";
+#endif
 
       break;
     }

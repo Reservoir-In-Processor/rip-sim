@@ -208,12 +208,16 @@ public:
   std::optional<Exception> exec(PipelineStates &);
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
+  void dumpStats();
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 
   void runFromDRAMBASE();
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
+  // void dumpStats() {
+  //   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+  // }
   Address &getPC() { return PC; }
 };
 
