@@ -8,17 +8,17 @@ private:
   int MissNum;
 
 public:
-  bool PrevPred;
+  bool Pred;
   BranchPredictor(const BranchPredictor &) = delete;
   BranchPredictor &operator=(const BranchPredictor &) = delete;
 
-  BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0) {}
+  BranchPredictor() : HitNum(0), MissNum(0), Pred(0) {}
 
   virtual void Learn(bool &) = 0;
   virtual bool Predict() = 0;
 
   void StatsUpdate(bool cond) {
-    if (cond ^ PrevPred) {
+    if (cond ^ Pred) {
       MissNum++;
 #ifdef DEBUG
       std::cerr << "Branch pred: miss "
@@ -45,15 +45,15 @@ public:
 class OneBitBranchPredictor : public BranchPredictor {
 private:
   /// Result of Prediction
-  bool Pred;
+  bool BranchHistory;
 
 public:
-  OneBitBranchPredictor() : BranchPredictor(), Pred(0) {}
+  OneBitBranchPredictor() : BranchPredictor(), BranchHistory(0) {}
 
-  void Learn(bool &cond) override { Pred = cond; }
+  void Learn(bool &cond) override { BranchHistory = cond; }
   bool Predict() override {
-    PrevPred = Pred;
-    return Pred;
+    Pred = BranchHistory;
+    return BranchHistory;
   }
 };
 

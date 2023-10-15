@@ -379,9 +379,12 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
       }
 
     } else {
-      if (BP->PrevPred ^ Cond) {
+
+      if (BP->Pred ^ Cond) {
         if (Cond) {
           PS.setBranchPC(NextPC);
+        } else {
+          PS.setBranchPC(PS.getPCs(EX) + 4);
         }
         PS.setInvalid(DE);
         PS.setInvalid(IF);
@@ -623,7 +626,8 @@ void RIPSimulator::runFromDRAMBASE() {
 
   while (true) {
     // actual fetch and decode
-    std::cerr << "PC=" << PC << "\n";
+    std::cerr << std::dec << "Num Stages=" << getNumStages() << " " << std::hex
+              << "PC=0x" << PC << "\n";
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
