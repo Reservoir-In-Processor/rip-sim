@@ -544,6 +544,23 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
           ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
     Imm = signExtend(Imm, 12);
 
+    if (BP) {
+      bool pred = BP->Predict();
+      if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
+
+        if (pred) {
+          std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
+          PC = PS.getPCs(DE) + Imm;
+
+#ifdef DEBUG
+          std::cerr << "Branch Pred: " << pred << "\n";
+          std::cerr << std::hex << "jump to: " << PC << "\n";
+#endif
+          PS.setInvalid(IF);
+        }
+      }
+    }
+
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = (Inst->getVal() & 0xfffff000) >> 12;
     Imm = signExtend(Imm, 20);
@@ -685,26 +702,6 @@ void RIPSimulator::runFromDRAMBASE() {
       break;
     }
 
-    // FIXME: BP should be in DE?
-    if (BP) {
-      bool pred = BP->Predict();
-      if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
-
-#ifdef DEBUG
-        std::cerr << "Branch Pred: " << pred << "\n";
-#endif
-
-        if (pred) {
-          PC = PS.getPCs(DE) + PS.getDEImmVal();
-
-#ifdef DEBUG
-          std::cerr << std::hex << "jump to: " << PC << "\n";
-#endif
-          PS.setInvalid(IF);
-        }
-      }
-    }
-
     if (auto NextPC = PS.takeBranchPC()) {
 #ifdef DEBUG
       std::cerr << std::hex << "Branch from 0x" << PC << " to ";
@@ -721,7 +718,7 @@ void RIPSimulator::runFromDRAMBASE() {
 #ifdef DEBUG
     PS.dump();
     dumpGPRegs();
-    dumpCSRegs();
+    // dumpCSRegs();
 #endif
   }
 }
