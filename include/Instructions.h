@@ -53,24 +53,67 @@ public:
   void setVal(unsigned V) { Val = V; }
 
   const unsigned getVal() { return Val; }
-  const unsigned getRd() {
+  const inline unsigned getRd() {
     if (STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()))
       assert(false && "This inst don't have rd!");
     return (Val & 0x00000f80) >> 7;
   }
-  const unsigned getRs1() {
+  const inline unsigned getRs1() {
     if (UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()))
       assert(false && "This inst don't have rs1!");
     return (Val & 0x000f8000) >> 15;
   }
-  const unsigned getRs2() {
-    assert(false && "This inst don't have rs2!");
+
+  const inline unsigned getRs2() {
+    if (ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
+        JTypeKinds.count(getMnemo()))
+      assert(false && "This inst don't have rs2!");
     return (Val & 0x01f00000) >> 20;
   }
-  const unsigned getImm() {
+
+  const inline unsigned getIImm() {
     if (!ITypeKinds.count(getMnemo()))
       assert(false && "This isn't expected to be called on not I-inst!");
     return (Val & 0xfff00000) >> 20;
+  }
+
+  const inline unsigned getSImm() {
+    if (!STypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not S-inst!");
+    return (Val & 0xfe000000) >> 20 | ((Val >> 7) & 0x1f);
+  }
+
+  const inline unsigned getJImm() {
+    if (!JTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not J-inst!");
+    return ((Val & 0x80000000) >> 11) | (Val & 0xff000) | ((Val >> 9) & 0x800) |
+           ((Val >> 20) & 0x7fe);
+  }
+
+  const inline unsigned getBImm() {
+    if (!BTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not B-inst!");
+    return (Val > 0x80000000) >> 19 | ((Val & 0x80) << 4) |
+           ((Val >> 20) & 0x7e0) | ((Val >> 7) & 0x1e);
+  }
+
+  const inline unsigned getUImm() {
+    if (!UTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not U-inst!");
+    return (Val & 0xfffff000) >> 12;
+  }
+
+  const inline unsigned hasRs1() {
+    return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
+  }
+
+  const inline unsigned hasRs2() {
+    return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
+             JTypeKinds.count(getMnemo()));
+  }
+
+  const inline unsigned hasRd() {
+    return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
   }
 
   virtual const std::string &getMnemo() = 0;

@@ -219,7 +219,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     Address nextPC = States.read(MEPC);
     // FIXME: Forwarding happens on "mret" reading ???
     if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-        (MEPC == PS[STAGES::MA]->getImm())) {
+        (MEPC == PS[STAGES::MA]->getIImm())) {
       nextPC = PS.getMACSRVal();
       std::cerr << "Exception: Forwarding MEPC val from MA : "
                 << "\n";
@@ -231,7 +231,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     // FIXME: Forwarding happens on "mret" reading ???
     CSRVal MSTATUSVal = States.read(MSTATUS);
     if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-        (MSTATUS == PS[STAGES::MA]->getImm())) {
+        (MSTATUS == PS[STAGES::MA]->getIImm())) {
       MSTATUSVal = PS.getMACSRVal();
       std::cerr << "Exception: Forwarding MSTATUS val from MA : "
                 << "\n";
@@ -418,8 +418,7 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
   if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
     return false;
   // TODO: check the Rs1 is exist for the Inst type.
-  if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
-      !BTypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+  if (PS[STAGES::EX] && PS[STAGES::EX]->hasRd() &&
       Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
@@ -428,8 +427,7 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
 #endif
     return true;
   }
-  if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
-      !BTypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+  if (PS[STAGES::MA] && PS[STAGES::MA]->hasRd() &&
       Inst->getRs1() == PS[STAGES::MA]->getRd()) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
@@ -447,8 +445,7 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
   if (!CSR_INSTs.count(Inst->getMnemo()))
     return false;
   if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-      !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
-      (Inst->getImm() == PS[STAGES::EX]->getImm())) {
+      (Inst->getIImm() == PS[STAGES::EX]->getIImm())) {
 
     PS.setDECSRVal(PS.getEXCSRVal());
 #ifdef DEBUG
@@ -458,8 +455,7 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
     return true;
   }
   if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-      !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
-      (Inst->getImm() == PS[STAGES::MA]->getImm())) {
+      (Inst->getIImm() == PS[STAGES::MA]->getIImm())) {
     PS.setDECSRVal(PS.getMACSRVal());
 #ifdef DEBUG
     std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
@@ -471,13 +467,8 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
 
 static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
                        PipelineStates &PS, GPRegisters &GPRegs) {
-  // TODO: list all of them.
-  if (ITypeKinds.count(Inst->getMnemo()) ||
-      UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
-    return false;
 
-  if (PS[STAGES::EX] && !STypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
-      !BTypeKinds.count(PS[STAGES::EX]->getMnemo()) &&
+  if (PS[STAGES::EX] && PS[STAGES::EX]->hasRd() &&
       Inst->getRs2() == PS[STAGES::EX]->getRd()) {
 
     PS.setDERs2Val(PS.getEXRdVal());
@@ -485,8 +476,7 @@ static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
     std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
 #endif
     return true;
-  } else if (PS[STAGES::MA] && !STypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
-             !BTypeKinds.count(PS[STAGES::MA]->getMnemo()) &&
+  } else if (PS[STAGES::MA] && PS[STAGES::MA]->hasRd() &&
              Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
 #ifdef DEBUG
@@ -511,45 +501,31 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
       Inst->getMnemo() == "csrrci") {
     PS.setDERs1Val((unsigned int)Inst->getRs1());
-  } else if (!forwardRs1(Inst, PS, GPRegs)) {
+  } else if (Inst->hasRs1() && !forwardRs1(Inst, PS, GPRegs)) {
     PS.setDERs1Val(GPRegs[Inst->getRs1()]);
   }
 
   // Register access on CSR
-  if (!forwardCSR(Inst, PS, GPRegs)) {
-    PS.setDECSRVal(States[Inst->getImm()]);
+  if (CSR_INSTs.count(Inst->getMnemo()) && !forwardCSR(Inst, PS, GPRegs)) {
+    PS.setDECSRVal(States[Inst->getIImm()]);
   }
 
   // Register access on Rs2
-  if (!forwardRs2(Inst, PS, GPRegs)) {
+  if (Inst->hasRs2() && !forwardRs2(Inst, PS, GPRegs)) {
     PS.setDERs2Val(GPRegs[Inst->getRs2()]);
   }
 
   // Decode immediate value
   if (ITypeKinds.count(Inst->getMnemo())) {
-    Imm = signExtend(Inst->getImm(), 12);
-
+    Imm = signExtend(Inst->getIImm(), 12);
   } else if (STypeKinds.count(Inst->getMnemo())) {
-    unsigned Offset =
-        (Inst->getVal() & 0xfe000000) >> 20 | ((Inst->getVal() >> 7) & 0x1f);
-    Imm = signExtend(Offset, 12);
-
-  } else if (RTypeKinds.count(Inst->getMnemo())) {
-    // no Imm
+    Imm = signExtend(Inst->getSImm(), 12);
   } else if (JTypeKinds.count(Inst->getMnemo())) {
-    Imm = ((Inst->getVal() & 0x80000000) >> 11) | (Inst->getVal() & 0xff000) |
-          ((Inst->getVal() >> 9) & 0x800) | ((Inst->getVal() >> 20) & 0x7fe);
-    Imm = signExtend(Imm, 20);
-
+    Imm = signExtend(Inst->getJImm(), 20);
   } else if (BTypeKinds.count(Inst->getMnemo())) {
-    Imm = (Inst->getVal() > 0x80000000) >> 19 | ((Inst->getVal() & 0x80) << 4) |
-          ((Inst->getVal() >> 20) & 0x7e0) | ((Inst->getVal() >> 7) & 0x1e);
-    Imm = signExtend(Imm, 12);
+    Imm = signExtend(Inst->getBImm(), 12);
   } else if (UTypeKinds.count(Inst->getMnemo())) {
-    Imm = (Inst->getVal() & 0xfffff000) >> 12;
-    Imm = signExtend(Imm, 20);
-  } else {
-    assert(false && "unimplemented!");
+    Imm = signExtend(Inst->getUImm(), 20);
   }
   PS.setDEImmVal(Imm);
   // TODO: stall 1 cycle if the inst is load;
@@ -573,12 +549,12 @@ bool RIPSimulator::handleException(Exception &E) {
     CSRVal VecVal = States.read(MTVEC);
     // FIXME: Forwarding happens on exception handling?
     if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-        (MTVEC == PS[STAGES::EX]->getImm())) {
+        (MTVEC == PS[STAGES::EX]->getIImm())) {
       VecVal = PS.getEXCSRVal();
       std::cerr << "Exception: Forwarding MTVEC val from EX : "
                 << "\n";
     } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-               (MTVEC == PS[STAGES::MA]->getImm())) {
+               (MTVEC == PS[STAGES::MA]->getIImm())) {
       VecVal = PS.getMACSRVal();
       std::cerr << "Exception: Forwarding MTVEC val from MA : "
                 << "\n";
@@ -601,12 +577,12 @@ bool RIPSimulator::handleException(Exception &E) {
     // FIXME: Forwarding happens on exception handling?
     CSRVal MSTATUSVal = States.read(MSTATUS);
     if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-        (MSTATUS == PS[STAGES::EX]->getImm())) {
+        (MSTATUS == PS[STAGES::EX]->getIImm())) {
       MSTATUSVal = PS.getEXCSRVal();
       std::cerr << "Exception: Forwarding MSTATUS val from EX : "
                 << "\n";
     } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-               (MSTATUS == PS[STAGES::MA]->getImm())) {
+               (MSTATUS == PS[STAGES::MA]->getIImm())) {
       MSTATUSVal = PS.getMACSRVal();
       std::cerr << "Exception: Forwarding MSTATUS val from MA : "
                 << "\n";
