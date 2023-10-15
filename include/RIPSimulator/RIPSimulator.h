@@ -215,9 +215,6 @@ public:
   void runFromDRAMBASE();
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
-  // void dumpStats() {
-  //   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
-  // }
   Address &getPC() { return PC; }
 };
 
