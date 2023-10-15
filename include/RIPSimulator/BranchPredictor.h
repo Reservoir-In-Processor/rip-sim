@@ -14,7 +14,7 @@ public:
   BranchPredictor() : HitNum(0), MissNum(0) {}
 
   virtual void Learn(bool &) = 0;
-  virtual bool Predict() = 0;
+  virtual bool Predict() = 0; // should be idempotent
 
   void StatsUpdate(bool Cond, bool Pred) {
     if (Cond ^ Pred) {
