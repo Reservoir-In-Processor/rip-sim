@@ -1,8 +1,8 @@
 #ifndef BRANCHPREDICTOR_H
 #define BRANCHPREDICTOR_H
+#include "Simulator/Memory.h"
 #include <iostream>
 #include <optional>
-using Address = std::uint64_t; // FIXME: how to reference "Memory.h"
 
 class BranchPredictor {
 private:
