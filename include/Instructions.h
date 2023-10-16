@@ -52,6 +52,7 @@ class Instruction {
 public:
   void setVal(unsigned V) { Val = V; }
 
+  // TODO: make this private.
   const unsigned getVal() { return Val; }
   const inline unsigned getRd() {
     if (STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()))
