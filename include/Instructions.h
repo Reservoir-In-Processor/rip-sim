@@ -52,11 +52,71 @@ class Instruction {
 public:
   void setVal(unsigned V) { Val = V; }
 
+  // TODO: make this private.
   const unsigned getVal() { return Val; }
-  const unsigned getRd() { return (Val & 0x00000f80) >> 7; }
-  const unsigned getRs1() { return (Val & 0x000f8000) >> 15; }
-  const unsigned getRs2() { return (Val & 0x01f00000) >> 20; }
-  const unsigned getImm() { return (Val & 0xfff00000) >> 20; }
+
+  const inline bool hasRd() {
+    return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
+  }
+
+  const inline unsigned getRd() {
+    if (!hasRd())
+      assert(false && "This inst don't have rd!");
+    return (Val & 0x00000f80) >> 7;
+  }
+
+  const inline bool hasRs1() {
+    return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
+  }
+
+  const inline unsigned getRs1() {
+    if (!hasRs1())
+      assert(false && "This inst don't have rs1!");
+    return (Val & 0x000f8000) >> 15;
+  }
+
+  const inline bool hasRs2() {
+    return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
+             JTypeKinds.count(getMnemo()));
+  }
+
+  const inline unsigned getRs2() {
+    if (!hasRs2())
+      assert(false && "This inst don't have rs2!");
+    return (Val & 0x01f00000) >> 20;
+  }
+
+  const inline unsigned getIImm() {
+    if (!ITypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not I-inst!");
+    return (Val & 0xfff00000) >> 20;
+  }
+
+  const inline unsigned getSImm() {
+    if (!STypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not S-inst!");
+    return (Val & 0xfe000000) >> 20 | ((Val >> 7) & 0x1f);
+  }
+
+  const inline unsigned getJImm() {
+    if (!JTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not J-inst!");
+    return ((Val & 0x80000000) >> 11) | (Val & 0xff000) | ((Val >> 9) & 0x800) |
+           ((Val >> 20) & 0x7fe);
+  }
+
+  const inline unsigned getBImm() {
+    if (!BTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not B-inst!");
+    return (Val > 0x80000000) >> 19 | ((Val & 0x80) << 4) |
+           ((Val >> 20) & 0x7e0) | ((Val >> 7) & 0x1e);
+  }
+
+  const inline unsigned getUImm() {
+    if (!UTypeKinds.count(getMnemo()))
+      assert(false && "This isn't expected to be called on not U-inst!");
+    return (Val & 0xfffff000) >> 12;
+  }
 
   virtual const std::string &getMnemo() = 0;
 
