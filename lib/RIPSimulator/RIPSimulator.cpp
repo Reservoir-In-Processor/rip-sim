@@ -414,9 +414,6 @@ namespace {
 
 static bool forwardRs1OnDE(const std::unique_ptr<Instruction> &Inst,
                            PipelineStates &PS, GPRegisters &GPRegs) {
-  if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
-    return false;
-  // TODO: check the Rs1 is exist for the Inst type.
   if (PS[STAGES::EX] && PS[STAGES::EX]->hasRd() &&
       Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
@@ -601,8 +598,7 @@ bool RIPSimulator::handleException(Exception &E) {
   return true;
 }
 
-void RIPSimulator::runFromDRAMBASE() {
-  PC = DRAM_BASE;
+void RIPSimulator::run() {
 
   while (!proceedNStage(1)) {
   }

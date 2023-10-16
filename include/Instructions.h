@@ -54,20 +54,34 @@ public:
 
   // TODO: make this private.
   const unsigned getVal() { return Val; }
+
+  const inline unsigned hasRd() {
+    return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
+  }
+
   const inline unsigned getRd() {
-    if (STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()))
+    if (!hasRd())
       assert(false && "This inst don't have rd!");
     return (Val & 0x00000f80) >> 7;
   }
+
+  const inline unsigned hasRs1() {
+    return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
+  }
+
   const inline unsigned getRs1() {
-    if (UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()))
+    if (!hasRs1())
       assert(false && "This inst don't have rs1!");
     return (Val & 0x000f8000) >> 15;
   }
 
+  const inline unsigned hasRs2() {
+    return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
+             JTypeKinds.count(getMnemo()));
+  }
+
   const inline unsigned getRs2() {
-    if (ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
-        JTypeKinds.count(getMnemo()))
+    if (!hasRs2())
       assert(false && "This inst don't have rs2!");
     return (Val & 0x01f00000) >> 20;
   }
@@ -102,19 +116,6 @@ public:
     if (!UTypeKinds.count(getMnemo()))
       assert(false && "This isn't expected to be called on not U-inst!");
     return (Val & 0xfffff000) >> 12;
-  }
-
-  const inline unsigned hasRs1() {
-    return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
-  }
-
-  const inline unsigned hasRs2() {
-    return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
-             JTypeKinds.count(getMnemo()));
-  }
-
-  const inline unsigned hasRd() {
-    return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
   }
 
   virtual const std::string &getMnemo() = 0;

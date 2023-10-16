@@ -213,7 +213,7 @@ public:
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 
-  void runFromDRAMBASE();
+  void run();
   bool proceedNStage(unsigned N);
 
   void dumpGPRegs() { GPRegs.dump(); }

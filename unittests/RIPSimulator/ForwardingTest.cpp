@@ -18,6 +18,43 @@ TEST(RIPSimulatorTest, RS1_FORWARD) {
   EXPECT_EQ(PS.getDERs1Val(), 3);
 }
 
+TEST(RIPSimulatorTest, DONT_FORWARD_BTYPE_RD) {
+  // from rv32ui-p-sh.bin
+  const unsigned char BYTES[] = {
+      0x13, 0x02, 0x12, 0x00, // prepare: addi	tp,tp,1
+      0x63, 0x12, 0x77, 0x28, // 400: bne	a4,t2,684 <fail>
+      0x13, 0x02, 0x12, 0x00, // 404: add	tp,tp,1 # 1 <_start+0x1>
+  };
+
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  RIPSimulator RSim(ss);
+  RSim.proceedNStage(5);
+
+  PipelineStates &PS = RSim.getPipelineStates();
+
+  EXPECT_EQ(PS.getDERs1Val(), 1);
+}
+
+TEST(RIPSimulatorTest, DONT_FORWARD_STYPE_RD) {
+  // from rv32ui-p-sh.bin
+  const unsigned char BYTES[] = {
+      0x23, 0x11, 0x11, 0x00, // 3f0: sh	ra,2(sp)
+      0x03, 0x17, 0x21, 0x00, // 3f4: lh	a4,2(sp)
+  };
+
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+  RIPSimulator RSim(ss);
+  const unsigned SP = RSim.getGPRegs()["sp"];
+
+  PipelineStates &PS = RSim.getPipelineStates();
+  RSim.proceedNStage(3);
+  // forwarding should't happen.
+  EXPECT_EQ(PS.getDERs1Val(), SP);
+  EXPECT_EQ(PS.getEXRdVal(), SP + 2);
+}
+
 TEST(RIPSimulatorTest, CSR_FORWARD) {
   const unsigned char BYTES[] = {
       0x93, 0x02, 0xe0, 0x00, // addi x5, x0, 14
