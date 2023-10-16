@@ -18,7 +18,7 @@ public:
   BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0){};
 
   virtual void Learn(bool &) = 0;
-  virtual bool Predict() = 0; // should be idempotent
+  virtual bool Predict() = 0;
   virtual void setBranchPredPC(const Address &) = 0;
   virtual const std::optional<Address> takeBranchPredPC() = 0;
 
