@@ -8,17 +8,21 @@ class BranchPredictor {
 private:
   int HitNum;
   int MissNum;
+  bool PrevPred;
 
 public:
   BranchPredictor(const BranchPredictor &) = delete;
   BranchPredictor &operator=(const BranchPredictor &) = delete;
 
-  BranchPredictor() : HitNum(0), MissNum(0) {}
+  BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0){};
 
   virtual void Learn(bool &) = 0;
   virtual bool Predict() = 0; // should be idempotent
   virtual void setBranchPredPC(const Address &) = 0;
   virtual const std::optional<Address> takeBranchPredPC() = 0;
+
+  void setPrevPred(bool Pred) { PrevPred = Pred; }
+  bool getPrevPred() { return PrevPred; }
 
   void StatsUpdate(bool Cond, bool Pred) {
     if (Cond ^ Pred) {

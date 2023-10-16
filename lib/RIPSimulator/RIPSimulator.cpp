@@ -392,7 +392,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
       }
 
     } else {
-      bool Pred = BP->Predict();
+      bool Pred = BP->getPrevPred();
 
       if (Pred ^ Cond) {
         if (Cond) {
@@ -557,10 +557,11 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
       bool pred = BP->Predict();
 
       if (pred) {
-        Address BPPC;
+#ifdef DEBUG
         std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
-        BPPC = PS.getPCs(DE) + Imm;
-        BP->setBranchPredPC(BPPC);
+#endif
+        BP->setBranchPredPC(PS.getPCs(DE) + Imm);
+        BP->setPrevPred(pred);
         PS.setInvalid(IF);
       }
     }
