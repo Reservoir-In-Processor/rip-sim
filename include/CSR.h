@@ -148,7 +148,7 @@ public:
       std::snprintf(ValStr, sizeof(ValStr), "0x%08x", States[iter->first]);
       std::cerr << 'x' << std::dec << std::left << std::setw(4)
                 << std::setfill(' ') << iter->first << "(" << CSRABI[i] << ")"
-                << ":=" << std::right << std::setw(18) << std::setfill(' ')
+                << ":=" << std::right << std::setw(12) << std::setfill(' ')
                 << ValStr << ", ";
 
       i++;
