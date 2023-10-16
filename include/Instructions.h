@@ -118,22 +118,6 @@ public:
     return (Val & 0xfffff000) >> 12;
   }
 
-<<<<<<< HEAD
-=======
-  const inline unsigned hasRs1() {
-    return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
-  }
-
-  const inline unsigned hasRs2() {
-    return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
-             JTypeKinds.count(getMnemo()));
-  }
-
-  const inline unsigned hasRd() {
-    return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
-  }
-
->>>>>>> 5e895a4 (verify get methods)
   virtual const std::string &getMnemo() = 0;
 
   void emitBinary(std::ostream &os) {
