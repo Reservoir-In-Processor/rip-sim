@@ -57,8 +57,7 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is)
-    : PC(DRAM_BASE), Mode(ModeKind::Machine), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is) : PC(DRAM_BASE), CycleNum(0) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -199,16 +198,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     CV = PS.getDECSRVal() & ~PS.getDERs1Val();
     RdVal = PS.getDECSRVal();
   } else if (Mnemo == "ecall") {
-    if (Mode == ModeKind::User) {
-      return Exception::EnvironmentCallFromUMode;
-    } else if (Mode == ModeKind::Supervisor) {
-      return Exception::EnvironmentCallFromSMode;
-    } else if (Mode == ModeKind::Machine) {
-      return Exception::EnvironmentCallFromMMode;
-    } else {
-      // FIXME: is this illegal inst?
-      return Exception::IllegalInstruction;
-    }
+    return Exception::EnvironmentCallFromMMode;
   } else if (Mnemo == "ebreak") {
     return Exception::Breakpoint;
   } else if (Mnemo == "mret") {
@@ -226,42 +216,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     PS.setBranchPC(nextPC);
     PS.setInvalid(DE);
     PS.setInvalid(IF);
-    // FIXME: add MSTATUS handle methods
-    // FIXME: Forwarding happens on "mret" reading ???
-    CSRVal MSTATUSVal = States.read(MSTATUS);
-    if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-        (MSTATUS == PS[STAGES::MA]->getIImm())) {
-      MSTATUSVal = PS.getMACSRVal();
-      std::cerr << "Exception: Forwarding MSTATUS val from MA : "
-                << "\n";
-    }
 
-    // Previous Privilege mode for Machine mode.
-    ModeKind MPPVal = (ModeKind)((MSTATUSVal >> 11) & 0b11);
-
-    if (MPPVal == ModeKind::User) {
-      States.setMPREV(0);
-      // FIXME: riscv-tests expects UserMode?
-      // Mode = ModeKind::User;
-    } else if (MPPVal == ModeKind::Supervisor) {
-      // set MPREV=0
-      States.setMPREV(0);
-      Mode = ModeKind::Supervisor;
-    } else if (MPPVal == ModeKind::Machine) {
-      Mode = ModeKind::Machine;
-    } else
-      return Exception::IllegalInstruction;
-    // set MIE to MPIE;
-    // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of MSTATUS
-    // MPIE: Previous Interrupt-Enable bit for machine mode. 7-th bit of MSTATUS
-    bool MPIEVal = (bool)((MSTATUSVal >> 7) & 1);
-    States.setMIE(MPIEVal);
-
-    // Set MPIE to 1
-    States.setMPIE(true);
-
-    // Set MPP to 0
-    States.setMPP((ModeKind)0);
     // R-type
   } else if (Mnemo == "add") {
     RdVal = PS.getDERs1Val() + PS.getDERs2Val();
@@ -531,7 +486,6 @@ bool RIPSimulator::handleException(Exception &E) {
   PS.setInvalid(DE);
   PS.setInvalid(IF);
   Address ExceptionPC = PS.getPCs(EX);
-  ModeKind PrevMode = Mode;
   unsigned Cause = E;
   // FIXME: temporary exit with break
   if (E == Exception::Breakpoint) {
@@ -540,61 +494,25 @@ bool RIPSimulator::handleException(Exception &E) {
   }
   // TODO: move those on exec and write back.
   // PC change should be on exec.
-  if (Mode == ModeKind::Machine) {
-    CSRVal VecVal = States.read(MTVEC);
-    // FIXME: Forwarding happens on exception handling?
-    if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-        (MTVEC == PS[STAGES::EX]->getIImm())) {
-      VecVal = PS.getEXCSRVal();
-      std::cerr << "Exception: Forwarding MTVEC val from EX : "
-                << "\n";
-    } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-               (MTVEC == PS[STAGES::MA]->getIImm())) {
-      VecVal = PS.getMACSRVal();
-      std::cerr << "Exception: Forwarding MTVEC val from MA : "
-                << "\n";
-    }
-
-    PC = VecVal & (~1);
-
-    States.write(MEPC, ExceptionPC & (~1));
-
-    States.write(MCAUSE, Cause);
-
-    // Machine Trap Value Register
-    States.write(MTVAL, trap_val(E, ExceptionPC, PS[STAGES::EX]->getVal()));
-
-    // set MPIE to MIE;
-    // MIE: Global Interrupt-Enable bit for machine mode. 3-th bit of
-    // MSTATUS MPIE: Previous Interrupt-Enable bit for machine mode. 7-th
-    // bit of MSTATUS
-
-    // FIXME: Forwarding happens on exception handling?
-    CSRVal MSTATUSVal = States.read(MSTATUS);
-    if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
-        (MSTATUS == PS[STAGES::EX]->getIImm())) {
-      MSTATUSVal = PS.getEXCSRVal();
-      std::cerr << "Exception: Forwarding MSTATUS val from EX : "
-                << "\n";
-    } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
-               (MSTATUS == PS[STAGES::MA]->getIImm())) {
-      MSTATUSVal = PS.getMACSRVal();
-      std::cerr << "Exception: Forwarding MSTATUS val from MA : "
-                << "\n";
-    }
-
-    MSTATUSVal = States.read(MSTATUS);
-    bool MIE = (bool)((MSTATUSVal >> 3) & 1);
-    States.setMPIE(MIE);
-
-    States.setMIE(0);
-
-    States.setMPP(PrevMode);
-
-  } else {
-    assert(false && "Non-Machine mode is unimplemented!");
-    return false;
+  CSRVal VecVal = States.read(MTVEC);
+  // FIXME: Forwarding happens on exception handling?
+  if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
+      (MTVEC == PS[STAGES::EX]->getIImm())) {
+    VecVal = PS.getEXCSRVal();
+    std::cerr << "Exception: Forwarding MTVEC val from EX : "
+              << "\n";
+  } else if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
+             (MTVEC == PS[STAGES::MA]->getIImm())) {
+    VecVal = PS.getMACSRVal();
+    std::cerr << "Exception: Forwarding MTVEC val from MA : "
+              << "\n";
   }
+
+  PC = VecVal & (~1);
+
+  States.write(MEPC, ExceptionPC & (~1));
+  States.write(MCAUSE, Cause);
+
   return true;
 }
 

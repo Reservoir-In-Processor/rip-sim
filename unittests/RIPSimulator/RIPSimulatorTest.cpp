@@ -1341,12 +1341,7 @@ TEST(RIPSimulatorTest, ECALLMMODE) {
       // FIXME: if last is illegal inst, then MEPC shouldn't be ecall's?
       {MEPC, DRAM_BASE + 12},
       {MCAUSE, Exception::EnvironmentCallFromMMode},
-      {MTVAL, 0},
       {MTVEC, DRAM_BASE + 28},
-      // 1. default MSTATUS is zero.
-      // 2. prev mode is machine mode,
-      // 3. MIE and MPIE is zero
-      {MSTATUS, 0b1100000000000},
   };
   const Address EXPECTED_PC = DRAM_BASE + 28;
   std::stringstream ss;
@@ -1364,9 +1359,7 @@ TEST(RIPSimulatorTest, ECALLMMODE) {
   for (CSRAddress CA : {
            MEPC,
            MCAUSE,
-           MTVAL,
            MTVEC,
-           MSTATUS,
        }) {
     EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
         << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
@@ -1398,13 +1391,7 @@ TEST(RIPSimulatorTest, MRET) {
 
   const CSRs EXPECTED_C = {
       {MCAUSE, Exception::EnvironmentCallFromMMode},
-      {MTVAL, 0},
       {MTVEC, DRAM_BASE + 28},
-      // 1. default MSTATUS is zero.
-      // 2. prev mode is machine mode,
-      // 3. MIE is zero, because default MPIE is zero
-      // 4. MPIE is 1 and MPP is zero by mret.
-      {MSTATUS, 0b10000000},
   };
   const Address EXPECTED_PC = DRAM_BASE + 66;
   std::stringstream ss;
@@ -1423,9 +1410,7 @@ TEST(RIPSimulatorTest, MRET) {
   const CSRs &ResC = RSim.getCSRs();
   for (CSRAddress CA : {
            MCAUSE,
-           MTVAL,
            MTVEC,
-           MSTATUS,
        }) {
     EXPECT_EQ(ResC[CA], EXPECTED_C[CA])
         << "Register:" << CSRNames[CA] << ", expected: " << EXPECTED_C[CA]
