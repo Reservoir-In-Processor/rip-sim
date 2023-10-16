@@ -32,18 +32,24 @@ private:
   // Members are the values we want to dump for every stages
   unsigned FetchedInst;
 
-  // For operands
-  RegVal EXRdVal;
-  RegVal EXRs2Val;
-  RegVal EXImmVal;
-  RegVal EXCSRVal;
-  RegVal MARdVal;
-  RegVal MAImmVal;
-  RegVal MACSRVal;
+  // Decode
   RegVal DERs1Val;
   RegVal DERs2Val;
   RegVal DECSRVal;
   RegVal DEImmVal;
+
+  // Execution
+  RegVal EXRdVal;
+  RegVal EXRs2Val;
+  RegVal EXImmVal;
+  RegVal EXCSRVal;
+
+  // Memory Access
+  RegVal MARdVal;
+  RegVal MAImmVal;
+  RegVal MACSRVal;
+
+  // Write Back
   RegVal WBImmVal;
 
   std::optional<Address> BranchPC;

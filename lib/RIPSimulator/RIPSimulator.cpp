@@ -412,8 +412,8 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
 
 namespace {
 
-static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
-                       PipelineStates &PS, GPRegisters &GPRegs) {
+static bool forwardRs1OnDE(const std::unique_ptr<Instruction> &Inst,
+                           PipelineStates &PS, GPRegisters &GPRegs) {
   if (UTypeKinds.count(Inst->getMnemo()) || JTypeKinds.count(Inst->getMnemo()))
     return false;
   // TODO: check the Rs1 is exist for the Inst type.
@@ -438,8 +438,8 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
   return false;
 }
 
-static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
-                       PipelineStates &PS, GPRegisters &GPRegs) {
+static bool forwardCSROnDE(const std::unique_ptr<Instruction> &Inst,
+                           PipelineStates &PS, GPRegisters &GPRegs) {
   if (!CSR_INSTs.count(Inst->getMnemo()))
     return false;
   if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
@@ -463,8 +463,8 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
   return false;
 }
 
-static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
-                       PipelineStates &PS, GPRegisters &GPRegs) {
+static bool forwardRs2OnDE(const std::unique_ptr<Instruction> &Inst,
+                           PipelineStates &PS, GPRegisters &GPRegs) {
 
   if (PS[STAGES::EX] && PS[STAGES::EX]->hasRd() &&
       Inst->getRs2() == PS[STAGES::EX]->getRd()) {
@@ -499,17 +499,17 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   if (Inst->getMnemo() == "csrrwi" || Inst->getMnemo() == "csrrsi" ||
       Inst->getMnemo() == "csrrci") {
     PS.setDERs1Val((unsigned int)Inst->getRs1());
-  } else if (Inst->hasRs1() && !forwardRs1(Inst, PS, GPRegs)) {
+  } else if (Inst->hasRs1() && !forwardRs1OnDE(Inst, PS, GPRegs)) {
     PS.setDERs1Val(GPRegs[Inst->getRs1()]);
   }
 
   // Register access on CSR
-  if (CSR_INSTs.count(Inst->getMnemo()) && !forwardCSR(Inst, PS, GPRegs)) {
+  if (CSR_INSTs.count(Inst->getMnemo()) && !forwardCSROnDE(Inst, PS, GPRegs)) {
     PS.setDECSRVal(States[Inst->getIImm()]);
   }
 
   // Register access on Rs2
-  if (Inst->hasRs2() && !forwardRs2(Inst, PS, GPRegs)) {
+  if (Inst->hasRs2() && !forwardRs2OnDE(Inst, PS, GPRegs)) {
     PS.setDERs2Val(GPRegs[Inst->getRs2()]);
   }
 
