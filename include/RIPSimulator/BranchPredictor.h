@@ -1,5 +1,6 @@
 #ifndef BRANCHPREDICTOR_H
 #define BRANCHPREDICTOR_H
+#include "Debug.h"
 #include "Simulator/Memory.h"
 #include <iostream>
 #include <optional>
@@ -27,16 +28,12 @@ public:
   void StatsUpdate(bool Cond, bool Pred) {
     if (Cond ^ Pred) {
       MissNum++;
-#ifdef DEBUG
-      std::cerr << "Branch pred: miss "
-                << "\n";
-#endif
+      DEBUG_ONLY(std::cerr << "Branch pred: miss "
+                           << "\n");
     } else {
       HitNum++;
-#ifdef DEBUG
-      std::cerr << "Branch pred: hit "
-                << "\n";
-#endif
+      DEBUG_ONLY(std::cerr << "Branch pred: hit "
+                           << "\n");
     }
   }
 

@@ -550,9 +550,8 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
       bool pred = BP->Predict();
 
       if (pred) {
-#ifdef DEBUG
-        std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
-#endif
+        DEBUG_ONLY(std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal()
+                             << "\n");
         BP->setBranchPredPC(PS.getPCs(DE) + Imm);
         BP->setPrevPred(pred);
         PS.setInvalid(IF);
@@ -653,10 +652,8 @@ void RIPSimulator::runFromDRAMBASE() {
 bool RIPSimulator::proceedNStage(unsigned N) {
   while (N--) {
     // actual fetch and decode
-#ifdef DEBUG
-    std::cerr << std::dec << "Num Stages=" << getNumStages() << " " << std::hex
-              << "PC=0x" << PC << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
+                         << std::hex << "PC=0x" << PC << "\n");
 
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
@@ -690,27 +687,22 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
 
     if (PS.isEmpty()) {
-#ifdef DEBUG
-      dumpStats();
-#endif
+      DEBUG_ONLY(dumpStats());
       break;
     }
 
     if (BP) { // FIXME: should check PS.takeBranchPC?
       if (auto NextPC = BP->takeBranchPredPC()) {
-#ifdef DEBUG
-        std::cerr << std::hex << "Branch Pred from 0x " << PC << " to "
-                  << "0x" << *NextPC << "\n";
-#endif
+        DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
+                             << " to "
+                             << "0x" << *NextPC << "\n");
         PC = *NextPC;
       }
     }
 
     if (auto NextPC = PS.takeBranchPC()) {
-#ifdef DEBUG
-      std::cerr << std::hex << "Branch from 0x" << PC << " to "
-                << "0x" << *NextPC << "\n";
-#endif
+      DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
+                           << "0x" << *NextPC << "\n");
       PC = *NextPC;
     }
 
