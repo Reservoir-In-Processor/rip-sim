@@ -66,8 +66,8 @@ public:
   PipelineStates &operator=(const PipelineStates &) = delete;
 
   PipelineStates()
-      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), EXCSRVal(0), MARdVal(0),
-        MAImmVal(0), MACSRVal(0), DERs2Val(0), DECSRVal(0), DEImmVal(0),
+      : DERs2Val(0), DECSRVal(0), DEImmVal(0), EXRdVal(0), EXRs2Val(0),
+        EXImmVal(0), EXCSRVal(0), MARdVal(0), MAImmVal(0), MACSRVal(0),
         WBImmVal(0), StalledStages{0}, InvalidStages{0} {}
 
   void dump();
