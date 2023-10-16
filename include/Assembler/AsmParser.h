@@ -1,5 +1,6 @@
 #ifndef ASMPARSER_H
 #define ASMPARSER_H
+#include "Debug.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -29,9 +30,7 @@ public:
     while (std::getline(Is, line)) {
       if (line.find(':') != std::string::npos) {
         std::string lab = line.substr(0, line.find(':'));
-#ifdef DEBUG
-        std::cerr << "parsed label = " << lab << "\n";
-#endif
+        DEBUG_ONLY(std::cerr << "parsed label = " << lab << "\n");
         Labels.insert({lab, PC});
         continue;
       }
