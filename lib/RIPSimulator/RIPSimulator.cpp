@@ -173,12 +173,11 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
              Mnemo == "lbu" || Mnemo == "lhu") {
     RdVal = PS.getDERs1Val() + PS.getDEImmVal();
     // FIXME: checking Rs1 checks on this is annoying now.
-    if ((!UTypeKinds.count(Inst->getMnemo()) ||
-         !JTypeKinds.count(Inst->getMnemo())) &&
-        PS[STAGES::DE])
-      if (auto IRd = Inst->getRd(); IRd == PS[STAGES::DE]->getRs1() ||
-                                    (!ITypeKinds.count(Inst->getMnemo()) &&
-                                     IRd == PS[STAGES::DE]->getRs2())) {
+    if (PS[STAGES::DE] && Inst->hasRd())
+      if ((PS[STAGES::DE]->hasRs1() &&
+           Inst->getRd() == PS[STAGES::DE]->getRs1()) ||
+          (PS[STAGES::DE]->hasRs2() &&
+           Inst->getRd() == PS[STAGES::DE]->getRs2())) {
         PS.setStall(STAGES::DE);
         PS.setStall(STAGES::IF);
       }
@@ -441,7 +440,6 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
 
 static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
                        PipelineStates &PS, GPRegisters &GPRegs) {
-
   if (!CSR_INSTs.count(Inst->getMnemo()))
     return false;
   if (PS[STAGES::EX] && CSR_INSTs.count(PS[STAGES::EX]->getMnemo()) &&
