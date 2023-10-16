@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   std::string BaseNoExt = FileName.substr(0, FileName.find_last_of('.'));
   auto Files = std::ifstream(FileName);
   RIPSimulator RipSim(Files);
-  RipSim.runFromDRAMBASE();
+  RipSim.run();
 
   return 0;
 }

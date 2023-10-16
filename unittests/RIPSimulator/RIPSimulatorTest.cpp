@@ -12,7 +12,7 @@ TEST(RIPSimulatorTest, ADDI) {
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
 
   const GPRegisters &Res = RSim.getGPRegs();
 
@@ -31,7 +31,7 @@ TEST(RIPSimulatorTest, ADDI_FORWARD) {
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
 
   const GPRegisters &Res = RSim.getGPRegs();
 
@@ -51,7 +51,7 @@ TEST(RIPSimulatorTest, ADDI_FORWARD2) {
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
 
   const GPRegisters &Res = RSim.getGPRegs();
 
@@ -72,7 +72,7 @@ TEST(RIPSimulatorTest, SLTI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -94,7 +94,7 @@ TEST(RIPSimulatorTest, SLTIU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -116,7 +116,7 @@ TEST(RIPSimulatorTest, XORI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -138,7 +138,7 @@ TEST(RIPSimulatorTest, ORI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -160,7 +160,7 @@ TEST(RIPSimulatorTest, ANDI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -182,7 +182,7 @@ TEST(RIPSimulatorTest, SLLI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -203,7 +203,7 @@ TEST(RIPSimulatorTest, SRAI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -226,7 +226,7 @@ TEST(RIPSimulatorTest, SRLI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -248,7 +248,7 @@ TEST(RIPSimulatorTest, ADD) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -270,7 +270,7 @@ TEST(RIPSimulatorTest, SUB) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -292,7 +292,7 @@ TEST(RIPSimulatorTest, OR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -314,7 +314,7 @@ TEST(RIPSimulatorTest, AND) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -336,7 +336,7 @@ TEST(RIPSimulatorTest, XOR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -357,7 +357,7 @@ TEST(RIPSimulatorTest, AUIPC) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -380,7 +380,7 @@ TEST(RIPSimulatorTest, SWLW) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -403,7 +403,7 @@ TEST(RIPSimulatorTest, LW_WR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -427,7 +427,7 @@ TEST(RIPSimulatorTest, SHLHLHU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -449,7 +449,7 @@ TEST(RIPSimulatorTest, SBLBLBU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -471,7 +471,7 @@ TEST(RIPSimulatorTest, JALR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -500,7 +500,7 @@ TEST(RIPSimulatorTest, JALR2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -527,7 +527,7 @@ TEST(RIPSimulatorTest, BEQ) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -561,7 +561,7 @@ TEST(RIPSimulatorTest, BEQ2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -588,7 +588,7 @@ TEST(RIPSimulatorTest, BNE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -621,7 +621,7 @@ TEST(RIPSimulatorTest, BNE2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -648,7 +648,7 @@ TEST(RIPSimulatorTest, BLT) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -682,7 +682,7 @@ TEST(RIPSimulatorTest, BLT2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -709,7 +709,7 @@ TEST(RIPSimulatorTest, BGE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -743,7 +743,7 @@ TEST(RIPSimulatorTest, BGE2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -770,7 +770,7 @@ TEST(RIPSimulatorTest, BLTU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -803,7 +803,7 @@ TEST(RIPSimulatorTest, BLTU2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -830,7 +830,7 @@ TEST(RIPSimulatorTest, BGEU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -864,7 +864,7 @@ TEST(RIPSimulatorTest, BGEU2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -888,7 +888,7 @@ TEST(RIPSimulatorTest, JAL) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -918,7 +918,7 @@ TEST(RIPSimulatorTest, JAL2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -941,7 +941,7 @@ TEST(RIPSimulatorTest, ZERO1) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -959,7 +959,7 @@ TEST(RIPSimulatorTest, ZERO2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -979,7 +979,7 @@ TEST(RIPSimulatorTest, MUL) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -999,7 +999,7 @@ TEST(RIPSimulatorTest, MULH) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1020,7 +1020,7 @@ TEST(RIPSimulatorTest, MULHSU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1045,7 +1045,7 @@ TEST(RIPSimulatorTest, MULHU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1067,7 +1067,7 @@ TEST(RIPSimulatorTest, DIV) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1089,7 +1089,7 @@ TEST(RIPSimulatorTest, DIVU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1111,7 +1111,7 @@ TEST(RIPSimulatorTest, REM) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1133,7 +1133,7 @@ TEST(RIPSimulatorTest, REMU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1155,7 +1155,7 @@ TEST(RIPSimulatorTest, LUI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1177,7 +1177,7 @@ TEST(RIPSimulatorTest, FENCE_AS_NOP) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1199,7 +1199,7 @@ TEST(RIPSimulatorTest, CSRRS_CSRRWI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1225,7 +1225,7 @@ TEST(RIPSimulatorTest, CSRRS_CSRRSI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1252,7 +1252,7 @@ TEST(RIPSimulatorTest, CSRRS_CSRRCI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1285,7 +1285,7 @@ TEST(RIPSimulatorTest, CSRRW) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1314,7 +1314,7 @@ TEST(RIPSimulatorTest, CSRRC) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1353,7 +1353,7 @@ TEST(RIPSimulatorTest, ECALLMMODE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1411,7 +1411,7 @@ TEST(RIPSimulatorTest, MRET) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {

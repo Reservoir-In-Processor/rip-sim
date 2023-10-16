@@ -32,18 +32,24 @@ private:
   // Members are the values we want to dump for every stages
   unsigned FetchedInst;
 
-  // For operands
-  RegVal EXRdVal;
-  RegVal EXRs2Val;
-  RegVal EXImmVal;
-  RegVal EXCSRVal;
-  RegVal MARdVal;
-  RegVal MAImmVal;
-  RegVal MACSRVal;
+  // Decode
   RegVal DERs1Val;
   RegVal DERs2Val;
   RegVal DECSRVal;
   RegVal DEImmVal;
+
+  // Execution
+  RegVal EXRdVal;
+  RegVal EXRs2Val;
+  RegVal EXImmVal;
+  RegVal EXCSRVal;
+
+  // Memory Access
+  RegVal MARdVal;
+  RegVal MAImmVal;
+  RegVal MACSRVal;
+
+  // Write Back
   RegVal WBImmVal;
 
   std::optional<Address> BranchPC;
@@ -60,8 +66,8 @@ public:
   PipelineStates &operator=(const PipelineStates &) = delete;
 
   PipelineStates()
-      : EXRdVal(0), EXRs2Val(0), EXImmVal(0), EXCSRVal(0), MARdVal(0),
-        MAImmVal(0), MACSRVal(0), DERs2Val(0), DECSRVal(0), DEImmVal(0),
+      : DERs2Val(0), DECSRVal(0), DEImmVal(0), EXRdVal(0), EXRs2Val(0),
+        EXImmVal(0), EXCSRVal(0), MARdVal(0), MAImmVal(0), MACSRVal(0),
         WBImmVal(0), StalledStages{0}, InvalidStages{0} {}
 
   void dump();
@@ -207,7 +213,7 @@ public:
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 
-  void runFromDRAMBASE();
+  void run();
   bool proceedNStage(unsigned N);
 
   void dumpGPRegs() { GPRegs.dump(); }
