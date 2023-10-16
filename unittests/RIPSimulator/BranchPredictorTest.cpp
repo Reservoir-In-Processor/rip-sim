@@ -49,7 +49,7 @@ TEST(RIPSimulatorTest, ONEBITBP_BB) {
       std::make_unique<OneBitBranchPredictor>();
 
   RIPSimulator RSim(ss, std::move(bp));
-  RSim.runFromDRAMBASE();
+  RSim.run();
   const GPRegisters &Res = RSim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
