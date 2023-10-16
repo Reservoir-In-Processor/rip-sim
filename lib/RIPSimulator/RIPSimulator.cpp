@@ -555,18 +555,16 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
 
     if (BP) {
       bool pred = BP->Predict();
-      if (PS[STAGES::DE] && BTypeKinds.count(PS[STAGES::DE]->getMnemo())) {
 
-        if (pred) {
-          std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
-          PC = PS.getPCs(DE) + Imm;
+      if (pred) {
+        std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
+        PC = PS.getPCs(DE) + Imm;
 
 #ifdef DEBUG
-          std::cerr << "Branch Pred: " << pred << "\n";
-          std::cerr << std::hex << "jump to: " << PC << "\n";
+        std::cerr << "Branch Pred: " << pred << "\n";
+        std::cerr << std::hex << "jump to: " << PC << "\n";
 #endif
-          PS.setInvalid(IF);
-        }
+        PS.setInvalid(IF);
       }
     }
 
