@@ -12,8 +12,10 @@ void Simulator::execRISCVTESTS() {
   while (auto I = Dec.decode(Mem.readWord(PC))) {
     if (PC == 0x804c)
       break;
-    DEBUG_ONLY(std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
-               I->pprint(std::cerr););
+#ifdef DEBUG
+    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
+    I->pprint(std::cerr);
+#endif
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
       Address ExceptionPC = PC;

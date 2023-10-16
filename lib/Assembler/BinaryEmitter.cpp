@@ -49,7 +49,10 @@ void BinaryEmitter::emitBinary(std::ostream &os) {
       assert(false && "unimplemented!");
     }
 
-    DEBUG_ONLY(debugInstOnAsm(Toks, InstT->getVal()));
+    // TODO: create DEBUGEXPR MACRO to shorten this
+#ifdef DEBUG
+    debugInstOnAsm(Toks, InstT->getVal());
+#endif
     InstT->emitBinary(os);
     InstT.reset();
   }

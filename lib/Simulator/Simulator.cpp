@@ -1,6 +1,8 @@
 
 #include "Simulator/Simulator.h"
+#ifdef DEBUG
 #include "Debug.h"
+#endif // DEBUG
 
 Simulator::Simulator(std::istream &is)
     : Mem(), PC(DRAM_BASE), Mode(ModeKind::Machine) {
@@ -21,8 +23,10 @@ Simulator::Simulator(std::istream &is)
 void Simulator::execFromDRAMBASE() {
   PC = DRAM_BASE;
   while (auto I = Dec.decode(Mem.readWord(PC))) {
-    DEBUG_ONLY(std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
-               I->pprint(std::cerr););
+#ifdef DEBUG
+    std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
+    I->pprint(std::cerr);
+#endif
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
       // FIXME: if ecall happens, next address is written, is this correct?
@@ -63,9 +67,15 @@ void Simulator::execFromDRAMBASE() {
         return;
       }
     }
-    DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
+#ifdef DEBUG
+    std::cerr << "Regs after:\n";
+    dumpGPRegs();
+#endif
   }
-  DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
-             std::cerr << "stop on no instraction address="
-                       << "0x" << std::hex << PC << "\n";);
+#ifdef DEBUG
+  std::cerr << "finish with:\n";
+  dumpGPRegs();
+#endif
+  std::cerr << "stop on no instraction address="
+            << "0x" << std::hex << PC << "\n";
 }

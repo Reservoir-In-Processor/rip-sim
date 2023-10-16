@@ -2,9 +2,12 @@
 #ifndef DECODER_H
 #define DECODER_H
 
-#include "Debug.h"
 #include "Instructions.h"
 #include <memory>
+
+#ifdef DEBUG
+#include "Debug.h"
+#endif
 
 class Decoder {
 private:

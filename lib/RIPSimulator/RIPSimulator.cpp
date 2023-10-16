@@ -418,16 +418,18 @@ static bool forwardRs1OnDE(const std::unique_ptr<Instruction> &Inst,
       Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
-    DEBUG_ONLY(std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo()
-                         << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
+#endif
     return true;
   }
   if (PS[STAGES::MA] && PS[STAGES::MA]->hasRd() &&
       Inst->getRs1() == PS[STAGES::MA]->getRd()) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
-    DEBUG_ONLY(std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo()
-                         << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
+#endif
     return true;
   }
   return false;
@@ -441,15 +443,18 @@ static bool forwardCSROnDE(const std::unique_ptr<Instruction> &Inst,
       (Inst->getIImm() == PS[STAGES::EX]->getIImm())) {
 
     PS.setDECSRVal(PS.getEXCSRVal());
-    DEBUG_ONLY(std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo()
-                         << " " << PS.getEXCSRVal() << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
+              << PS.getEXCSRVal() << "\n";
+#endif
     return true;
   }
   if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
       (Inst->getIImm() == PS[STAGES::MA]->getIImm())) {
     PS.setDECSRVal(PS.getMACSRVal());
-    DEBUG_ONLY(std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo()
-                         << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
+#endif
     return true;
   }
   return false;
@@ -462,14 +467,16 @@ static bool forwardRs2OnDE(const std::unique_ptr<Instruction> &Inst,
       Inst->getRs2() == PS[STAGES::EX]->getRd()) {
 
     PS.setDERs2Val(PS.getEXRdVal());
-    DEBUG_ONLY(std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo()
-                         << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
+#endif
     return true;
   } else if (PS[STAGES::MA] && PS[STAGES::MA]->hasRd() &&
              Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
-    DEBUG_ONLY(std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo()
-                         << "\n");
+#ifdef DEBUG
+    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
+#endif
     return true;
   }
   return false;
@@ -644,8 +651,10 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       std::cerr << std::hex << PC << "\n";
     }
     CycleNum++;
-
-    DEBUG_ONLY(PS.dump(); dumpGPRegs(););
+#ifdef DEBUG
+    PS.dump();
+    dumpGPRegs();
+#endif
   }
   return PS.isEmpty();
 }
