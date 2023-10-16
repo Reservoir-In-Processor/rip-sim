@@ -10,8 +10,6 @@ TEST(RIPSimulatorTest, ONEBITBP_CHECKPRED) {
       0x93, 0x80, 0x10, 0x00, // addi x1, x1, 1
   };
 
-  const GPRegisters EXPECTED = {{1, 1}, {5, 3}, {6, 3}};
-
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
