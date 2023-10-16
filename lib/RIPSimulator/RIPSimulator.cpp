@@ -379,7 +379,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     } else if (Mnemo == "bgeu") {
       Cond = (unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val();
     } else {
-      assert(false && "unimplemented!");
+      assert(false && "unreachable!");
     }
 
     signed Offset = PS.getDEImmVal();
