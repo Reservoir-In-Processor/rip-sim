@@ -33,9 +33,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("lhu")->second,
                                                Rd, Rs1, Imm);
     } else {
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
     }
     break;
@@ -52,9 +50,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
                                                Rd, Rs1, Imm);
     } else {
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
     }
     break;
@@ -122,9 +118,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<RInstruction>(RTypeKinds.find("remu")->second,
                                                Rd, Rs1, Rs2);
     } else {
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
     }
 
@@ -172,9 +166,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       }
       break;
     default:
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
       break;
     }
@@ -204,9 +196,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<SInstruction>(STypeKinds.find("sw")->second,
                                                Rs1, Rs2, Offset);
     } else {
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
     }
     break;
@@ -268,9 +258,7 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
         InstPtr = std::make_unique<IInstruction>(
             ITypeKinds.find("mret")->second, Rd, Rs1, InstVal >> 20);
       } else {
-#ifdef DEBUG
-        dumpInstVal(InstVal);
-#endif
+        DEBUG_ONLY(dumpInstVal(InstVal));
         return nullptr;
       }
       break;
@@ -293,16 +281,12 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
       InstPtr = std::make_unique<IInstruction>(
           ITypeKinds.find("csrrci")->second, Rd, Rs1, InstVal >> 20);
     } else {
-#ifdef DEBUG
-      dumpInstVal(InstVal);
-#endif
+      DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
     }
     break;
   default:
-#ifdef DEBUG
-    dumpInstVal(InstVal);
-#endif
+    DEBUG_ONLY(dumpInstVal(InstVal));
     return nullptr;
     break;
   }

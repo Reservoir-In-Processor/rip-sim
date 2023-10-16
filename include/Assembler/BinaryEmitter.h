@@ -1,11 +1,8 @@
 #ifndef BINARYEMITTER_H
 #define BINARYEMITTER_H
 #include "Assembler/AsmParser.h"
-#include <string>
-
-#ifdef DEBUG
 #include "Debug.h"
-#endif
+#include <string>
 class BinaryEmitter {
 private:
   AsmParser AP;

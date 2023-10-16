@@ -439,17 +439,15 @@ static bool forwardRs1(const std::unique_ptr<Instruction> &Inst,
   if (PS[STAGES::EX] && Inst->getRs1() == PS[STAGES::EX]->getRd()) {
     // EX forward
     PS.setDERs1Val(PS.getEXRdVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding Rs1 from EX: " << Inst->getMnemo()
+                         << "\n");
     return true;
   }
   if (PS[STAGES::MA] && Inst->getRs1() == PS[STAGES::MA]->getRd()) {
     // MA forward
     PS.setDERs1Val(PS.getMARdVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding Rs1 from MA: " << Inst->getMnemo()
+                         << "\n");
     return true;
   }
   return false;
@@ -464,18 +462,15 @@ static bool forwardCSR(const std::unique_ptr<Instruction> &Inst,
       (Inst->getImm() == PS[STAGES::EX]->getImm())) {
 
     PS.setDECSRVal(PS.getEXCSRVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo() << " "
-              << PS.getEXCSRVal() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding CSR val from EX : " << Inst->getMnemo()
+                         << " " << PS.getEXCSRVal() << "\n");
     return true;
   }
   if (PS[STAGES::MA] && CSR_INSTs.count(PS[STAGES::MA]->getMnemo()) &&
       (Inst->getImm() == PS[STAGES::MA]->getImm())) {
     PS.setDECSRVal(PS.getMACSRVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding CSR val from MA: " << Inst->getMnemo()
+                         << "\n");
     return true;
   }
   return false;
@@ -490,15 +485,13 @@ static bool forwardRs2(const std::unique_ptr<Instruction> &Inst,
 
   if (PS[STAGES::EX] && Inst->getRs2() == PS[STAGES::EX]->getRd()) {
     PS.setDERs2Val(PS.getEXRdVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo()
+                         << "\n");
     return true;
   } else if (PS[STAGES::MA] && Inst->getRs2() == PS[STAGES::MA]->getRd()) {
     PS.setDERs2Val(PS.getMARdVal());
-#ifdef DEBUG
-    std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo() << "\n";
-#endif
+    DEBUG_ONLY(std::cerr << "Forwarding Rs2 from MA: " << Inst->getMnemo()
+                         << "\n");
     return true;
   }
   return false;
@@ -651,12 +644,20 @@ bool RIPSimulator::handleException(Exception &E) {
 void RIPSimulator::runFromDRAMBASE() {
   PC = DRAM_BASE;
 
-  while (true) {
+  while (!proceedNStage(1)) {
+  }
+
+  return;
+}
+
+bool RIPSimulator::proceedNStage(unsigned N) {
+  while (N--) {
     // actual fetch and decode
 #ifdef DEBUG
     std::cerr << std::dec << "Num Stages=" << getNumStages() << " " << std::hex
               << "PC=0x" << PC << "\n";
 #endif
+
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -685,7 +686,6 @@ void RIPSimulator::runFromDRAMBASE() {
       fetch(Mem, PS);
 
     // Exception handling
-    // TODO: move those handler to some functions i.e. take_trap
     if (E && !handleException(*E))
       break;
 
@@ -717,10 +717,7 @@ void RIPSimulator::runFromDRAMBASE() {
     PS.fillBubble();
     NumStages++;
 
-#ifdef DEBUG
-    PS.dump();
-    dumpGPRegs();
-    // dumpCSRegs();
-#endif
+    DEBUG_ONLY(PS.dump(); dumpGPRegs(););
   }
+  return PS.isEmpty();
 }

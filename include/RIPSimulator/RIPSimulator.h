@@ -199,6 +199,7 @@ public:
   RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr);
 
   GPRegisters &getGPRegs() { return GPRegs; }
+  PipelineStates &getPipelineStates() { return PS; }
   // FIXME: is it correct to define CSRs?
   inline const CSRs &getCSRs() const { return States; }
   unsigned getNumStages() { return NumStages; }
@@ -213,9 +214,12 @@ public:
   bool handleException(Exception &E);
 
   void runFromDRAMBASE();
+  bool proceedNStage(unsigned N);
+
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
   Address &getPC() { return PC; }
+  void setPC(Address Ad) { PC = Ad; };
 };
 
 #endif
