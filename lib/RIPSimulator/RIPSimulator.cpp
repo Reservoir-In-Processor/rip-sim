@@ -550,8 +550,6 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
       bool pred = BP->Predict();
 
       if (pred) {
-        DEBUG_ONLY(std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal()
-                             << "\n");
         BP->setBranchPredPC(PS.getPCs(DE) + Imm);
         BP->setPrevPred(pred);
         PS.setInvalid(IF);

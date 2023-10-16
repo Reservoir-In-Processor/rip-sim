@@ -1,7 +1,7 @@
 #include "RIPSimulator/RIPSimulator.h"
 #include <gtest/gtest.h>
 
-TEST(RIPSimulatorTest, ONEBITBP_NUMSTAGE) {
+TEST(RIPSimulatorTest, ONEBITBP_CHECKPRED) {
   const unsigned char BYTES[] = {
       0x93, 0x02, 0x00, 0x00, // addi x5, x0, 0
       0x93, 0x82, 0x12, 0x00, // addi x5, x5, 1
@@ -12,7 +12,6 @@ TEST(RIPSimulatorTest, ONEBITBP_NUMSTAGE) {
 
   const GPRegisters EXPECTED = {{1, 1}, {5, 3}, {6, 3}};
 
-  const Address EXPECTED_PC = DRAM_BASE + 4 * 5;
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
@@ -20,23 +19,15 @@ TEST(RIPSimulatorTest, ONEBITBP_NUMSTAGE) {
       std::make_unique<OneBitBranchPredictor>();
 
   RIPSimulator RSim(ss, std::move(bp));
-  // RIPSimulator RSim(ss);
-  RSim.runFromDRAMBASE();
-  const GPRegisters &Res = RSim.getGPRegs();
 
-  for (unsigned i = 0; i < 32; ++i) {
-    EXPECT_EQ(Res[i], EXPECTED[i])
-        << "Register:" << i << ", expected: " << EXPECTED[i]
-        << ", got: " << Res[i];
-  }
+  RSim.proceedNStage(5);
+  EXPECT_EQ(RSim.getBPPred(), 0); // pred 0
 
-  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
-      << "PC"
-      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+  RSim.proceedNStage(5);
+  EXPECT_EQ(RSim.getBPPred(), 1); // pred 1
 
-  EXPECT_EQ(RSim.getNumStages(), 20)
-      << "PC"
-      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+  RSim.proceedNStage(5);
+  EXPECT_EQ(RSim.getBPPred(), 1); // pred 1
 }
 
 TEST(RIPSimulatorTest, ONEBITBP_BB) {

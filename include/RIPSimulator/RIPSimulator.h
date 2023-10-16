@@ -197,6 +197,12 @@ public:
 
   // move this def to .cpp
   RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr);
+  bool getBPPred() {
+    if (BP)
+      return BP->getPrevPred();
+    else
+      assert(false && "No Branch Predictor!");
+  }
 
   GPRegisters &getGPRegs() { return GPRegs; }
   PipelineStates &getPipelineStates() { return PS; }
