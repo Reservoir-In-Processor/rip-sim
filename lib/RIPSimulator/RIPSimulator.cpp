@@ -666,7 +666,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     }
     CycleNum++;
 
-    DEBUG_ONLY(PS.dump(); dumpGPRegs(); dumpCSRegs());
+    DEBUG_ONLY(PS.dump(); dumpGPRegs(););
   }
   return PS.isEmpty();
 }
