@@ -557,13 +557,10 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
       bool pred = BP->Predict();
 
       if (pred) {
+        Address BPPC;
         std::cerr << PS.getPCs(DE) << " " << PS.getDEImmVal() << "\n";
-        PC = PS.getPCs(DE) + Imm;
-
-#ifdef DEBUG
-        std::cerr << "Branch Pred: " << pred << "\n";
-        std::cerr << std::hex << "jump to: " << PC << "\n";
-#endif
+        BPPC = PS.getPCs(DE) + Imm;
+        BP->setBranchPredPC(BPPC);
         PS.setInvalid(IF);
       }
     }
@@ -698,14 +695,22 @@ void RIPSimulator::runFromDRAMBASE() {
       break;
     }
 
+    if (BP) { // FIXME: should check PS.takeBranchPC?
+      if (auto NextPC = BP->takeBranchPredPC()) {
+#ifdef DEBUG
+        std::cerr << std::hex << "Branch Pred from 0x " << PC << " to "
+                  << "0x" << *NextPC << "\n";
+#endif
+        PC = *NextPC;
+      }
+    }
+
     if (auto NextPC = PS.takeBranchPC()) {
 #ifdef DEBUG
-      std::cerr << std::hex << "Branch from 0x" << PC << " to ";
+      std::cerr << std::hex << "Branch from 0x" << PC << " to "
+                << "0x" << *NextPC << "\n";
 #endif
       PC = *NextPC;
-#ifdef DEBUG
-      std::cerr << std::hex << "0x" << PC << "\n";
-#endif
     }
 
     PS.fillBubble();
