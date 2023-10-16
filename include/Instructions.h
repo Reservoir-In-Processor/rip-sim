@@ -55,7 +55,7 @@ public:
   // TODO: make this private.
   const unsigned getVal() { return Val; }
 
-  const inline unsigned hasRd() {
+  const inline bool hasRd() {
     return !(STypeKinds.count(getMnemo()) || BTypeKinds.count(getMnemo()));
   }
 
@@ -65,7 +65,7 @@ public:
     return (Val & 0x00000f80) >> 7;
   }
 
-  const inline unsigned hasRs1() {
+  const inline bool hasRs1() {
     return !(UTypeKinds.count(getMnemo()) || JTypeKinds.count(getMnemo()));
   }
 
@@ -75,7 +75,7 @@ public:
     return (Val & 0x000f8000) >> 15;
   }
 
-  const inline unsigned hasRs2() {
+  const inline bool hasRs2() {
     return !(ITypeKinds.count(getMnemo()) || UTypeKinds.count(getMnemo()) ||
              JTypeKinds.count(getMnemo()));
   }
