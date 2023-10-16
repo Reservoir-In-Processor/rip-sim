@@ -183,7 +183,6 @@ private:
   unsigned CodeSize;
   Address PC;
   CSRs States;
-
   ModeKind Mode;
   unsigned NumStages;
   PipelineStates PS;
