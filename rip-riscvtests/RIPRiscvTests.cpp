@@ -85,7 +85,7 @@ TEST_P(RIPRiscvTests, RIPRiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
   RIPSimulator RSim(Files);
-  RSim.runRiscvTests();
+  RSim.run(/*StartAddress = */ DRAM_BASE, /*EndAddress = */ DRAM_BASE + 0x4c);
   const GPRegisters &Res = RSim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }

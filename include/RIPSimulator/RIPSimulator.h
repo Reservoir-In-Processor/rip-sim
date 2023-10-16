@@ -213,7 +213,8 @@ public:
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 
-  void run();
+  void run(std::optional<Address> StartAddress = std::nullopt,
+           std::optional<Address> EndAddress = std::nullopt);
   bool proceedNStage(unsigned N);
 
   void runRiscvTests();

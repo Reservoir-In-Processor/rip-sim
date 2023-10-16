@@ -590,9 +590,14 @@ bool RIPSimulator::handleException(Exception &E) {
   return true;
 }
 
-void RIPSimulator::run() {
+void RIPSimulator::run(std::optional<Address> StartAddress,
+                       std::optional<Address> EndAddress) {
+  if (StartAddress)
+    PC = *StartAddress;
 
   while (!proceedNStage(1)) {
+    if (EndAddress && PC == *EndAddress)
+      break;
   }
 
   return;
