@@ -1,6 +1,7 @@
 
 #ifndef RIPSIMULATOR_H
 #define RIPSIMULATOR_H
+#include "BranchPredictor.h"
 #include "Decoder.h"
 #include "Exceptions.h"
 #include "InstructionTypes.h"
@@ -189,27 +190,37 @@ private:
   Address PC;
   CSRs States;
   ModeKind Mode;
-  unsigned CycleNum;
+  unsigned NumStages;
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
+  std::unique_ptr<BranchPredictor> BP;
 
 public:
   RIPSimulator(const RIPSimulator &) = delete;
   RIPSimulator &operator=(const RIPSimulator &) = delete;
 
   // move this def to .cpp
-  RIPSimulator(std::istream &is);
+  RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr);
+  bool getBPPred() {
+    if (BP)
+      return BP->getPrevPred();
+    else
+      assert(false && "No Branch Predictor!");
+  }
+
   GPRegisters &getGPRegs() { return GPRegs; }
   PipelineStates &getPipelineStates() { return PS; }
   // FIXME: is it correct to define CSRs?
   inline const CSRs &getCSRs() const { return States; }
+  unsigned getNumStages() { return NumStages; }
   // inherently unused arguments, but better to see dependencies
   void writeback(GPRegisters &, PipelineStates &);
   void memoryaccess(Memory &, PipelineStates &);
   std::optional<Exception> exec(PipelineStates &);
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
+  void dumpStats();
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 

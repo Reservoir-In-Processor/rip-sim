@@ -57,8 +57,9 @@ void PipelineStates::dump() {
 const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
-RIPSimulator::RIPSimulator(std::istream &is)
-    : PC(DRAM_BASE), Mode(ModeKind::Machine), CycleNum(0) {
+RIPSimulator::RIPSimulator(std::istream &is,
+                           std::unique_ptr<BranchPredictor> BP)
+    : PC(DRAM_BASE), Mode(ModeKind::Machine), NumStages(0), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -70,6 +71,19 @@ RIPSimulator::RIPSimulator(std::istream &is)
     P += 4;
     CodeSize += 4;
   }
+}
+
+void RIPSimulator::dumpStats() {
+  std::cerr << "========== BEGIN STATS ============"
+            << "\n";
+
+  std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+
+  if (BP)
+    BP->printStat();
+  std::cerr << "=========== END STATS ============="
+            << "\n";
+  std::cerr << "\n";
 }
 
 void RIPSimulator::writeback(GPRegisters &, PipelineStates &) {
@@ -346,47 +360,49 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     PS.setInvalid(IF);
 
     // B-type
-  } else if (Mnemo == "beq") {
-    if (PS.getDERs1Val() == PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+  } else if (BTypeKinds.count(Mnemo)) {
+    bool Cond;
+    if (Mnemo == "beq") {
+      Cond = PS.getDERs1Val() == PS.getDERs2Val();
+
+    } else if (Mnemo == "bne") {
+      Cond = PS.getDERs1Val() != PS.getDERs2Val();
+    } else if (Mnemo == "blt") {
+      Cond = PS.getDERs1Val() < PS.getDERs2Val();
+    } else if (Mnemo == "bge") {
+      Cond = PS.getDERs1Val() >= PS.getDERs2Val();
+    } else if (Mnemo == "bltu") {
+      Cond = (unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val();
+    } else if (Mnemo == "bgeu") {
+      Cond = (unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val();
+    } else {
+      assert(false && "unreachable!");
     }
-  } else if (Mnemo == "bne") {
-    if (PS.getDERs1Val() != PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-  } else if (Mnemo == "blt") {
-    if (PS.getDERs1Val() < PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-  } else if (Mnemo == "bge") {
-    if (PS.getDERs1Val() >= PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-  } else if (Mnemo == "bltu") {
-    if ((unsigned)PS.getDERs1Val() < (unsigned)PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
-    }
-  } else if (Mnemo == "bgeu") {
-    if ((unsigned)PS.getDERs1Val() >= (unsigned)PS.getDERs2Val()) {
-      Address nextPC = PS.getPCs(EX) + PS.getDEImmVal();
-      PS.setBranchPC(nextPC);
-      PS.setInvalid(DE);
-      PS.setInvalid(IF);
+
+    signed Offset = PS.getDEImmVal();
+    Address NextPC = PS.getPCs(EX) + Offset;
+    if (!BP) {
+      if (Cond) {
+        PC = NextPC;
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+
+    } else {
+      bool Pred = BP->getPrevPred();
+
+      if (Pred ^ Cond) {
+        if (Cond) {
+          PS.setBranchPC(NextPC);
+        } else {
+          PS.setBranchPC(PS.getPCs(EX) + 4);
+        }
+        PS.setInvalid(DE);
+        PS.setInvalid(IF);
+      }
+
+      BP->StatsUpdate(Cond, Pred);
+      BP->Learn(Cond);
     }
 
     // S-type
@@ -512,6 +528,16 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     Imm = signExtend(Inst->getJImm(), 20);
   } else if (BTypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getBImm(), 12);
+
+    if (BP) {
+      bool pred = BP->Predict();
+
+      if (pred) {
+        BP->setBranchPredPC(PS.getPCs(DE) + Imm);
+        BP->setPrevPred(pred);
+        PS.setInvalid(IF);
+      }
+    }
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getUImm(), 20);
   }
@@ -602,6 +628,9 @@ void RIPSimulator::run() {
 bool RIPSimulator::proceedNStage(unsigned N) {
   while (N--) {
     // actual fetch and decode
+    DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
+                         << std::hex << "PC=0x" << PC << "\n");
+
     if (!PS.isStall(STAGES::IF)) {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
@@ -617,6 +646,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     PS.clearStall();
 
     std::optional<Exception> E = std::nullopt;
+
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
     if (PS[STAGES::MA] != nullptr)
@@ -632,18 +662,27 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (E && !handleException(*E))
       break;
 
-    PS.fillBubble();
-
     if (PS.isEmpty()) {
+      DEBUG_ONLY(dumpStats());
       break;
     }
-    // FIXME: might this be wrong if branch prediction happens.
+
     if (auto NextPC = PS.takeBranchPC()) {
-      std::cerr << std::hex << "Branch from " << PC << " to ";
+      DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
+                           << "0x" << *NextPC << "\n");
       PC = *NextPC;
-      std::cerr << std::hex << PC << "\n";
+
+    } else if (BP) {
+      if (auto NextPC = BP->takeBranchPredPC()) {
+        DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
+                             << " to "
+                             << "0x" << *NextPC << "\n");
+        PC = *NextPC;
+      }
     }
-    CycleNum++;
+
+    PS.fillBubble();
+    NumStages++;
 
     DEBUG_ONLY(PS.dump(); dumpGPRegs(););
   }
