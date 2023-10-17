@@ -2,6 +2,8 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 #include <Simulator/Memory.h>
+#include <iomanip>
+#include <iostream>
 #include <map>
 
 class Statistics {
@@ -26,6 +28,21 @@ public:
   void addBDists(unsigned Dist &);
   void addInst(std::string Mnemo &);
 
-  Statistics() {}
+  void printHistogram() {
+    int max_value = 0;
+    for (const auto &[key, value] : BDists) {
+      if (value > max_value) {
+        max_value = value;
+      }
+    }
+
+    for (const auto &[key, value] : BDists) {
+      std::cerr << std::setw(3) << key << " | ";
+      for (int i = 0; i < value; ++i) {
+        std::cerr << "*";
+      }
+      std::cerr << " " << value << "\n";
+    }
+  }
 };
 #endif
