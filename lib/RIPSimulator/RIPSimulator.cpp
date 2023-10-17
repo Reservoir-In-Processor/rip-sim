@@ -476,7 +476,6 @@ static bool forwardRs2OnDE(const std::unique_ptr<Instruction> &Inst,
 
   if (PS[STAGES::EX] && PS[STAGES::EX]->hasRd() &&
       Inst->getRs2() == PS[STAGES::EX]->getRd()) {
-
     PS.setDERs2Val(PS.getEXRdVal());
     DEBUG_ONLY(std::cerr << "Forwarding Rs2 from EX: " << Inst->getMnemo()
                          << "\n");
@@ -617,9 +616,14 @@ bool RIPSimulator::handleException(Exception &E) {
   return true;
 }
 
-void RIPSimulator::run() {
+void RIPSimulator::run(std::optional<Address> StartAddress,
+                       std::optional<Address> EndAddress) {
+  if (StartAddress)
+    PC = *StartAddress;
 
   while (!proceedNStage(1)) {
+    if (EndAddress && PC == *EndAddress)
+      break;
   }
 
   return;
