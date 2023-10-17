@@ -2,13 +2,14 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 #include <Simulator/Memory.h>
+#include <map>
 
 class Statistics {
 private:
-  /// Tach executed branch instructions distances on runtime.
-  unsigned BDists;
+  /// branch instruction distances' frequency on runtime.
+  std::map<unsigned, unsigned> BDists;
   /// The each number of executed instructions on runtime.
-  unsigned InstCounts;
+  std::map<std::string, unsigned> InstCounts;
   /// The number of forwarding.
   unsigned ForwardNum;
   /// The maximum address which store/load accessed.
