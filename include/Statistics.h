@@ -13,18 +13,12 @@ private:
   std::map<unsigned, unsigned> BDists;
   /// The each number of executed instructions on runtime.
   std::map<std::string, unsigned> InstCounts;
-  /// The number of forwarding.
-  unsigned ForwardNum;
-  /// The maximum address which store/load accessed.
-  Address MaxMemoryAddress;
-  /// The minimum address which store/load accessed.
-  Address MinMemoryAddress;
 
 public:
   Statistics(const Statistics &) = delete;
   Statistics &operator=(const Statistics &) = delete;
 
-  Statistics() : BDist(0), ForwardNum(0) {}
+  Statistics() : BDist(0) {}
 
   void incrementBDist() { BDist++; }
   void addInst(std::string &Mnemo) {
