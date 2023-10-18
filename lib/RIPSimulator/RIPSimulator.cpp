@@ -635,31 +635,35 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
                          << std::hex << "PC=0x" << PC << "\n");
 
-    if (!PS.isStall(STAGES::IF)) {
+    // handle stall
+    if (PS.isStall(STAGES::IF)) {
+      PS.proceedPC(-1);
+      PS.proceed(nullptr);
+      PS.clearStall();
+    } else {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
       if (InstPtr) {
         PC += 4;
       }
       PS.proceed(std::move(InstPtr));
-    } else {
-      PS.proceedPC(-1);
-      PS.proceed(nullptr);
     }
-
-    PS.clearStall();
 
     std::optional<Exception> E = std::nullopt;
 
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
+
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
+
     if (PS[STAGES::EX] != nullptr)
       E = exec(PS);
-    if (PS[STAGES::DE] != nullptr)
+
+    if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
-    if (PS[STAGES::IF] != nullptr)
+
+    if (!PS.isStall(STAGES::IF) && PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
 
     // Exception handling
