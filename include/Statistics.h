@@ -40,19 +40,26 @@ public:
 
   void printBDists(std::ostream &os) {
     os << "Branches Distances: \n";
+    unsigned LFCnt = 0;
     for (const auto &[Dist, Cnt] : BDists) {
       os << std::setfill(' ') << std::setw(3) << Dist << " | ";
-      os << Cnt;
-      os << "\n";
+      os << Cnt << ", ";
+      if ((++LFCnt) % 4 == 0)
+        os << "\n";
     }
+    os << "\n";
   }
 
   void printInstCounts(std::ostream &os) {
     os << "Instruction Counts: \n";
+    unsigned LFCnt = 0;
     for (const auto &[Mnemo, Cnt] : InstCounts) {
       os << std::setfill(' ') << std::setw(6) << Mnemo << " | ";
-      os << Cnt << "\n";
+      os << Cnt << ", ";
+      if ((++LFCnt) % 4 == 0)
+        os << "\n";
     }
+    os << "\n";
   }
 
   void printAllStatistics(std::ostream &os) {
