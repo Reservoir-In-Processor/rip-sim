@@ -1,4 +1,4 @@
-#include "Simulator/Memory.h"
+#include "Memory.h"
 #include <cassert>
 #include <iostream>
 
