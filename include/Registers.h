@@ -1,7 +1,7 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#include "Memory.h"
+#include "CommonTypes.h"
 #include <bitset>
 #include <cassert>
 #include <cstdint>
@@ -30,7 +30,6 @@ static const std::string ABI[32] = {
     " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
 };
 
-using RegVal = std::int32_t;
 const unsigned RegNum = 32;
 class GPRegisters {
 private:

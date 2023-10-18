@@ -1,6 +1,7 @@
 #ifndef CSR_H
 #define CSR_H
 
+#include "CommonTypes.h"
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
@@ -18,9 +19,6 @@ enum ModeKind {
 };
 
 const unsigned CSR_SIZE = 4096;
-// FIXME: is this ok to be 32 ?
-using CSRVal = std::int32_t;
-using CSRAddress = std::uint16_t;
 
 // Supervisor address translation and protection
 const CSRAddress SATP = 0x180;
