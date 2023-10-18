@@ -8,6 +8,7 @@
 #include "Instructions.h"
 #include "Memory.h"
 #include "Registers.h"
+#include "Statistics.h"
 #include <map>
 #include <memory>
 #include <optional>
@@ -194,6 +195,7 @@ private:
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
+  Statistics Stats;
   std::unique_ptr<BranchPredictor> BP;
 
 public:
@@ -220,7 +222,6 @@ public:
   std::optional<Exception> exec(PipelineStates &);
   void decode(GPRegisters &, PipelineStates &);
   void fetch(Memory &, PipelineStates &);
-  void dumpStats();
   // FIXME: currently return recoverable or not.
   bool handleException(Exception &E);
 
@@ -228,9 +229,9 @@ public:
            std::optional<Address> EndAddress = std::nullopt);
   bool proceedNStage(unsigned N);
 
-  void runRiscvTests();
   void dumpGPRegs() { GPRegs.dump(); }
   void dumpCSRegs() { States.dump(); }
+  void dumpStats();
   Address &getPC() { return PC; }
   void setPC(Address Ad) { PC = Ad; };
 };

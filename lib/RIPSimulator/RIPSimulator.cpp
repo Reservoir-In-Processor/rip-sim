@@ -76,8 +76,9 @@ RIPSimulator::RIPSimulator(std::istream &is,
 void RIPSimulator::dumpStats() {
   std::cerr << "========== BEGIN STATS ============"
             << "\n";
-
   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+
+  Stats.printAllStatistics(std::cerr);
 
   if (BP)
     BP->printStat();
@@ -626,6 +627,7 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
       break;
   }
 
+  DEBUG_ONLY(dumpStats());
   return;
 }
 
@@ -657,8 +659,16 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
 
-    if (PS[STAGES::EX] != nullptr)
+    if (auto &EXInst = PS[STAGES::EX]) {
+      // FIXME: better to separate stats calculation.
+      std::string Mnemo = EXInst->getMnemo();
+      Stats.addInst(Mnemo);
+      if (BTypeKinds.count(Mnemo))
+        Stats.addBDistAndReset();
+      else
+        Stats.incrementBDist();
       E = exec(PS);
+    }
 
     if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
@@ -671,7 +681,6 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
 
     if (PS.isEmpty()) {
-      DEBUG_ONLY(dumpStats());
       break;
     }
 

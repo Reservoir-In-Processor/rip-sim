@@ -9,6 +9,7 @@
 class Statistics {
 private:
   /// branch instruction distances' frequency on runtime.
+  unsigned BDist;
   std::map<unsigned, unsigned> BDists;
   /// The each number of executed instructions on runtime.
   std::map<std::string, unsigned> InstCounts;
@@ -17,32 +18,52 @@ private:
   /// The maximum address which store/load accessed.
   Address MaxMemoryAddress;
   /// The minimum address which store/load accessed.
-  Address MaxMemoryAddress;
+  Address MinMemoryAddress;
 
 public:
   Statistics(const Statistics &) = delete;
   Statistics &operator=(const Statistics &) = delete;
 
-  Statistics() {}
-  void printStatistics();
-  void addBDists(unsigned Dist &);
-  void addInst(std::string Mnemo &);
+  Statistics() : BDist(0), ForwardNum(0) {}
 
-  void printHistogram() {
-    int max_value = 0;
-    for (const auto &[key, value] : BDists) {
-      if (value > max_value) {
-        max_value = value;
-      }
+  void incrementBDist() { BDist++; }
+  void addInst(std::string &Mnemo) {
+    if (auto IT = InstCounts.find(Mnemo); IT != InstCounts.end()) {
+      IT->second++;
+    } else {
+      InstCounts.insert({Mnemo, 1});
     }
+  }
 
-    for (const auto &[key, value] : BDists) {
-      std::cerr << std::setw(3) << key << " | ";
-      for (int i = 0; i < value; ++i) {
-        std::cerr << "*";
-      }
-      std::cerr << " " << value << "\n";
+  void addBDistAndReset() {
+    if (auto IT = BDists.find(BDist); IT != BDists.end()) {
+      IT->second++;
+    } else {
+      BDists.insert({BDist, 1});
     }
+    BDist = 0;
+  }
+
+  void printBDists(std::ostream &os) {
+    os << "Branches Distances: \n";
+    for (const auto &[Dist, Cnt] : BDists) {
+      os << std::setfill(' ') << std::setw(3) << Dist << " | ";
+      os << Cnt;
+      os << "\n";
+    }
+  }
+
+  void printInstCounts(std::ostream &os) {
+    os << "Instruction Counts: \n";
+    for (const auto &[Mnemo, Cnt] : InstCounts) {
+      os << std::setfill(' ') << std::setw(6) << Mnemo << " | ";
+      os << Cnt << "\n";
+    }
+  }
+
+  void printAllStatistics(std::ostream &os) {
+    printInstCounts(os);
+    printBDists(os);
   }
 };
 #endif
