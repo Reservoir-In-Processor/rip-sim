@@ -57,7 +57,13 @@ public:
 
   void Learn(bool &cond, Address PC) override { BranchHistoryTable[PC] = cond; }
 
-  bool Predict(Address PC) override { return BranchHistoryTable[PC]; }
+  bool Predict(Address PC) override {
+    if (BranchHistoryTable.count(PC)) {
+      return BranchHistoryTable[PC];
+    } else {
+      return false;
+    }
+  }
 
   const std::optional<Address> takeBranchPredPC() override {
     if (BranchPredPC) {
