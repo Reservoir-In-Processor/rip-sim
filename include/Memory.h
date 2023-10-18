@@ -2,34 +2,20 @@
 #define MEMORY_H
 #include "CommonTypes.h"
 #include <cstdint>
+#include <optional>
 #include <vector>
-
-// to avoid sanitizer overhead hell.
-#ifdef DEBUG
-// 1 MiB
-const std::uint64_t DRAM_SIZE = 1LL << 20;
-// 1 KiB
-// const std::uint64_t DRAM_SIZE = 1 << 10;
-// 4GB memory
-// const std::uint64_t DRAM_SIZE = 1LL << 32;
-#else
-// 1 GiB
-const std::uint64_t DRAM_SIZE = 1 << 30;
-#endif
-
-const Address DRAM_BASE = 0x8000;
-// For Dhrystone
-// const Address DRAM_BASE = 0x0000;
 
 class Memory {
 private:
   std::vector<Byte> DRAM;
+  Address DRAMSize, DRAMBase;
 
 public:
   Memory(const Memory &) = delete;
   Memory &operator=(const Memory &) = delete;
 
-  Memory() : DRAM(DRAM_SIZE, 0) {}
+  Memory(Address _DRAMSize = 1 << 10, Address _DRAMBase = 0x8000)
+      : DRAM(_DRAMSize, 0), DRAMSize(_DRAMSize), DRAMBase(_DRAMBase) {}
 
   void writeByte(Address Ad, Byte Val);
   Byte readByte(Address Ad);
