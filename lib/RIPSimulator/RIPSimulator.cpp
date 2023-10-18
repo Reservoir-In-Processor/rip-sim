@@ -123,26 +123,26 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   std::string Mnemo = Inst->getMnemo();
 
   if (Mnemo == "sw") {
-    Mem.writeWord(MARdVal, PS.getEXRs2Val());
+    Mem.writeWord((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "sh") {
-    Mem.writeHalfWord(MARdVal, PS.getEXRs2Val());
+    Mem.writeHalfWord((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "sb") {
-    Mem.writeByte(MARdVal, PS.getEXRs2Val());
+    Mem.writeByte((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "lw") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Word V = Mem.readWord(MARdVal);
     Res = (signed)V;
   } else if (Mnemo == "lh") {
-    HalfWord V = Mem.readHalfWord(MARdVal);
+    HalfWord V = Mem.readHalfWord((unsigned)MARdVal);
     Res = (signed short)V;
   } else if (Mnemo == "lbu") {
-    Byte V = Mem.readByte(MARdVal);
+    Byte V = Mem.readByte((unsigned)MARdVal);
     Res = (unsigned char)V;
   } else if (Mnemo == "lhu") {
-    HalfWord V = Mem.readHalfWord(MARdVal);
+    HalfWord V = Mem.readHalfWord((unsigned)MARdVal);
     Res = (unsigned short)V;
   } else if (Mnemo == "lb") {
-    Byte V = Mem.readByte(MARdVal);
+    Byte V = Mem.readByte((unsigned)MARdVal);
     Res = (signed char)V;
   }
 
