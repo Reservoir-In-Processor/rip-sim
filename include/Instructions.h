@@ -3,8 +3,8 @@
 #include "CSR.h"
 #include "Exceptions.h"
 #include "InstructionTypes.h"
+#include "Memory.h"
 #include "Registers.h"
-#include "Simulator/Memory.h"
 #include <cassert>
 #include <iomanip>
 #include <iostream>

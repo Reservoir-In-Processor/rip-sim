@@ -1,7 +1,7 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#include "Simulator/Memory.h"
+#include "Memory.h"
 #include <bitset>
 #include <cassert>
 #include <cstdint>

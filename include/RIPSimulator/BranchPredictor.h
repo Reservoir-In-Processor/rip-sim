@@ -1,7 +1,7 @@
 #ifndef BRANCHPREDICTOR_H
 #define BRANCHPREDICTOR_H
 #include "Debug.h"
-#include "Simulator/Memory.h"
+#include "Memory.h"
 #include <iostream>
 #include <optional>
 
