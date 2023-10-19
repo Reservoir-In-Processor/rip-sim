@@ -44,9 +44,7 @@ public:
       : Regs{0} {
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = *DRAMSize + *DRAMBase;
-    // FIXME: Dhrystone
-    // Regs[2] = 1 << 31;
+    Regs[2] = (RegVal)*DRAMSize + (RegVal)*DRAMBase;
   }
   GPRegisters(std::initializer_list<std::pair<unsigned, RegVal>> init_list,
               std::optional<Address> DRAMSize = 1 << 10,
@@ -61,9 +59,7 @@ public:
     }
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = *DRAMSize + *DRAMBase;
-    // FIXME: Dhrystone
-    // Regs[2] = 1 << 31;
+    Regs[2] = (RegVal)*DRAMSize + (RegVal)*DRAMBase;
   }
 
   void write(unsigned Id, RegVal Val) {
