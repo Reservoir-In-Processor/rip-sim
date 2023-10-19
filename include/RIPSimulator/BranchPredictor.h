@@ -77,4 +77,51 @@ public:
   void setBranchPredPC(const Address &BPPC) override { BranchPredPC = BPPC; }
 };
 
+class TwoBitBranchPredictor : public BranchPredictor {
+private:
+  std::optional<Address> BranchPredPC;
+  std::map<Address, int> BranchHistoryTable;
+
+public:
+  TwoBitBranchPredictor() : BranchPredictor() {}
+
+  void Learn(bool &cond, Address PC) override {
+    if (BranchHistoryTable.count(PC)) {
+      if (cond) {
+        BranchHistoryTable[PC]++;
+      } else {
+        BranchHistoryTable[PC]--;
+      }
+    } else {
+      BranchHistoryTable[PC] = 0;
+    }
+    BranchHistoryTable[PC] = std::clamp(BranchHistoryTable[PC], 0, 3);
+    DEBUG_ONLY(std::cerr << std::hex << "BHT [ " << PC
+                         << "]: " << BranchHistoryTable[PC] << "\n";);
+  }
+
+  bool Predict(Address PC) override {
+    if (BranchHistoryTable.count(PC)) {
+      if (BranchHistoryTable[PC] >= 2) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  const std::optional<Address> takeBranchPredPC() override {
+    if (BranchPredPC) {
+      Address BPPC = *BranchPredPC;
+      BranchPredPC = std::nullopt;
+      return std::make_optional(BPPC);
+    } else {
+      return std::nullopt;
+    }
+  }
+  void setBranchPredPC(const Address &BPPC) override { BranchPredPC = BPPC; }
+};
+
 #endif

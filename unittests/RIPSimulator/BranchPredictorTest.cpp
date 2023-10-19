@@ -62,3 +62,37 @@ TEST(RIPSimulatorTest, ONEBITBP_BB) {
       << "PC"
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
+
+TEST(RIPSimulatorTest, TWOBITBP_CHECKPRED) {
+  const unsigned char BYTES[] = {
+      0x93, 0x02, 0x00, 0x00, // addi x5, x0, 0
+      0x13, 0x03, 0x00, 0x00, // addi x6, x0, 0
+      0x93, 0x03, 0x30, 0x00, // addi x7, x0, 3
+      0x63, 0x58, 0x73, 0x00, // bge x6, x7, 16
+      0xb3, 0x82, 0x62, 0x00, // add x5, x5, x6
+      0x13, 0x03, 0x13, 0x00, // addi x6, x6, 1
+      0x6f, 0xf0, 0x5f, 0xff, // jal x0,  -12
+  };
+
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  std::unique_ptr<BranchPredictor> bp =
+      std::make_unique<TwoBitBranchPredictor>();
+
+  RIPSimulator RSim(ss, std::move(bp));
+
+  RSim.proceedNStage(5);
+  EXPECT_EQ(RSim.getBPPred(), 0);
+
+  RSim.proceedNStage(6);
+  EXPECT_EQ(RSim.getBPPred(), 0);
+
+  RSim.proceedNStage(6);
+  EXPECT_EQ(RSim.getBPPred(), 0);
+
+  RSim.proceedNStage(6);
+  EXPECT_EQ(RSim.getBPPred(), 0);
+
+  RSim.proceedNStage(6);
+}

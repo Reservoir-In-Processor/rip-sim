@@ -536,6 +536,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
         BP->setPrevPred(pred);
         PS.setInvalid(IF);
       }
+      DEBUG_ONLY(std::cerr << std::hex << "Branch Pred: " << pred << "\n";);
     }
   } else if (UTypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getUImm(), 20);
