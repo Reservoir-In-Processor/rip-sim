@@ -7,6 +7,7 @@
 #include "Instructions.h"
 #include "Memory.h"
 #include "Registers.h"
+#include "Statistics.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,6 +21,7 @@ private:
   CSRs States;
   ModeKind Mode;
   GPRegisters GPRegs;
+  Statistics Stats;
 
 public:
   Simulator(const Simulator &) = delete;
@@ -38,6 +40,15 @@ public:
   // void execDhrystone();
 
   inline const void dumpGPRegs() const { GPRegs.dump(); }
+  inline const void dumpStats() {
+    std::cerr << "========== BEGIN STATS ============"
+              << "\n";
+    Stats.printAllStatistics(std::cerr);
+
+    std::cerr << "=========== END STATS ============="
+              << "\n";
+    std::cerr << "\n";
+  }
   inline const Address &getPC() const { return PC; }
 };
 
