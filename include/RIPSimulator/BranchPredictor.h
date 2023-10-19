@@ -85,7 +85,7 @@ private:
 public:
   TwoBitBranchPredictor() : BranchPredictor() {}
 
-  void Learn(bool &cond, Address PC) override {
+  void Learn(bool &cond, Address PC) override { // FIXME: PC >> 2
     if (BranchHistoryTable.count(PC)) {
       if (cond) {
         BranchHistoryTable[PC]++;
