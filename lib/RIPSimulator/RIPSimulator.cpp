@@ -59,9 +59,10 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
 
 RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
-                           Address DRAMSize, Address DRAMBase)
+                           Address DRAMSize, Address DRAMBase,
+                           std::optional<Address> SPIValue)
     : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), GPRegs(DRAMSize, DRAMBase), BP(std::move(BP)) {
+      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
