@@ -40,17 +40,20 @@ public:
   GPRegisters &operator=(const GPRegisters &) = delete;
 
   GPRegisters(std::optional<Address> DRAMSize = 1 << 10,
-              std::optional<Address> DRAMBase = 0x8000)
+              std::optional<Address> DRAMBase = 0x8000,
+              std::optional<Address> SPIValue = std::nullopt)
       : Regs{0} {
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = *DRAMSize + *DRAMBase;
-    // FIXME: Dhrystone
-    // Regs[2] = 1 << 31;
+    if (SPIValue)
+      Regs[2] = *SPIValue;
+    else
+      Regs[2] = (RegVal)*DRAMSize + (RegVal)*DRAMBase;
   }
   GPRegisters(std::initializer_list<std::pair<unsigned, RegVal>> init_list,
               std::optional<Address> DRAMSize = 1 << 10,
-              std::optional<Address> DRAMBase = 0x8000)
+              std::optional<Address> DRAMBase = 0x8000,
+              std::optional<Address> SPIValue = std::nullopt)
       : Regs{0} {
     for (const auto &p : init_list) {
       assert(p.first < RegNum && "Register index out of bounds.");
@@ -61,9 +64,12 @@ public:
     }
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = *DRAMSize + *DRAMBase;
-    // FIXME: Dhrystone
-    // Regs[2] = 1 << 31;
+    // FIXME: it may be enough to clamp with big value like 1 << 30.
+    // value)
+    if (SPIValue)
+      Regs[2] = *SPIValue;
+    else
+      Regs[2] = (RegVal)*DRAMSize + (RegVal)*DRAMBase;
   }
 
   void write(unsigned Id, RegVal Val) {

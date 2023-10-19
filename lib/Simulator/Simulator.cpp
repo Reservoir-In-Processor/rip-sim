@@ -2,9 +2,10 @@
 #include "Simulator/Simulator.h"
 #include "Debug.h"
 
-Simulator::Simulator(std::istream &is, Address DRAMSize, Address DRAMBase)
+Simulator::Simulator(std::istream &is, Address DRAMSize, Address DRAMBase,
+                     std::optional<Address> SPIValue)
     : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      GPRegs(DRAMSize, DRAMBase) {
+      GPRegs(DRAMSize, DRAMBase, SPIValue) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE

@@ -26,7 +26,8 @@ public:
   Simulator &operator=(const Simulator &) = delete;
 
   Simulator(std::istream &is, Address DRAMSize = 1 << 10,
-            Address DRAMBase = 0x8000);
+            Address DRAMBase = 0x8000,
+            std::optional<Address> SPIValue = std::nullopt);
 
   inline const GPRegisters &getGPRegs() const { return GPRegs; }
   inline const CSRs &getCSRs() const { return States; }
