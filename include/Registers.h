@@ -1,7 +1,7 @@
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#include "Simulator/Memory.h"
+#include "CommonTypes.h"
 #include <bitset>
 #include <cassert>
 #include <cstdint>
@@ -30,7 +30,6 @@ static const std::string ABI[32] = {
     " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 ",
 };
 
-using RegVal = std::int32_t;
 const unsigned RegNum = 32;
 class GPRegisters {
 private:
@@ -40,14 +39,18 @@ public:
   GPRegisters(const GPRegisters &) = delete;
   GPRegisters &operator=(const GPRegisters &) = delete;
 
-  GPRegisters() : Regs{0} {
+  GPRegisters(std::optional<Address> DRAMSize = 1 << 10,
+              std::optional<Address> DRAMBase = 0x8000)
+      : Regs{0} {
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = DRAM_BASE + DRAM_SIZE;
+    Regs[2] = *DRAMSize + *DRAMBase;
     // FIXME: Dhrystone
     // Regs[2] = 1 << 31;
   }
-  GPRegisters(std::initializer_list<std::pair<unsigned, RegVal>> init_list)
+  GPRegisters(std::initializer_list<std::pair<unsigned, RegVal>> init_list,
+              std::optional<Address> DRAMSize = 1 << 10,
+              std::optional<Address> DRAMBase = 0x8000)
       : Regs{0} {
     for (const auto &p : init_list) {
       assert(p.first < RegNum && "Register index out of bounds.");
@@ -58,7 +61,7 @@ public:
     }
     // The stack pointer is set in the default maximum mamory size + the start
     // address of dram.
-    Regs[2] = DRAM_BASE + DRAM_SIZE;
+    Regs[2] = *DRAMSize + *DRAMBase;
     // FIXME: Dhrystone
     // Regs[2] = 1 << 31;
   }

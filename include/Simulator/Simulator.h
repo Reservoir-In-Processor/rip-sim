@@ -25,12 +25,14 @@ public:
   Simulator(const Simulator &) = delete;
   Simulator &operator=(const Simulator &) = delete;
 
-  Simulator(std::istream &is);
+  Simulator(std::istream &is, Address DRAMSize = 1 << 10,
+            Address DRAMBase = 0x8000);
 
   inline const GPRegisters &getGPRegs() const { return GPRegs; }
   inline const CSRs &getCSRs() const { return States; }
 
-  void execFromDRAMBASE();
+  void run(std::optional<Address> StartAddress = std::nullopt,
+           std::optional<Address> EndAddress = std::nullopt);
   void execRISCVTESTS();
   // void execDhrystone();
 

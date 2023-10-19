@@ -1,6 +1,8 @@
 #include "RIPSimulator/RIPSimulator.h"
 #include <gtest/gtest.h>
 
+const Address DRAM_BASE = 0x8000;
+
 TEST(RIPSimulatorTest, ONEBITBP_CHECKPRED) {
   const unsigned char BYTES[] = {
       0x93, 0x02, 0x00, 0x00, // addi x5, x0, 0

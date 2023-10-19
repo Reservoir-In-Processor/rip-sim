@@ -201,7 +201,8 @@ public:
   RIPSimulator &operator=(const RIPSimulator &) = delete;
 
   // move this def to .cpp
-  RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr);
+  RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr,
+               Address DRAMSize = 1 << 10, Address DRAMBase = 0x8000);
   bool getBPPred() {
     if (BP)
       return BP->getPrevPred();
