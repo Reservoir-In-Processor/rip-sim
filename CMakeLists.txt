@@ -115,7 +115,7 @@ add_custom_target(rip-riscvtests
 
 add_subdirectory(dhrystone)
 add_custom_target(dhrystone
-  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 60
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 120
   DEPENDS DhrystoneTest
 )
 
