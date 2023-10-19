@@ -70,9 +70,16 @@ void Simulator::run(std::optional<Address> StartAddress,
         return;
       }
     }
+    std::string Mnemo = I->getMnemo();
+    Stats.addInst(Mnemo);
+    if (BTypeKinds.count(Mnemo))
+      Stats.addBDistAndReset();
+    else
+      Stats.incrementBDist();
     DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
   }
   DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
              std::cerr << "stop on no instraction address="
                        << "0x" << std::hex << PC << "\n";);
+  dumpStats();
 }
