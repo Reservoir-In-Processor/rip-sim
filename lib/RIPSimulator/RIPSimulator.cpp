@@ -61,7 +61,7 @@ RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
                            Address DRAMSize, Address DRAMBase)
     : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), BP(std::move(BP)) {
+      NumStages(0), GPRegs(DRAMSize, DRAMBase), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE

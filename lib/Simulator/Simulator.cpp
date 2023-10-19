@@ -3,7 +3,8 @@
 #include "Debug.h"
 
 Simulator::Simulator(std::istream &is, Address DRAMSize, Address DRAMBase)
-    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine) {
+    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
+      GPRegs(DRAMSize, DRAMBase) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
