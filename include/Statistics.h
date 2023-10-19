@@ -1,7 +1,6 @@
 
 #ifndef STATISTICS_H
 #define STATISTICS_H
-#include <Simulator/Memory.h>
 #include <iomanip>
 #include <iostream>
 #include <map>
