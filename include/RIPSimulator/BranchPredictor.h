@@ -101,15 +101,7 @@ public:
   }
 
   bool Predict(const Address &PC) override {
-    if (BranchHistoryTable.count(PC)) {
-      if (BranchHistoryTable[PC] >= 2) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+    return BranchHistoryTable.count(PC) && BranchHistoryTable[PC] >= 2;
   }
 };
 
