@@ -11,6 +11,7 @@ private:
   int HitNum;
   int MissNum;
   bool PrevPred;
+  std::optional<Address> BranchPredPC;
 
 public:
   BranchPredictor(const BranchPredictor &) = delete;
@@ -20,8 +21,18 @@ public:
 
   virtual void Learn(bool &, const Address &) = 0;
   virtual bool Predict(const Address &) = 0;
-  virtual void setBranchPredPC(const Address &) = 0;
-  virtual const std::optional<Address> takeBranchPredPC() = 0;
+
+  void setBranchPredPC(const Address &BPPC) { BranchPredPC = BPPC; }
+
+  const std::optional<Address> takeBranchPredPC() {
+    if (BranchPredPC) {
+      Address BPPC = *BranchPredPC;
+      BranchPredPC = std::nullopt;
+      return std::make_optional(BPPC);
+    } else {
+      return std::nullopt;
+    }
+  }
 
   void setPrevPred(bool Pred) { PrevPred = Pred; }
   bool getPrevPred() { return PrevPred; }
@@ -49,7 +60,6 @@ public:
 
 class OneBitBranchPredictor : public BranchPredictor {
 private:
-  std::optional<Address> BranchPredPC;
   std::map<Address, bool> BranchHistoryTable;
 
 public:
@@ -66,22 +76,10 @@ public:
       return false;
     }
   }
-
-  const std::optional<Address> takeBranchPredPC() override {
-    if (BranchPredPC) {
-      Address BPPC = *BranchPredPC;
-      BranchPredPC = std::nullopt;
-      return std::make_optional(BPPC);
-    } else {
-      return std::nullopt;
-    }
-  }
-  void setBranchPredPC(const Address &BPPC) override { BranchPredPC = BPPC; }
 };
 
 class TwoBitBranchPredictor : public BranchPredictor {
 private:
-  std::optional<Address> BranchPredPC;
   std::map<Address, int> BranchHistoryTable;
 
 public:
@@ -113,17 +111,6 @@ public:
       return false;
     }
   }
-
-  const std::optional<Address> takeBranchPredPC() override {
-    if (BranchPredPC) {
-      Address BPPC = *BranchPredPC;
-      BranchPredPC = std::nullopt;
-      return std::make_optional(BPPC);
-    } else {
-      return std::nullopt;
-    }
-  }
-  void setBranchPredPC(const Address &BPPC) override { BranchPredPC = BPPC; }
 };
 
 #endif
