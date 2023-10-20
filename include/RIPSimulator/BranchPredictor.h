@@ -18,8 +18,8 @@ public:
 
   BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0){};
 
-  virtual void Learn(bool &, Address) = 0;
-  virtual bool Predict(Address) = 0;
+  virtual void Learn(bool &, const Address &) = 0;
+  virtual bool Predict(const Address &) = 0;
   virtual void setBranchPredPC(const Address &) = 0;
   virtual const std::optional<Address> takeBranchPredPC() = 0;
 
@@ -55,9 +55,11 @@ private:
 public:
   OneBitBranchPredictor() : BranchPredictor() {}
 
-  void Learn(bool &cond, Address PC) override { BranchHistoryTable[PC] = cond; }
+  void Learn(bool &cond, const Address &PC) override {
+    BranchHistoryTable[PC] = cond;
+  }
 
-  bool Predict(Address PC) override {
+  bool Predict(const Address &PC) override {
     if (BranchHistoryTable.count(PC)) {
       return BranchHistoryTable[PC];
     } else {
@@ -85,7 +87,7 @@ private:
 public:
   TwoBitBranchPredictor() : BranchPredictor() {}
 
-  void Learn(bool &cond, Address PC) override { // FIXME: PC >> 2
+  void Learn(bool &cond, const Address &PC) override { // FIXME: PC >> 2
     if (BranchHistoryTable.count(PC)) {
       if (cond) {
         BranchHistoryTable[PC]++;
@@ -100,7 +102,7 @@ public:
                          << "]: " << BranchHistoryTable[PC] << "\n";);
   }
 
-  bool Predict(Address PC) override {
+  bool Predict(const Address &PC) override {
     if (BranchHistoryTable.count(PC)) {
       if (BranchHistoryTable[PC] >= 2) {
         return true;
