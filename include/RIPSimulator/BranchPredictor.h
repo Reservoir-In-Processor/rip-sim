@@ -6,7 +6,7 @@
 #include <map>
 #include <optional>
 
-unsigned int getLowerNBits(unsigned int value, int N) {
+unsigned int getLowerNBits(unsigned int value, unsigned int N) {
   return value & ((1 << N) - 1);
 }
 
@@ -65,7 +65,7 @@ public:
 class OneBitBranchPredictor : public BranchPredictor {
 private:
   std::map<Address, bool> BranchHistoryTable;
-  int BHTIndexWidth = 5; // FIXME: should be argument
+  unsigned int BHTIndexWidth = 5; // FIXME: should be argument
 
 public:
   OneBitBranchPredictor() : BranchPredictor() {}
@@ -87,7 +87,7 @@ public:
 class TwoBitBranchPredictor : public BranchPredictor {
 private:
   std::map<Address, int> BranchHistoryTable;
-  int BHTIndexWidth = 5; // FIXME: should be argument
+  unsigned int BHTIndexWidth = 5; // FIXME: should be argument
 
 public:
   TwoBitBranchPredictor() : BranchPredictor() {}
