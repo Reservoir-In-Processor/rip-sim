@@ -1,6 +1,7 @@
 #include "Simulator/Simulator.h"
 #include <gtest/gtest.h>
 
+const Address DRAM_BASE = 0x8000;
 TEST(SimulatorTest, ADDI) {
   const unsigned char BYTES[] = {
       0x13, 0x08, 0x50, 0x00, // addi, x16, x0, 5
@@ -12,7 +13,7 @@ TEST(SimulatorTest, ADDI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -32,7 +33,7 @@ TEST(SimulatorTest, SLTI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -54,7 +55,7 @@ TEST(SimulatorTest, SLTIU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -76,7 +77,7 @@ TEST(SimulatorTest, XORI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -98,7 +99,7 @@ TEST(SimulatorTest, ORI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -120,7 +121,7 @@ TEST(SimulatorTest, ANDI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -142,7 +143,7 @@ TEST(SimulatorTest, SLLI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -163,7 +164,7 @@ TEST(SimulatorTest, SRAI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -186,7 +187,7 @@ TEST(SimulatorTest, SRLI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -208,7 +209,7 @@ TEST(SimulatorTest, ADD) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -230,7 +231,7 @@ TEST(SimulatorTest, SUB) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -252,7 +253,7 @@ TEST(SimulatorTest, OR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -274,7 +275,7 @@ TEST(SimulatorTest, AND) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -296,7 +297,7 @@ TEST(SimulatorTest, XOR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -317,7 +318,7 @@ TEST(SimulatorTest, AUIPC) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -340,7 +341,7 @@ TEST(SimulatorTest, SWLW) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -364,7 +365,7 @@ TEST(SimulatorTest, SHLHLHU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -386,7 +387,7 @@ TEST(SimulatorTest, SBLBLBU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -408,7 +409,7 @@ TEST(SimulatorTest, JALR) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -435,7 +436,7 @@ TEST(SimulatorTest, BEQ) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -462,7 +463,7 @@ TEST(SimulatorTest, BNE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -489,7 +490,7 @@ TEST(SimulatorTest, BLT) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -516,7 +517,7 @@ TEST(SimulatorTest, BGE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -543,7 +544,7 @@ TEST(SimulatorTest, BLTU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -570,7 +571,7 @@ TEST(SimulatorTest, BGEU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -594,7 +595,7 @@ TEST(SimulatorTest, JAL) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -617,7 +618,7 @@ TEST(SimulatorTest, ZERO1) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -635,7 +636,7 @@ TEST(SimulatorTest, ZERO2) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -655,7 +656,7 @@ TEST(SimulatorTest, MUL) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -675,7 +676,7 @@ TEST(SimulatorTest, MULH) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -696,7 +697,7 @@ TEST(SimulatorTest, MULHSU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -721,7 +722,7 @@ TEST(SimulatorTest, MULHU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -743,7 +744,7 @@ TEST(SimulatorTest, DIV) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -765,7 +766,7 @@ TEST(SimulatorTest, DIVU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -787,7 +788,7 @@ TEST(SimulatorTest, REM) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -809,7 +810,7 @@ TEST(SimulatorTest, REMU) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -831,7 +832,7 @@ TEST(SimulatorTest, LUI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -853,7 +854,7 @@ TEST(SimulatorTest, FENCE_AS_NOP) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -875,7 +876,7 @@ TEST(SimulatorTest, CSRRS_CSRRWI) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -908,7 +909,7 @@ TEST(SimulatorTest, CSRRW) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -947,7 +948,7 @@ TEST(SimulatorTest, ECALLMMODE) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {
@@ -1005,7 +1006,7 @@ TEST(SimulatorTest, MRET) {
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
   Simulator Sim(ss);
-  Sim.execFromDRAMBASE();
+  Sim.run();
   const GPRegisters &Res = Sim.getGPRegs();
 
   for (unsigned i = 0; i < 32; ++i) {

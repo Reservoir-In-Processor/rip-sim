@@ -1,7 +1,7 @@
 #ifndef BRANCHPREDICTOR_H
 #define BRANCHPREDICTOR_H
+#include "CommonTypes.h"
 #include "Debug.h"
-#include "Simulator/Memory.h"
 #include <iostream>
 #include <map>
 #include <optional>

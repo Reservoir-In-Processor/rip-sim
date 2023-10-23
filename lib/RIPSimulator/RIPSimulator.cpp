@@ -58,12 +58,14 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
                                          "csrrwi", "csrrsi", "csrrci"};
 
 RIPSimulator::RIPSimulator(std::istream &is,
-                           std::unique_ptr<BranchPredictor> BP)
-    : PC(DRAM_BASE), Mode(ModeKind::Machine), NumStages(0), BP(std::move(BP)) {
+                           std::unique_ptr<BranchPredictor> BP,
+                           Address DRAMSize, Address DRAMBase)
+    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
+      NumStages(0), GPRegs(DRAMSize, DRAMBase), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
-  Address P = DRAM_BASE;
+  Address P = DRAMBase;
   // Load binary into memory
   while (is.read(Buff, 4)) {
     unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
@@ -76,8 +78,9 @@ RIPSimulator::RIPSimulator(std::istream &is,
 void RIPSimulator::dumpStats() {
   std::cerr << "========== BEGIN STATS ============"
             << "\n";
-
   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
+
+  Stats.printAllStatistics(std::cerr);
 
   if (BP)
     BP->printStat();
@@ -123,26 +126,26 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   std::string Mnemo = Inst->getMnemo();
 
   if (Mnemo == "sw") {
-    Mem.writeWord(MARdVal, PS.getEXRs2Val());
+    Mem.writeWord((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "sh") {
-    Mem.writeHalfWord(MARdVal, PS.getEXRs2Val());
+    Mem.writeHalfWord((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "sb") {
-    Mem.writeByte(MARdVal, PS.getEXRs2Val());
+    Mem.writeByte((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "lw") {
     // FIXME: unsigned to signed safe cast (not implementation defined way)
     Word V = Mem.readWord(MARdVal);
     Res = (signed)V;
   } else if (Mnemo == "lh") {
-    HalfWord V = Mem.readHalfWord(MARdVal);
+    HalfWord V = Mem.readHalfWord((unsigned)MARdVal);
     Res = (signed short)V;
   } else if (Mnemo == "lbu") {
-    Byte V = Mem.readByte(MARdVal);
+    Byte V = Mem.readByte((unsigned)MARdVal);
     Res = (unsigned char)V;
   } else if (Mnemo == "lhu") {
-    HalfWord V = Mem.readHalfWord(MARdVal);
+    HalfWord V = Mem.readHalfWord((unsigned)MARdVal);
     Res = (unsigned short)V;
   } else if (Mnemo == "lb") {
-    Byte V = Mem.readByte(MARdVal);
+    Byte V = Mem.readByte((unsigned)MARdVal);
     Res = (signed char)V;
   }
 
@@ -627,6 +630,7 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
       break;
   }
 
+  DEBUG_ONLY(dumpStats());
   return;
 }
 
@@ -636,31 +640,43 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
                          << std::hex << "PC=0x" << PC << "\n");
 
-    if (!PS.isStall(STAGES::IF)) {
+    // handle stall
+    if (PS.isStall(STAGES::IF)) {
+      PS.proceedPC(-1);
+      PS.proceed(nullptr);
+      PS.clearStall();
+    } else {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
       if (InstPtr) {
         PC += 4;
       }
       PS.proceed(std::move(InstPtr));
-    } else {
-      PS.proceedPC(-1);
-      PS.proceed(nullptr);
     }
-
-    PS.clearStall();
 
     std::optional<Exception> E = std::nullopt;
 
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
+
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
-    if (PS[STAGES::EX] != nullptr)
+
+    if (auto &EXInst = PS[STAGES::EX]) {
+      // FIXME: better to separate stats calculation.
+      std::string Mnemo = EXInst->getMnemo();
+      Stats.addInst(Mnemo);
+      if (BTypeKinds.count(Mnemo))
+        Stats.addBDistAndReset();
+      else
+        Stats.incrementBDist();
       E = exec(PS);
-    if (PS[STAGES::DE] != nullptr)
+    }
+
+    if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
-    if (PS[STAGES::IF] != nullptr)
+
+    if (!PS.isStall(STAGES::IF) && PS[STAGES::IF] != nullptr)
       fetch(Mem, PS);
 
     // Exception handling
@@ -668,7 +684,6 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
 
     if (PS.isEmpty()) {
-      DEBUG_ONLY(dumpStats());
       break;
     }
 

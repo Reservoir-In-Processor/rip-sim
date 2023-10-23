@@ -2,12 +2,14 @@
 #include "Simulator/Simulator.h"
 #include "Debug.h"
 
-Simulator::Simulator(std::istream &is)
-    : Mem(), PC(DRAM_BASE), Mode(ModeKind::Machine) {
+Simulator::Simulator(std::istream &is, Address DRAMSize, Address DRAMBase,
+                     std::optional<Address> SPIValue)
+    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
+      GPRegs(DRAMSize, DRAMBase, SPIValue) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
-  Address P = DRAM_BASE;
+  Address P = DRAMBase;
   while (is.read(Buff, 4)) {
     unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
     // Currently, Instruction level simulator doesn't use raw inst code, only
@@ -18,11 +20,16 @@ Simulator::Simulator(std::istream &is)
   }
 }
 
-void Simulator::execFromDRAMBASE() {
-  PC = DRAM_BASE;
+void Simulator::run(std::optional<Address> StartAddress,
+                    std::optional<Address> EndAddress) {
   while (auto I = Dec.decode(Mem.readWord(PC))) {
     DEBUG_ONLY(std::cerr << "Inst @ 0x" << std::hex << PC << std::dec << ":\n";
                I->pprint(std::cerr););
+    if (EndAddress && PC == *EndAddress) {
+      std::cerr << "PC reached EndAddress = 0x" << std::hex << *EndAddress
+                << "\n";
+      break;
+    }
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
       // FIXME: if ecall happens, next address is written, is this correct?
@@ -63,9 +70,16 @@ void Simulator::execFromDRAMBASE() {
         return;
       }
     }
+    std::string Mnemo = I->getMnemo();
+    Stats.addInst(Mnemo);
+    if (BTypeKinds.count(Mnemo))
+      Stats.addBDistAndReset();
+    else
+      Stats.incrementBDist();
     DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
   }
   DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
              std::cerr << "stop on no instraction address="
                        << "0x" << std::hex << PC << "\n";);
+  dumpStats();
 }

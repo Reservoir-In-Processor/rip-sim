@@ -25,8 +25,9 @@ std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
 TEST_P(RIPRiscvTests, RIPRiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
-  RIPSimulator RSim(Files);
-  RSim.run(/*StartAddress = */ DRAM_BASE, /*EndAddress = */ DRAM_BASE + 0x4c);
+  // riscv-tests requires more than 1KiB (FIXME: or less?).
+  RIPSimulator RSim(Files, /*BP = */ nullptr, /*DRAMSize=*/1 << 15);
+  RSim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
   const GPRegisters &Res = RSim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }
