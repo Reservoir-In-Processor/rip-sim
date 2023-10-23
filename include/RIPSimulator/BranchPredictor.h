@@ -3,6 +3,7 @@
 #include "CommonTypes.h"
 #include "Debug.h"
 #include <iostream>
+#include <map>
 #include <optional>
 
 class BranchPredictor {
@@ -17,8 +18,8 @@ public:
 
   BranchPredictor() : HitNum(0), MissNum(0), PrevPred(0){};
 
-  virtual void Learn(bool &) = 0;
-  virtual bool Predict() = 0;
+  virtual void Learn(bool &, Address) = 0;
+  virtual bool Predict(Address) = 0;
   virtual void setBranchPredPC(const Address &) = 0;
   virtual const std::optional<Address> takeBranchPredPC() = 0;
 
@@ -48,14 +49,21 @@ public:
 
 class OneBitBranchPredictor : public BranchPredictor {
 private:
-  bool BranchHistory;
   std::optional<Address> BranchPredPC;
+  std::map<Address, bool> BranchHistoryTable;
 
 public:
-  OneBitBranchPredictor() : BranchPredictor(), BranchHistory(0) {}
+  OneBitBranchPredictor() : BranchPredictor() {}
 
-  void Learn(bool &cond) override { BranchHistory = cond; }
-  bool Predict() override { return BranchHistory; }
+  void Learn(bool &cond, Address PC) override { BranchHistoryTable[PC] = cond; }
+
+  bool Predict(Address PC) override {
+    if (BranchHistoryTable.count(PC)) {
+      return BranchHistoryTable[PC];
+    } else {
+      return false;
+    }
+  }
 
   const std::optional<Address> takeBranchPredPC() override {
     if (BranchPredPC) {

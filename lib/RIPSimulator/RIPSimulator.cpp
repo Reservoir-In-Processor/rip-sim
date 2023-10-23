@@ -405,7 +405,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
       }
 
       BP->StatsUpdate(Cond, Pred);
-      BP->Learn(Cond);
+      BP->Learn(Cond, PS.getPCs(EX)); // FIXME: How to pass PS
     }
 
     // S-type
@@ -532,7 +532,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
     Imm = signExtend(Inst->getBImm(), 12);
 
     if (BP) {
-      bool pred = BP->Predict();
+      bool pred = BP->Predict(PS.getPCs(DE));
 
       if (pred) {
         BP->setBranchPredPC(PS.getPCs(DE) + Imm);
