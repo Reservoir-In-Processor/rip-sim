@@ -42,6 +42,7 @@ public:
   bool getPrevPred() { return PrevPred; }
 
   void StatsUpdate(bool Cond, bool Pred) {
+    DEBUG_ONLY(std::cerr << "StatsUpdate: " << Cond << " " << Pred << "\n");
     if (Cond ^ Pred) {
       MissNum++;
       DEBUG_ONLY(std::cerr << "Branch pred: miss "
@@ -77,8 +78,14 @@ public:
   bool Predict(const Address &PC) override {
     unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth);
     if (BranchHistoryTable.count(BHTIndex)) {
+
+      DEBUG_ONLY(std::cerr << "BHT[INDEX] " << BranchHistoryTable[BHTIndex]
+                           << "\n");
+      DEBUG_ONLY(std::cerr << "INDEX: " << BHTIndex << "\n");
       return BranchHistoryTable[BHTIndex];
     } else {
+      DEBUG_ONLY(std::cerr << "None"
+                           << "\n");
       return false;
     }
   }

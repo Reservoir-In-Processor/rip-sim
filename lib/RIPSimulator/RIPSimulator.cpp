@@ -530,10 +530,10 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
 
     if (BP) {
       bool pred = BP->Predict(PS.getPCs(DE));
+      BP->setPrevPred(pred);
 
       if (pred) {
         BP->setBranchPredPC(PS.getPCs(DE) + Imm);
-        BP->setPrevPred(pred);
         PS.setInvalid(IF);
       }
       DEBUG_ONLY(std::cerr << std::hex << "Branch Pred: " << pred << "\n";);
