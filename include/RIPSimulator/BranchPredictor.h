@@ -159,8 +159,8 @@ public:
     BranchHistory =
         (BranchHistory << 1) +
         cond; // update of Branch Hitory FIXME: should be in Predict?
-    if (BranchHistory >= std::pow(2, BHTIndexWidth)) {
-      BranchHistory = BranchHistory - std::pow(2, BHTIndexWidth); //
+    if (BranchHistory >= pow(2, BHTIndexWidth)) {
+      BranchHistory = BranchHistory - pow(2, BHTIndexWidth); //
     }
 
     DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" << BranchHistory
