@@ -2,6 +2,7 @@
 #define BRANCHPREDICTOR_H
 #include "CommonTypes.h"
 #include "Debug.h"
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <optional>
