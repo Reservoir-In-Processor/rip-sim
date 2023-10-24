@@ -259,6 +259,7 @@ TEST(RIPSimulatorTest, GSHARE_CHECKPRED) {
   EXPECT_EQ(RSim.getBPPred(), 0); // should be hit in 2c
 
   EXPECT_EQ(gsharep->getBranchHistory(), 0b1);
+  EXPECT_EQ(gsharep->getBHTIndex(0x802c), 10); // FIXME: how to get PC in DE?
 
   DEBUG_ONLY(std::cerr << "------------ loop2 ------------"
                        << "\n");
@@ -279,6 +280,7 @@ TEST(RIPSimulatorTest, GSHARE_CHECKPRED) {
   EXPECT_EQ(RSim.getBPPred(), 0); // should be hit in 2c
 
   EXPECT_EQ(gsharep->getBranchHistory(), 0b100001);
+  EXPECT_EQ(gsharep->getBHTIndex(0x802c), 42);
 
   DEBUG_ONLY(std::cerr << "------------ loop3 ------------"
                        << "\n");
@@ -297,8 +299,8 @@ TEST(RIPSimulatorTest, GSHARE_CHECKPRED) {
 
   RSim.proceedNStage(5);          // NS=91
   EXPECT_EQ(RSim.getBPPred(), 0); // should be miss in 2c
+  EXPECT_EQ(gsharep->getBHTIndex(0x802c), 42);
 
   RSim.run();
-  EXPECT_EQ(gsharep->getBranchHistory(),
-            0b0001000011); // FIXME: should check BHT
+  EXPECT_EQ(gsharep->getBranchHistory(), 0b0001000011);
 }

@@ -135,7 +135,7 @@ public:
   gshare() : BranchPredictor() {}
 
   int getBranchHistory() { return BranchHistory; }
-  int getBHTIndex(Address &PC) {
+  int getBHTIndex(Address PC) {
     unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth) ^ BranchHistory;
     return BHTIndex;
   }
