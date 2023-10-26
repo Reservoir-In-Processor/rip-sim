@@ -132,7 +132,7 @@ private:
   unsigned BranchHistory = 0;
 
 public:
-  gshare() : BranchPredictor() {}
+  GshareBranchPredictor() : BranchPredictor() {}
 
   int getBranchHistory() { return BranchHistory; }
   int getBHTIndex(Address PC) {

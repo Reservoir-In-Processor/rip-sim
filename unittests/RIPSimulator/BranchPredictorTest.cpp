@@ -230,9 +230,11 @@ TEST(RIPSimulatorTest, GSHARE_CHECKPRED) {
   std::stringstream ss;
   ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
 
-  std::unique_ptr<BranchPredictor> bp = std::make_unique<gshare>();
+  std::unique_ptr<BranchPredictor> bp =
+      std::make_unique<GshareBranchPredictor>();
 
-  gshare *gsharep = dynamic_cast<gshare *>(bp.get());
+  GshareBranchPredictor *gsharep =
+      dynamic_cast<GshareBranchPredictor *>(bp.get());
 
   std::cerr << gsharep->getBranchHistory() << "\n";
 
