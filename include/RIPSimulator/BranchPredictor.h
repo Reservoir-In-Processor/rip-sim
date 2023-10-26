@@ -110,7 +110,7 @@ public:
         BranchHistoryTable[BHTIndex]--;
       }
     } else {
-      BranchHistoryTable[BHTIndex] = 0;
+      BranchHistoryTable[BHTIndex] = 0; // FIXME: check init
     }
     BranchHistoryTable[BHTIndex] =
         std::clamp(BranchHistoryTable[BHTIndex], 0, 3);
@@ -150,7 +150,7 @@ public:
         BranchHistoryTable[BHTIndex]--;
       }
     } else {
-      BranchHistoryTable[BHTIndex] = 0;
+      BranchHistoryTable[BHTIndex] = 0; // FIXME: check init
     }
     BranchHistoryTable[BHTIndex] =
         std::clamp(BranchHistoryTable[BHTIndex], 0, 3);
