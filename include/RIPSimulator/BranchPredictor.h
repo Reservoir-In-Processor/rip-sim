@@ -129,7 +129,7 @@ class gshare : public BranchPredictor {
 private:
   std::map<Address, int> BranchHistoryTable;
   unsigned int BHTIndexWidth = 10; // FIXME: should be argument
-  int BranchHistory = 0;
+  unsigned BranchHistory = 0;
 
 public:
   gshare() : BranchPredictor() {}
