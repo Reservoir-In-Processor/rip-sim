@@ -125,7 +125,7 @@ public:
   }
 };
 
-class gshare : public BranchPredictor {
+class GshareBranchPredictor : public BranchPredictor {
 private:
   std::map<Address, int> BranchHistoryTable;
   unsigned int BHTIndexWidth = 10; // FIXME: should be argument
