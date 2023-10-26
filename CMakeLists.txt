@@ -19,11 +19,11 @@ message(STATUS "build on ${CMAKE_SYSTEM_NAME}, ${CMAKE_SYSTEM_PROCESSOR}")
 
 option(SANITIZE "Enable sanitize options" ON)
 
-option(ENABLE_WERROR "Enable -Werror options" OFF)
-
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set(SANITIZE OFF)
 endif()
+
+option(ENABLE_WERROR "Enable -Werror options" OFF)
 
 if (ENABLE_WERROR)
   set(CMAKE_CXX_FLAGS "-Werror ${CMAKE_CXX_FLAGS}")
