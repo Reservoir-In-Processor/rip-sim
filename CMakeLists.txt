@@ -10,6 +10,12 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
 # for valgrind https://hg.mozilla.org/integration/autoland/rev/192810f500b5
 # set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-4")
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+   add_compile_options (-fdiagnostics-color=always)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+   add_compile_options (-fcolor-diagnostics)
+endif ()
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Default build type: RelWithDebInfo" FORCE)
 endif()
