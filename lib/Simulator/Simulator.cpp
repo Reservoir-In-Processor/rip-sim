@@ -79,7 +79,7 @@ void Simulator::run(std::optional<Address> StartAddress,
     DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
   }
   DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
-             std::cerr << "stop on no instraction address="
+             std::cerr << "stop on no instruction address="
                        << "0x" << std::hex << PC << "\n";);
   dumpStats();
 }
