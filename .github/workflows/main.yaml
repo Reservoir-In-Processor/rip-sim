@@ -98,6 +98,7 @@ jobs:
       run: |
         cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
         ninja -Cbuild dhrystone
+        ninja -Cbuild rip-dhrystone
 
   dump-fib:
     runs-on: ubuntu-latest
