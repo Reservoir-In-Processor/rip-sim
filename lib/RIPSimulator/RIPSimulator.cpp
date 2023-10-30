@@ -681,7 +681,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     // Exception handling
     if (E && !handleException(*E))
-      break;
+      return true;
 
     if (PS.isEmpty()) {
       break;
