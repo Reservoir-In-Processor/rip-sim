@@ -109,7 +109,7 @@ public:
         BranchHistoryTable[BHTIndex]--;
       }
     } else {
-      BranchHistoryTable[BHTIndex] = 0;
+      BranchHistoryTable[BHTIndex] = 0; // FIXME: check init
     }
     BranchHistoryTable[BHTIndex] =
         std::clamp(BranchHistoryTable[BHTIndex], 0, 3);
@@ -119,6 +119,54 @@ public:
 
   bool Predict(const Address &PC) override {
     unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth);
+    return BranchHistoryTable.count(BHTIndex) &&
+           BranchHistoryTable[BHTIndex] >= 2;
+  }
+};
+
+class GshareBranchPredictor : public BranchPredictor {
+private:
+  std::map<Address, int> BranchHistoryTable;
+  unsigned int BHTIndexWidth = 10; // FIXME: should be argument
+  unsigned BranchHistory = 0;
+
+public:
+  GshareBranchPredictor() : BranchPredictor() {}
+
+  int getBranchHistory() { return BranchHistory; }
+  int getBHTIndex(Address PC) {
+    unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth) ^ BranchHistory;
+    return BHTIndex;
+  }
+
+  void Learn(bool &cond, const Address &PC) override {
+    unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth) ^ BranchHistory;
+
+    if (BranchHistoryTable.count(BHTIndex)) {
+      if (cond) {
+        BranchHistoryTable[BHTIndex]++;
+      } else {
+        BranchHistoryTable[BHTIndex]--;
+      }
+    } else {
+      BranchHistoryTable[BHTIndex] = 0; // FIXME: check init
+    }
+    BranchHistoryTable[BHTIndex] =
+        std::clamp(BranchHistoryTable[BHTIndex], 0, 3);
+    DEBUG_ONLY(std::cerr << std::hex << "BHT [ " << BHTIndex
+                         << "]: " << BranchHistoryTable[BHTIndex] << "\n");
+
+    BranchHistory =
+        (BranchHistory << 1) +
+        cond; // update of Branch Hitory FIXME: should be in Predict?
+    BranchHistory %= 1 << BHTIndexWidth;
+
+    DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" << BranchHistory
+                         << "\n");
+  }
+
+  bool Predict(const Address &PC) override {
+    unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth) ^ BranchHistory;
     return BranchHistoryTable.count(BHTIndex) &&
            BranchHistoryTable[BHTIndex] >= 2;
   }
