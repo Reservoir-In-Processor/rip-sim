@@ -681,6 +681,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     // Exception handling
     if (E && !handleException(*E))
+      // FIXME: For current use, stop on ebreak. It's better to define when proceedNStage returns true.
       return true;
 
     if (PS.isEmpty()) {
