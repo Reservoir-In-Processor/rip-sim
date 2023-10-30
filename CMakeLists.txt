@@ -125,6 +125,13 @@ add_custom_target(dhrystone
   DEPENDS DhrystoneTest
 )
 
+add_subdirectory(rip-dhrystone)
+add_custom_target(rip-dhrystone
+  COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 120
+  DEPENDS RIPDhrystoneTest
+)
+
+
 add_custom_target(asmtest
   COMMAND make -C ../tests/asm test
   DEPENDS asmkheiv simkheiv

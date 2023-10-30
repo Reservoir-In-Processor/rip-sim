@@ -108,7 +108,7 @@ public:
   const inline unsigned getBImm() {
     if (!BTypeKinds.count(getMnemo()))
       assert(false && "This isn't expected to be called on not B-inst!");
-    return (Val > 0x80000000) >> 19 | ((Val & 0x80) << 4) |
+    return (Val & 0x80000000) >> 19 | ((Val & 0x80) << 4) |
            ((Val >> 20) & 0x7e0) | ((Val >> 7) & 0x1e);
   }
 

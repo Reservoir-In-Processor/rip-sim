@@ -59,9 +59,10 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
 
 RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
-                           Address DRAMSize, Address DRAMBase)
+                           Address DRAMSize, Address DRAMBase,
+                           std::optional<Address> SPIValue)
     : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), GPRegs(DRAMSize, DRAMBase), BP(std::move(BP)) {
+      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)) {
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -529,7 +530,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   } else if (JTypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getJImm(), 20);
   } else if (BTypeKinds.count(Inst->getMnemo())) {
-    Imm = signExtend(Inst->getBImm(), 12);
+    Imm = signExtend(Inst->getBImm(), 13);
 
     if (BP) {
       bool pred = BP->Predict(PS.getPCs(DE));
@@ -681,7 +682,9 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     // Exception handling
     if (E && !handleException(*E))
-      break;
+      // FIXME: For current use, stop on ebreak. It's better to define when
+      // proceedNStage returns true.
+      return true;
 
     if (PS.isEmpty()) {
       break;
