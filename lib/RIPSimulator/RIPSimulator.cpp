@@ -530,7 +530,7 @@ void RIPSimulator::decode(GPRegisters &, PipelineStates &) {
   } else if (JTypeKinds.count(Inst->getMnemo())) {
     Imm = signExtend(Inst->getJImm(), 20);
   } else if (BTypeKinds.count(Inst->getMnemo())) {
-    Imm = signExtend(Inst->getBImm(), 12);
+    Imm = signExtend(Inst->getBImm(), 13);
 
     if (BP) {
       bool pred = BP->Predict();
