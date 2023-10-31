@@ -403,6 +403,7 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
         }
         PS.setInvalid(DE);
         PS.setInvalid(IF);
+        PS.fillBubble(); // FIXME: align the timing of fillbubble
       }
 
       BP->StatsUpdate(Cond, Pred);
