@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-TEST(RIPDhrystoneTest, DhryStone) {
+TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
   std::string FileName = "../rip-tests/dhry.bin";
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the requirements

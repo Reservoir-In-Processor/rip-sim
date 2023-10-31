@@ -695,11 +695,13 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       NextPC = BP->takeBranchPredPC();
     }
 
-    if (auto PredPC = PS.takeBranchPC())
-      NextPC = PredPC;
+    if (auto BranchTarget = PS.takeBranchPC())
+      NextPC = BranchTarget;
 
     if (NextPC) {
       PC = *NextPC;
+      DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
+                           << "0x" << *NextPC << "\n");
     }
 
     PS.fillBubble();
