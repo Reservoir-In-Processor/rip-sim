@@ -690,20 +690,16 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
     }
 
-    if (auto NextPC = PS.takeBranchPC()) {
-      DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
-                           << "0x" << *NextPC << "\n");
-      PC = *NextPC;
+    std::optional<Address> NextPC;
+    if (BP) {
+      NextPC = BP->takeBranchPredPC();
+    }
 
-    } else if (BP) {
-      if (auto NextPC = BP->takeBranchPredPC()) {
-        if (PS[STAGES::DE] != nullptr) {
-          DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
-                               << " to "
-                               << "0x" << *NextPC << "\n");
-          PC = *NextPC;
-        }
-      }
+    if (auto PredPC = PS.takeBranchPC())
+      NextPC = PredPC;
+
+    if (NextPC) {
+      PC = *NextPC;
     }
 
     PS.fillBubble();
