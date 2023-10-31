@@ -37,6 +37,32 @@ TEST(RIPSimulatorTest, FLUSHTEST) {
       << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
 }
 
+TEST(RIPSimulatorTest, FLUSHTEST2) {
+  const unsigned char BYTES[] = {
+      0x93, 0x01, 0x70, 0x00, // li gp, 7
+      0x93, 0x00, 0xf0, 0xff, // li ra,-1
+      0x13, 0x01, 0xe0, 0xff, // li sp, -2
+      0x63, 0xc4, 0x20, 0x00, // blt ra,sp, 8
+      0x63, 0x14, 0x30, 0x00, // bne zero,gp, 8
+      0x63, 0x1a, 0x30, 0x20, // bne zero,gp,44c
+      0xe3, 0xce, 0x20, 0xfe, // blt ra,sp, -4
+  };
+
+  const Address EXPECTED_PC = DRAM_BASE + 4 * 7;
+  std::stringstream ss;
+  ss.write(reinterpret_cast<const char *>(BYTES), sizeof(BYTES));
+
+  std::unique_ptr<BranchPredictor> bp =
+      std::make_unique<OneBitBranchPredictor>();
+
+  RIPSimulator RSim(ss, std::move(bp));
+  RSim.run();
+
+  EXPECT_EQ(RSim.getPC(), EXPECTED_PC)
+      << "PC"
+      << ", expected: " << EXPECTED_PC << ", got: " << RSim.getPC();
+}
+
 TEST(RIPSimulatorTest, OneBITBP_CHECKPRED) {
   const unsigned char BYTES[] = {
       0x93, 0x02, 0x00, 0x00, // 00, addi t0, x0, 0 i = 0

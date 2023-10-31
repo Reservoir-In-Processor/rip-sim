@@ -31,6 +31,21 @@ TEST_P(RIPRiscvTests, RIPRiscvTests) {
   const GPRegisters &Res = RSim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }
+
+TEST_P(RIPRiscvTests, RIPBPRiscvTests) { // FIXME: should it be separeted?
+  std::string FileName = GetParam();
+  auto Files = std::ifstream(FileName);
+  // riscv-tests requires more than 1KiB (FIXME: or less?).
+
+  std::unique_ptr<BranchPredictor> bp =
+      std::make_unique<OneBitBranchPredictor>();
+
+  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize=*/1 << 15);
+  RSim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
+  const GPRegisters &Res = RSim.getGPRegs();
+  EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
+}
+
 INSTANTIATE_TEST_SUITE_P(
     RV32I, RIPRiscvTests,
     ::testing::ValuesIn(getBinFilesWithPrefix("../rip-tests", "rv32ui-p-")));
