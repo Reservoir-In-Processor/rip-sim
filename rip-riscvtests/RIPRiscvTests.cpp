@@ -25,7 +25,6 @@ std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
 TEST_P(RIPRiscvTests, RIPRiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
-  // riscv-tests requires more than 1KiB (FIXME: or less?).
   RIPSimulator RSim(Files, /*BP = */ nullptr, /*DRAMSize=*/1 << 15);
   RSim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
   const GPRegisters &Res = RSim.getGPRegs();
@@ -35,7 +34,6 @@ TEST_P(RIPRiscvTests, RIPRiscvTests) {
 TEST_P(RIPRiscvTests, RIPBPRiscvTests) { // FIXME: should it be separeted?
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
-  // riscv-tests requires more than 1KiB (FIXME: or less?).
 
   std::unique_ptr<BranchPredictor> bp =
       std::make_unique<OneBitBranchPredictor>();
