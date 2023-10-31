@@ -11,7 +11,10 @@ TEST(RIPDhrystoneTest, DhryStone) {
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the requirements
   // for DRAMSize, DRAMBase, and sp init value?
-  RIPSimulator RSim(Files, /*BP = */ nullptr, /*DRAMSize = */ 1LL << 29,
+  std::unique_ptr<BranchPredictor> bp =
+      std::make_unique<OneBitBranchPredictor>();
+
+  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize = */ 1LL << 29,
                     /*DRAMBase = */ 0x0000,
                     /*SPIValue = */ 1LL << 25);
   auto &PS = RSim.getPipelineStates();
