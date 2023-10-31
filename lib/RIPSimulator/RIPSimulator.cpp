@@ -698,10 +698,12 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     } else if (BP) {
       if (auto NextPC = BP->takeBranchPredPC()) {
-        DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
-                             << " to "
-                             << "0x" << *NextPC << "\n");
-        PC = *NextPC;
+        if (PS[STAGES::DE] != nullptr) {
+          DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
+                               << " to "
+                               << "0x" << *NextPC << "\n");
+          PC = *NextPC;
+        }
       }
     }
 
