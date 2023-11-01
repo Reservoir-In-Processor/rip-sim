@@ -403,7 +403,6 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
         }
         PS.setInvalid(DE);
         PS.setInvalid(IF);
-        PS.fillBubble(); // FIXME: align the timing of fillbubble
       }
 
       BP->StatsUpdate(Cond, Pred);
@@ -691,18 +690,18 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
     }
 
-    if (auto NextPC = PS.takeBranchPC()) {
+    std::optional<Address> NextPC;
+    if (BP) {
+      NextPC = BP->takeBranchPredPC();
+    }
+
+    if (auto BranchTarget = PS.takeBranchPC())
+      NextPC = BranchTarget;
+
+    if (NextPC) {
+      PC = *NextPC;
       DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
                            << "0x" << *NextPC << "\n");
-      PC = *NextPC;
-
-    } else if (BP) {
-      if (auto NextPC = BP->takeBranchPredPC()) {
-        DEBUG_ONLY(std::cerr << std::hex << "Branch Pred from 0x " << PC
-                             << " to "
-                             << "0x" << *NextPC << "\n");
-        PC = *NextPC;
-      }
     }
 
     PS.fillBubble();
