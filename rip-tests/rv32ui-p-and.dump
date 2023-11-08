@@ -483,5 +483,5 @@ Disassembly of section .text.init:
  66c:	00000513          	li	a0,0
  670:	00000073          	ecall
  674:	c0001073          	unimp
- 678:	0000                	.2byte	0x0
+ 678:	0000                	.insn	2, 0x
 	...
