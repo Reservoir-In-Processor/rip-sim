@@ -689,8 +689,12 @@ void RIPSimulator::runInteractively(std::optional<Address> StartAddress,
                                     std::optional<Address> EndAddress) {
   if (StartAddress)
     PC = *StartAddress;
-  nlohmann::json jsonIn = "";
-  while (!proceedNStage(1) && std::cin >> jsonIn) {
+  while (!proceedNStage(1)) {
+    // FIXME: is this necessary? maybe input is only needed on prediction.
+    std::string buf = "";
+    std::cin >> buf;
+    buf.clear();
+    // FIXME: this end address is on IF, should be EX.
     if (EndAddress && PC == *EndAddress)
       break;
     PS.printJSON(std::cout);

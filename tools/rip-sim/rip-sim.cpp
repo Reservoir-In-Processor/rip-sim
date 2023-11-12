@@ -2,6 +2,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 enum BranchPredKind {
   No,
@@ -58,12 +59,13 @@ public:
         }
       } else if (arg == "-i") {
         Interactive = true;
-      } else if (arg.substr(0, 11) == "--dram-size=") {
-        DRAMSize = std::stoll(arg.substr(11));
-      } else if (arg.substr(0, 16) == "--start-address=") {
-        StartAddress = std::stoll(arg.substr(16));
-      } else if (arg.substr(0, 14) == "--end-address=") {
-        EndAddress = std::stoll(arg.substr(14));
+      } else if (arg.substr(0, 12) == "--dram-size=") {
+        DRAMSize = std::stoll(arg.substr(12));
+      } else if (arg.substr(0, 18) == "--start-address=0x") {
+        StartAddress = std::stoll(arg.substr(18), nullptr, 16);
+      } else if (arg.substr(0, 16) == "--end-address=0x") {
+        EndAddress = std::stoll(arg.substr(16), nullptr, 16);
+        std::cerr << "EndAddress" << *EndAddress << "\n";
       } else if (arg == "--stats") {
         Statistics = true;
       } else {
@@ -112,11 +114,10 @@ int main(int argc, char **argv) {
   if (!Ops.parse(argc, argv)) {
     return 1;
   }
-  std::cerr << "hoge\n";
   std::string FileName = Ops.getFileName();
   std::string BaseNoExt = FileName.substr(0, FileName.find_last_of('.'));
   auto Files = std::ifstream(FileName);
-  std::cerr << "hoge\n";
+
   std::unique_ptr<BranchPredictor> BP = nullptr;
   if (Ops.getBPKind() == BranchPredKind::No) {
     BP = nullptr;
@@ -130,17 +131,15 @@ int main(int argc, char **argv) {
     assert(false && "unreachable!");
   }
 
-  std::cerr << "hoge\n";
   std::unique_ptr<Statistics> Stats = nullptr;
   if (Ops.getStatistics()) {
     Stats = std::make_unique<Statistics>();
   }
+  DEBUG_ONLY(Stats = std::make_unique<Statistics>(););
 
-  std::cerr << "hoge\n";
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(),
                       std::move(Stats));
 
-  std::cerr << "hoge\n";
   if (Ops.getInteractive())
     RipSim.runInteractively(Ops.getStartAddress(), Ops.getEndAddress());
   else
