@@ -49,10 +49,13 @@ void PipelineStates::printJSON(std::ostream &os) {
   nlohmann::json JTotal;
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     nlohmann::json JStage;
-    JStage["isStall"] = isStall((STAGES)Stage);
+    if (!Insts[Stage]) {
+      JStage["isBubble"] = true;
+      continue;
+    }
+    JStage["isBubble"] = false;
 
     JStage["isStall"] = isStall((STAGES)Stage);
-
     // TODO: decode correctly.
     // ;
     std::stringstream ss;
@@ -89,5 +92,5 @@ void PipelineStates::printJSON(std::ostream &os) {
     }
     JTotal[StageNames[(STAGES)Stage]] = JStage;
   }
-  os << JTotal.dump(2) << '\n';
+  os << JTotal.dump() << std::endl;
 }
