@@ -59,14 +59,17 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
 
 RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
-                           Address DRAMSize, Address DRAMBase,
-                           std::optional<Address> SPIValue)
-    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)) {
+                           Address _DRAMSize,
+                           std::unique_ptr<Statistics> _Stats,
+                           Address _DRAMBase, std::optional<Address> SPIValue)
+    : Mem(_DRAMSize, _DRAMBase), PC(_DRAMBase), Mode(ModeKind::Machine),
+      NumStages(0), GPRegs(_DRAMSize, _DRAMBase, SPIValue), BP(std::move(BP)),
+      Stats(std::move(_Stats)) {
+
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
-  Address P = DRAMBase;
+  Address P = _DRAMBase;
   // Load binary into memory
   while (is.read(Buff, 4)) {
     unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
@@ -81,7 +84,7 @@ void RIPSimulator::dumpStats() {
             << "\n";
   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
 
-  Stats.printAllStatistics(std::cerr);
+  Stats->printAllStatistics(std::cerr);
 
   if (BP)
     BP->printStat();
@@ -637,10 +640,10 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
 
 bool RIPSimulator::proceedNStage(unsigned N) {
   while (N--) {
-    // actual fetch and decode
     DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
                          << std::hex << "PC=0x" << PC << "\n");
 
+    // actual fetch and decode
     // handle stall
     if (PS.isStall(STAGES::IF)) {
       PS.proceedPC(-1);
@@ -655,6 +658,11 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       PS.proceed(std::move(InstPtr));
     }
 
+    // exit if pipeline is empty.
+    if (PS.isEmpty()) {
+      break;
+    }
+
     std::optional<Exception> E = std::nullopt;
 
     if (PS[STAGES::WB] != nullptr)
@@ -666,11 +674,11 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (auto &EXInst = PS[STAGES::EX]) {
       // FIXME: better to separate stats calculation.
       std::string Mnemo = EXInst->getMnemo();
-      Stats.addInst(Mnemo);
+      Stats->addInst(Mnemo);
       if (BTypeKinds.count(Mnemo))
-        Stats.addBDistAndReset();
+        Stats->addBDistAndReset();
       else
-        Stats.incrementBDist();
+        Stats->incrementBDist();
       E = exec(PS);
     }
 
@@ -685,10 +693,6 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       // FIXME: For current use, stop on ebreak. It's better to define when
       // proceedNStage returns true.
       return true;
-
-    if (PS.isEmpty()) {
-      break;
-    }
 
     std::optional<Address> NextPC;
     if (BP) {

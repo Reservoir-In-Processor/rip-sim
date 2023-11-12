@@ -24,7 +24,14 @@ int main(int argc, char **argv) {
   } else {
     assert(false && "unreachable!");
   }
-  RIPSimulator RipSim(Files, std::move(BP));
+
+  std::unique_ptr<Statistics> Stats = nullptr;
+  if (Ops.getStatistics()) {
+    Stats = std::make_unique<Statistics>();
+  }
+
+  RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(),
+                      std::move(Stats));
   RipSim.run();
 
   return 0;

@@ -195,8 +195,10 @@ private:
   PipelineStates PS;
   GPRegisters GPRegs;
   Decoder Dec;
-  Statistics Stats;
+
+  // options
   std::unique_ptr<BranchPredictor> BP;
+  std::unique_ptr<Statistics> Stats;
 
 public:
   RIPSimulator(const RIPSimulator &) = delete;
@@ -204,7 +206,11 @@ public:
 
   // move this def to .cpp
   RIPSimulator(std::istream &is, std::unique_ptr<BranchPredictor> BP = nullptr,
-               Address DRAMSize = 1 << 10, Address DRAMBase = 0x8000,
+               Address _DRAMSize = 1 << 10,
+               std::unique_ptr<Statistics> Stats = std::make_unique<
+                   Statistics>(), // FIXME: default option is not dump, is this
+                                  // good? and currently reversed.
+               Address DRAMBase = 0x8000,
                std::optional<Address> SPIValue = std::nullopt);
   bool getBPPred() {
     if (BP)
