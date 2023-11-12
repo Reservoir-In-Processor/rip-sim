@@ -15,7 +15,8 @@ TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
       std::make_unique<OneBitBranchPredictor>();
 
   RIPSimulator RSim(Files, /*BP = */ std::move(bp),
-                    /*DRAMSize = */ 1LL << 28, /* DRAMBase = */ 0x8000,
+                    /*DRAMSize = */ 1LL << 28, /* Stats = */ nullptr,
+                    /* DRAMBase = */ 0x8000,
                     /* SPIvalue = */ 1LL << 25);
   auto &PS = RSim.getPipelineStates();
 

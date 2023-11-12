@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(),
                       std::move(Stats));
-  RipSim.run();
+  RipSim.run(Ops.getStartAddress(), Ops.getEndAddress());
 
   return 0;
 }
