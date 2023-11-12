@@ -112,9 +112,11 @@ int main(int argc, char **argv) {
   if (!Ops.parse(argc, argv)) {
     return 1;
   }
+  std::cerr << "hoge\n";
   std::string FileName = Ops.getFileName();
   std::string BaseNoExt = FileName.substr(0, FileName.find_last_of('.'));
   auto Files = std::ifstream(FileName);
+  std::cerr << "hoge\n";
   std::unique_ptr<BranchPredictor> BP = nullptr;
   if (Ops.getBPKind() == BranchPredKind::No) {
     BP = nullptr;
@@ -128,14 +130,21 @@ int main(int argc, char **argv) {
     assert(false && "unreachable!");
   }
 
+  std::cerr << "hoge\n";
   std::unique_ptr<Statistics> Stats = nullptr;
   if (Ops.getStatistics()) {
     Stats = std::make_unique<Statistics>();
   }
 
+  std::cerr << "hoge\n";
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(),
                       std::move(Stats));
-  RipSim.run(Ops.getStartAddress(), Ops.getEndAddress());
+
+  std::cerr << "hoge\n";
+  if (Ops.getInteractive())
+    RipSim.runInteractively(Ops.getStartAddress(), Ops.getEndAddress());
+  else
+    RipSim.run(Ops.getStartAddress(), Ops.getEndAddress());
 
   return 0;
 }

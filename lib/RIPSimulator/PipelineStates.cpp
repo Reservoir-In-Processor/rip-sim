@@ -1,5 +1,8 @@
 #include "RIPSimulator/PipelineStates.h"
 
+#include <nlohmann/json.hpp>
+#include <sstream>
+
 void PipelineStates::dump() {
   // TODO: dump stall,
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
@@ -39,4 +42,52 @@ void PipelineStates::dump() {
       break;
     }
   }
+}
+
+void PipelineStates::printJSON(std::ostream &os) {
+
+  nlohmann::json JTotal;
+  for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
+    nlohmann::json JStage;
+    JStage["isStall"] = isStall((STAGES)Stage);
+
+    JStage["isStall"] = isStall((STAGES)Stage);
+
+    // TODO: decode correctly.
+    // ;
+    std::stringstream ss;
+    Insts[Stage]->mprint(ss);
+    JStage["InstStr"] = ss.str();
+
+    JStage["mnemo"] = Insts[Stage]->getMnemo();
+    JStage["PC"] = PCs[Stage];
+
+    // TODO: dump stage specific info.
+    switch (Stage) {
+    case STAGES::DE:
+      JStage["Rs1Val"] = DERs1Val;
+      // TODO: other field.
+      // std::cerr << "Rs2Val=" << DERs2Val << ", ";
+      // std::cerr << "ImmVal=" << DEImmVal << ", ";
+      // std::cerr << "CSRVal=" << DECSRVal << "\n";
+      break;
+
+    case STAGES::EX:
+
+      JStage["CSRVal"] = EXCSRVal;
+      // TODO: other field.
+      // std::cerr << "RdVal=" << EXRdVal << "\n";
+      break;
+
+    case STAGES::MA:
+      JStage["CSRVal"] = MACSRVal;
+      // TODO: other field.
+      // std::cerr << "RdVal=" << MARdVal << "\n";
+      break;
+    default:
+      break;
+    }
+    JTotal[StageNames[(STAGES)Stage]] = JStage;
+  }
+  os << JTotal.dump(2) << '\n';
 }
