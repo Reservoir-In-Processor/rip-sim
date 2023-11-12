@@ -2,7 +2,9 @@
 #define OPTIONS_H
 #include "CommonTypes.h"
 #include <iostream>
+#include <optional>
 #include <string>
+
 enum BranchPredKind {
   No,
   One,
@@ -26,9 +28,16 @@ private:
   // statistics dump
   Address DRAMSize;
 
+  // address where program starts.
+  std::optional<Address> StartAddress;
+
+  // address where program ends..
+  std::optional<Address> EndAddress;
+
 public:
   Options()
-      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 10) {}
+      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 10),
+        StartAddress(std::nullopt), EndAddress(std::nullopt) {}
 
   // return true if succeed.
   bool parse(int argc, char **argv) {
@@ -41,7 +50,7 @@ public:
       std::string arg = argv[i];
       if (arg[0] != '-') {
         FileName = arg;
-      } else if (arg.substr(0, 2) == "-b") {
+      } else if (arg.substr(0, 3) == "-b=") {
         std::string BPStr = arg.substr(3);
         if (BPStr != "no" && BPStr != "onebit" && BPStr != "twobit" &&
             BPStr != "gshare" && BPStr != "interactive") {
@@ -51,8 +60,12 @@ public:
         }
       } else if (arg == "-i") {
         Interactive = true;
-      } else if (arg.substr(0, 10) == "--dram-size") {
+      } else if (arg.substr(0, 11) == "--dram-size=") {
         DRAMSize = std::stoll(arg.substr(11));
+      } else if (arg.substr(0, 16) == "--start-address=") {
+        StartAddress = std::stoll(arg.substr(16));
+      } else if (arg.substr(0, 14) == "--end-address=") {
+        EndAddress = std::stoll(arg.substr(14));
       } else if (arg == "--stats") {
         Statistics = true;
       } else {
@@ -88,5 +101,11 @@ public:
   inline const bool &getStatistics() { return Statistics; }
 
   inline const Address &getDRAMSize() { return DRAMSize; }
+
+  inline const std::optional<Address> &getStartAddress() {
+    return StartAddress;
+  }
+
+  inline const std::optional<Address> &getEndAddress() { return EndAddress; }
 };
 #endif
