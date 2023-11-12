@@ -58,6 +58,8 @@ add_subdirectory(lib)
 
 add_subdirectory(tools)
 
+add_subdirectory(nlohmann_json)
+
 include(FetchContent)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.25")
@@ -139,6 +141,16 @@ add_subdirectory(rip-dhrystone)
 add_custom_target(rip-dhrystone
   COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 150
   DEPENDS RIPDhrystoneTest copy_tests
+)
+
+# TODO: run paralelly.
+add_custom_target(rip-all
+  DEPENDS rip-unittests rip-dhrystone rip-riscvtests
+)
+
+# TODO: run paralelly.
+add_custom_target(sim-all
+  DEPENDS unittests dhrystone riscvtests
 )
 
 

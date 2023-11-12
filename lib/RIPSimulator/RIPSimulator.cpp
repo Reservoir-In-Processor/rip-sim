@@ -715,3 +715,17 @@ bool RIPSimulator::proceedNStage(unsigned N) {
   }
   return PS.isEmpty();
 }
+
+void RIPSimulator::run_interactively(std::optional<Address> StartAddress,
+                                     std::optional<Address> EndAddress) {
+  if (StartAddress)
+    PC = *StartAddress;
+
+  while (!proceedNStage(1)) {
+    if (EndAddress && PC == *EndAddress)
+      break;
+  }
+
+  DEBUG_ONLY(dumpStats());
+  return;
+}
