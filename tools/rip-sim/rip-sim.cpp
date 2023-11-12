@@ -39,7 +39,7 @@ public:
 
   // return true if succeed.
   bool parse(int argc, char **argv) {
-    if (argc < 2 || std::string(argv[3]) == "-h") {
+    if (argc < 2) {
       printHelp();
       return false;
     }
