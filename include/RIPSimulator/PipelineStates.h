@@ -3,6 +3,7 @@
 
 #include <CommonTypes.h>
 #include <Instructions.h>
+#include <iostream>
 #include <map>
 #include <string>
 
@@ -64,6 +65,7 @@ public:
         WBImmVal(0), StalledStages{0}, InvalidStages{0} {}
 
   void dump();
+  void printJSON(std::ostream &);
 
   const RegVal &getEXRdVal() { return EXRdVal; }
   void setEXRdVal(const RegVal &V) { EXRdVal = V; }

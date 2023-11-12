@@ -67,6 +67,9 @@ public:
 
   void run(std::optional<Address> StartAddress = std::nullopt,
            std::optional<Address> EndAddress = std::nullopt);
+
+  void runInteractively(std::optional<Address> StartAddress = std::nullopt,
+                        std::optional<Address> EndAddress = std::nullopt);
   bool proceedNStage(unsigned N);
 
   void dumpGPRegs() { GPRegs.dump(); }
