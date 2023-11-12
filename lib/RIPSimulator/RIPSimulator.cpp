@@ -652,6 +652,8 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     } else {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
+      // FIXME: this should inherently be moved the following update of PC, but
+      // some stages refers PC and moving this to latter would break.
       if (InstPtr) {
         PC += 4;
       }
@@ -663,7 +665,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       break;
     }
 
-    std::optional<Exception> E = std::nullopt;
+    std::optional<Exception> Except = std::nullopt;
 
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
@@ -671,16 +673,8 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
 
-    if (auto &EXInst = PS[STAGES::EX]) {
-      // FIXME: better to separate stats calculation.
-      std::string Mnemo = EXInst->getMnemo();
-      Stats->addInst(Mnemo);
-      if (BTypeKinds.count(Mnemo))
-        Stats->addBDistAndReset();
-      else
-        Stats->incrementBDist();
-      E = exec(PS);
-    }
+    if (PS[STAGES::EX] != nullptr)
+      Except = exec(PS);
 
     if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
@@ -689,7 +683,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       fetch(Mem, PS);
 
     // Exception handling
-    if (E && !handleException(*E))
+    if (Except && !handleException(*Except))
       // FIXME: For current use, stop on ebreak. It's better to define when
       // proceedNStage returns true.
       return true;
@@ -698,10 +692,8 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (BP) {
       NextPC = BP->takeBranchPredPC();
     }
-
     if (auto BranchTarget = PS.takeBranchPC())
       NextPC = BranchTarget;
-
     if (NextPC) {
       PC = *NextPC;
       DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
@@ -710,6 +702,18 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     PS.fillBubble();
     NumStages++;
+
+    // Statistics calculation
+    if (Stats) {
+      if (auto &EXInst = PS[STAGES::EX]) {
+        std::string Mnemo = EXInst->getMnemo();
+        Stats->addInst(Mnemo);
+        if (BTypeKinds.count(Mnemo))
+          Stats->addBDistAndReset();
+        else
+          Stats->incrementBDist();
+      }
+    }
 
     DEBUG_ONLY(PS.dump(); dumpGPRegs(););
   }
