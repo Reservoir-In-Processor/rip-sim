@@ -4,6 +4,7 @@
 **/.DS_Store
 **/.vscode
 **/*.bin
+**/__pycache__
 .cache
 /build*
 python-wrapper/rip-sim
