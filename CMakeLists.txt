@@ -91,11 +91,6 @@ add_custom_target(unittests
   DEPENDS ${ALL_TESTS}
 )
 
-# TODO: add those 
-# add_custom_target(asm-unittests
-#   COMMAND ctest -R "SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
-#   DEPENDS ${ALL_TESTS}
-# )
 
 add_custom_target(sim-unittests
   COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
@@ -162,9 +157,25 @@ add_custom_target(asmtest
 
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
-# FIXME: use ctest
-# add_custom_target(simtests
-#   COMMAND ctest --test-dir ./simtests --output-on-failure
-#   WORKING_DIRECTORY 
-#   DEPENDS RiscvTests
+
+# python wrapper for rip-sim
+add_custom_target(
+    rip-copy-py
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_BINARY_DIR}/bin/rip-sim
+            ${CMAKE_SOURCE_DIR}/python-wrapper/rip_simulator/rip-sim
+    COMMENT "Copying rip-sim to python_wrapper directory"
+    DEPENDS rip-sim
+)
+
+add_custom_target(pytest
+    COMMAND python3 -m pytest ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+    DEPENDS rip-sim rip-copy-py
+)
+
+# TODO: platform compatibility problem
+# add_custom_target(pybuild
+#     COMMAND python3 -m build
+#     DEPENDS rip-sim rip-copy-py
+#     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 # )
