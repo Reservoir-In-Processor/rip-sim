@@ -371,7 +371,6 @@ TEST(RIPSimulatorTest, INTERACTIVE_ODD_EVEN) {
       std::make_unique<InteractiveBranchPredictor>(oss, iss);
 
   RIPSimulator RSim(ss, std::move(bp));
-  auto &PS = RSim.getPipelineStates();
 
   DEBUG_ONLY(std::cerr << "------------ loop1 ------------"
                        << "\n");
