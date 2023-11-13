@@ -6,3 +6,4 @@
 **/*.bin
 .cache
 /build*
+python-wrapper/rip-sim
