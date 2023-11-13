@@ -699,6 +699,8 @@ void RIPSimulator::runInteractively(std::optional<Address> StartAddress,
       break;
     PS.printJSON(std::cout);
   }
+  // FIXME: call last
+  PS.printJSON(std::cout);
 
   DEBUG_ONLY(dumpStats());
   return;
