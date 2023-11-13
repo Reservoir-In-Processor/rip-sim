@@ -40,7 +40,6 @@ if (SANITIZE)
   set(CMAKE_CXX_FLAGS "-fsanitize=address ${CMAKE_CXX_FLAGS}")
   if (NOT APPLE) # apple clang doesn't have leak sanitizer
     set(CMAKE_CXX_FLAGS "-fsanitize=leak ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS "-fsanitize=memory ${CMAKE_CXX_FLAGS}")
   endif()
 endif()
 
