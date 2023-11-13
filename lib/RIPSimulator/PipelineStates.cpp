@@ -1,6 +1,6 @@
 #include "RIPSimulator/PipelineStates.h"
+#include "RIPSimulator/Interactive.h"
 
-#include <nlohmann/json.hpp>
 #include <sstream>
 
 void PipelineStates::dump() {
@@ -45,8 +45,8 @@ void PipelineStates::dump() {
 }
 
 void PipelineStates::printJSON(std::ostream &os) {
-
   nlohmann::json JTotal;
+  JTotal["Kind"] = JSONKind::PipelineStates;
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     nlohmann::json JStage;
     if (!Insts[Stage]) {
