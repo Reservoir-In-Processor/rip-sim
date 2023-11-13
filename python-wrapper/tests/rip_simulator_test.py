@@ -3,10 +3,12 @@ from pathlib import Path
 
 
 def test_dhrystone_baremetal():
-    rsim = RIPSimulator(Path("rip-tests/dhry-baremetal.bin"), BranchPredKind.No)
+    rsim = RIPSimulator(
+        Path("rip-tests/dhry-baremetal.bin"), BranchPredKind.No, output_sim_err=False
+    )
     jsons = []
     while True:
-        res = rsim.proceed_1cycle()
+        res = rsim.proceed()
         if res is None:
             break
         jsons.append(res)

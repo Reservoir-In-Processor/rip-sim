@@ -127,6 +127,8 @@ int main(int argc, char **argv) {
     BP = std::make_unique<TwoBitBranchPredictor>();
   } else if (Ops.getBPKind() == BranchPredKind::Gshare) {
     BP = std::make_unique<GshareBranchPredictor>();
+  } else if (Ops.getBPKind() == BranchPredKind::Interactive) {
+    BP = std::make_unique<InteractiveBranchPredictor>();
   } else {
     assert(false && "unreachable!");
   }

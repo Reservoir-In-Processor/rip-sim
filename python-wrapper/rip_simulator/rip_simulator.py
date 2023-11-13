@@ -31,7 +31,7 @@ class RIPSimulator:
             text=True,
         )
 
-    def proceed_1cycle(self):
+    def proceed(self):
         self.send_data("whatever\n")
         res_line = self.process.stdout.readline()
 
