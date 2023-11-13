@@ -3,14 +3,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
 enum BranchPredKind {
-  No,
-  One,
-  Two,
-  Gshare,
+  No,     // no
+  One,    // onebit
+  Two,    // twobit
+  Gshare, // gshare
   // TODO: add interactive mode
-  Interactive,
+  Interactive, // interactive
 };
 class Options {
 private:
@@ -81,7 +80,8 @@ public:
     std::cerr
         << "Usage: rip-sim"
         << " <baremetal binary file name> "
-           "-b=<onebit/twobit/gshare/interactive> [--dram-size=N] [--stats]\n"
+           "-b=<no/onebit/twobit/gshare/interactive> [--dram-size=N] "
+           "[--stats]\n"
         << "-b=<option> : Set branch prediction type (no, onebit, twobit, "
            "gshare and interactive)\n"
         << "--dram-size=N : Set DRAM size in kilobytes (N)\n"

@@ -7,4 +7,4 @@
 **/__pycache__
 .cache
 /build*
-python-wrapper/rip-sim
+python-wrapper/rip_simulator/rip-sim
