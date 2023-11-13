@@ -14,7 +14,12 @@ class BranchPredKind(Enum):
 
 
 class RIPSimulator:
-    def __init__(self, input_file_path: Path, branch_predictor_kind: BranchPredKind):
+    def __init__(
+        self,
+        input_file_path: Path,
+        branch_predictor_kind: BranchPredKind,
+        output_sim_err: bool,
+    ):
         args = [
             str(Path(__file__).parent / "rip-sim"),
             "-i",
@@ -23,11 +28,15 @@ class RIPSimulator:
             "--dram-size=268435456",
             "-i",
         ]
+
+        stderr = sys.stdout.buffer
+        if not output_sim_err:
+            stderr = None
         self.process = subprocess.Popen(
             args,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=sys.stdout.buffer,
+            stderr=stderr,
             text=True,
         )
 

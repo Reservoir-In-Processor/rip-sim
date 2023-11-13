@@ -46,7 +46,7 @@ void PipelineStates::dump() {
 
 void PipelineStates::printJSON(std::ostream &os) {
   nlohmann::json JTotal;
-  JTotal["Kind"] = JSONKind::PipelineStates;
+  JTotal["Kind"] = JSONKindToString(JSONKind::PipelineStates);
   for (int Stage = STAGES::IF; Stage <= STAGES::WB; ++Stage) {
     nlohmann::json JStage;
     if (!Insts[Stage]) {

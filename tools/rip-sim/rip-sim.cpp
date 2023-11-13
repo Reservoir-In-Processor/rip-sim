@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
   } else if (Ops.getBPKind() == BranchPredKind::Gshare) {
     BP = std::make_unique<GshareBranchPredictor>();
   } else if (Ops.getBPKind() == BranchPredKind::Interactive) {
-    BP = std::make_unique<InteractiveBranchPredictor>();
+    BP = std::make_unique<InteractiveBranchPredictor>(std::cout, std::cin);
   } else {
     assert(false && "unreachable!");
   }
