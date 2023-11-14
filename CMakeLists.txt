@@ -106,29 +106,39 @@ add_custom_target(rip-unittests
 
 file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
 
+
+# Add custom target to make dependency for test files
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/rip-tests
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/rip-tests ${CMAKE_BINARY_DIR}/rip-tests
+  DEPENDS ${CMAKE_SOURCE_DIR}/rip-tests
+)
+
+add_custom_target(copy_tests DEPENDS ${CMAKE_BINARY_DIR}/rip-tests)
+
 add_subdirectory(riscvtests)
 # FIXME: do riscvtests
 add_custom_target(riscvtests
   COMMAND ctest --test-dir ./riscvtests/ --output-on-failure --timeout 10
-  DEPENDS RiscvTests
+  DEPENDS RiscvTests copy_tests
 )
 
 add_subdirectory(rip-riscvtests)
 add_custom_target(rip-riscvtests
   COMMAND ctest --test-dir ./rip-riscvtests/ --output-on-failure --timeout 10
-  DEPENDS RIPRiscvTests
+  DEPENDS RIPRiscvTests copy_tests
 )
 
 add_subdirectory(dhrystone)
 add_custom_target(dhrystone
   COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 150
-  DEPENDS DhrystoneTest
+  DEPENDS DhrystoneTest copy_tests
 )
 
 add_subdirectory(rip-dhrystone)
 add_custom_target(rip-dhrystone
   COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 150
-  DEPENDS RIPDhrystoneTest
+  DEPENDS RIPDhrystoneTest copy_tests
 )
 
 

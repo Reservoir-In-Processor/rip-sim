@@ -14,15 +14,15 @@ TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
   std::unique_ptr<BranchPredictor> bp =
       std::make_unique<OneBitBranchPredictor>();
 
-  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize = */ 1LL << 29,
-                    /*DRAMBase = */ 0x0000,
-                    /*SPIValue = */ 1LL << 25);
+  RIPSimulator RSim(Files, /*BP = */ std::move(bp),
+                    /*DRAMSize = */ 1LL << 28, /* DRAMBase = */ 0x8000,
+                    /* SPIvalue = */ 1LL << 25);
   auto &PS = RSim.getPipelineStates();
 
   RSim.run();
   RSim.dumpGPRegs();
   const Address PC = PS.getPCs(STAGES::EX);
-  EXPECT_EQ(PC, 0x490) << "PC unmatched!\n";
+  EXPECT_EQ(PC, 0x8490) << "PC unmatched!\n";
 }
 
 TEST(RIPDhrystoneTest, DhryStoneBareMetal) {
@@ -33,13 +33,11 @@ TEST(RIPDhrystoneTest, DhryStoneBareMetal) {
   std::unique_ptr<BranchPredictor> bp =
       std::make_unique<OneBitBranchPredictor>();
 
-  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize = */ 1LL << 29,
-                    /*DRAMBase = */ 0x0000,
-                    /*SPIValue = */ 1LL << 25);
+  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize = */ 1LL << 28);
   auto &PS = RSim.getPipelineStates();
 
   RSim.run();
   RSim.dumpGPRegs();
   const Address PC = PS.getPCs(STAGES::EX);
-  EXPECT_EQ(PC, 0x84) << "PC unmatched!\n";
+  EXPECT_EQ(PC, 0x8084) << "PC unmatched!\n";
 }
