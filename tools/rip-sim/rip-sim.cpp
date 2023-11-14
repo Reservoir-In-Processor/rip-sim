@@ -2,14 +2,14 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-
+#include <string>
 enum BranchPredKind {
-  No,
-  One,
-  Two,
-  Gshare,
+  No,     // no
+  One,    // onebit
+  Two,    // twobit
+  Gshare, // gshare
   // TODO: add interactive mode
-  Interactive,
+  Interactive, // interactive
 };
 class Options {
 private:
@@ -58,12 +58,13 @@ public:
         }
       } else if (arg == "-i") {
         Interactive = true;
-      } else if (arg.substr(0, 11) == "--dram-size=") {
-        DRAMSize = std::stoll(arg.substr(11));
-      } else if (arg.substr(0, 16) == "--start-address=") {
-        StartAddress = std::stoll(arg.substr(16));
-      } else if (arg.substr(0, 14) == "--end-address=") {
-        EndAddress = std::stoll(arg.substr(14));
+      } else if (arg.substr(0, 12) == "--dram-size=") {
+        DRAMSize = std::stoll(arg.substr(12));
+      } else if (arg.substr(0, 18) == "--start-address=0x") {
+        StartAddress = std::stoll(arg.substr(18), nullptr, 16);
+      } else if (arg.substr(0, 16) == "--end-address=0x") {
+        EndAddress = std::stoll(arg.substr(16), nullptr, 16);
+        std::cerr << "EndAddress" << *EndAddress << "\n";
       } else if (arg == "--stats") {
         Statistics = true;
       } else {
@@ -79,7 +80,8 @@ public:
     std::cerr
         << "Usage: rip-sim"
         << " <baremetal binary file name> "
-           "-b=<onebit/twobit/gshare/interactive> [--dram-size=N] [--stats]\n"
+           "-b=<no/onebit/twobit/gshare/interactive> [--dram-size=N] "
+           "[--stats]\n"
         << "-b=<option> : Set branch prediction type (no, onebit, twobit, "
            "gshare and interactive)\n"
         << "--dram-size=N : Set DRAM size in kilobytes (N)\n"
@@ -115,6 +117,7 @@ int main(int argc, char **argv) {
   std::string FileName = Ops.getFileName();
   std::string BaseNoExt = FileName.substr(0, FileName.find_last_of('.'));
   auto Files = std::ifstream(FileName);
+
   std::unique_ptr<BranchPredictor> BP = nullptr;
   if (Ops.getBPKind() == BranchPredKind::No) {
     BP = nullptr;
@@ -132,10 +135,15 @@ int main(int argc, char **argv) {
   if (Ops.getStatistics()) {
     Stats = std::make_unique<Statistics>();
   }
+  DEBUG_ONLY(Stats = std::make_unique<Statistics>(););
 
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(),
                       std::move(Stats));
-  RipSim.run(Ops.getStartAddress(), Ops.getEndAddress());
+
+  if (Ops.getInteractive())
+    RipSim.runInteractively(Ops.getStartAddress(), Ops.getEndAddress());
+  else
+    RipSim.run(Ops.getStartAddress(), Ops.getEndAddress());
 
   return 0;
 }
