@@ -59,17 +59,16 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
 
 RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
-                           Address _DRAMSize,
-                           std::unique_ptr<Statistics> _Stats,
-                           Address _DRAMBase, std::optional<Address> SPIValue)
-    : Mem(_DRAMSize, _DRAMBase), PC(_DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), GPRegs(_DRAMSize, _DRAMBase, SPIValue), BP(std::move(BP)),
+                           Address DRAMSize, std::unique_ptr<Statistics> _Stats,
+                           Address DRAMBase, std::optional<Address> SPIValue)
+    : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
+      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)),
       Stats(std::move(_Stats)) {
 
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
-  Address P = _DRAMBase;
+  Address P = DRAMBase;
   // Load binary into memory
   while (is.read(Buff, 4)) {
     unsigned InstVal = *(reinterpret_cast<unsigned *>(Buff));
