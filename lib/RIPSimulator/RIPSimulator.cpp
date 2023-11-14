@@ -633,7 +633,8 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
     if (EndAddress && PC == *EndAddress)
       break;
   }
-
+  if (Stats)
+    dumpStats();
   DEBUG_ONLY(dumpStats());
   return;
 }
