@@ -1,0 +1,3 @@
+[submodule "nlohmann_json"]
+	path = nlohmann_json
+	url = git@github.com:nlohmann/json.git
