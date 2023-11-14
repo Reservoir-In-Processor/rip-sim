@@ -59,10 +59,12 @@ const std::set<std::string> CSR_INSTs = {"csrrw",  "csrrs",  "csrrc",
 
 RIPSimulator::RIPSimulator(std::istream &is,
                            std::unique_ptr<BranchPredictor> BP,
-                           Address DRAMSize, Address DRAMBase,
-                           std::optional<Address> SPIValue)
+                           Address DRAMSize, std::unique_ptr<Statistics> _Stats,
+                           Address DRAMBase, std::optional<Address> SPIValue)
     : Mem(DRAMSize, DRAMBase), PC(DRAMBase), Mode(ModeKind::Machine),
-      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)) {
+      NumStages(0), GPRegs(DRAMSize, DRAMBase, SPIValue), BP(std::move(BP)),
+      Stats(std::move(_Stats)) {
+
   // TODO: parse per 2 bytes for compressed instructions
   char Buff[4];
   // starts from DRAM_BASE
@@ -81,7 +83,7 @@ void RIPSimulator::dumpStats() {
             << "\n";
   std::cerr << std::dec << "Total stages: " << NumStages << "\n";
 
-  Stats.printAllStatistics(std::cerr);
+  Stats->printAllStatistics(std::cerr);
 
   if (BP)
     BP->printStat();
@@ -630,17 +632,21 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
     if (EndAddress && PC == *EndAddress)
       break;
   }
+  if (Stats)
+    dumpStats();
+  else {
+    DEBUG_ONLY(dumpStats());
+  }
 
-  DEBUG_ONLY(dumpStats());
   return;
 }
 
 bool RIPSimulator::proceedNStage(unsigned N) {
   while (N--) {
-    // actual fetch and decode
     DEBUG_ONLY(std::cerr << std::dec << "Num Stages=" << getNumStages() << " "
                          << std::hex << "PC=0x" << PC << "\n");
 
+    // actual fetch and decode
     // handle stall
     if (PS.isStall(STAGES::IF)) {
       PS.proceedPC(-1);
@@ -649,13 +655,20 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     } else {
       auto InstPtr = Dec.decode(Mem.readWord(PC));
       PS.proceedPC(PC);
+      // FIXME: this should inherently be moved the following update of PC, but
+      // some stages refers PC and moving this to latter would break.
       if (InstPtr) {
         PC += 4;
       }
       PS.proceed(std::move(InstPtr));
     }
 
-    std::optional<Exception> E = std::nullopt;
+    // exit if pipeline is empty.
+    if (PS.isEmpty()) {
+      break;
+    }
+
+    std::optional<Exception> Except = std::nullopt;
 
     if (PS[STAGES::WB] != nullptr)
       writeback(GPRegs, PS);
@@ -663,16 +676,8 @@ bool RIPSimulator::proceedNStage(unsigned N) {
     if (PS[STAGES::MA] != nullptr)
       memoryaccess(Mem, PS);
 
-    if (auto &EXInst = PS[STAGES::EX]) {
-      // FIXME: better to separate stats calculation.
-      std::string Mnemo = EXInst->getMnemo();
-      Stats.addInst(Mnemo);
-      if (BTypeKinds.count(Mnemo))
-        Stats.addBDistAndReset();
-      else
-        Stats.incrementBDist();
-      E = exec(PS);
-    }
+    if (PS[STAGES::EX] != nullptr)
+      Except = exec(PS);
 
     if (!PS.isStall(STAGES::DE) && PS[STAGES::DE] != nullptr)
       decode(GPRegs, PS);
@@ -681,23 +686,17 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       fetch(Mem, PS);
 
     // Exception handling
-    if (E && !handleException(*E))
+    if (Except && !handleException(*Except))
       // FIXME: For current use, stop on ebreak. It's better to define when
       // proceedNStage returns true.
       return true;
-
-    if (PS.isEmpty()) {
-      break;
-    }
 
     std::optional<Address> NextPC;
     if (BP) {
       NextPC = BP->takeBranchPredPC();
     }
-
     if (auto BranchTarget = PS.takeBranchPC())
       NextPC = BranchTarget;
-
     if (NextPC) {
       PC = *NextPC;
       DEBUG_ONLY(std::cerr << std::hex << "Branch from 0x" << PC << " to "
@@ -706,6 +705,18 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     PS.fillBubble();
     NumStages++;
+
+    // Statistics calculation
+    if (Stats) {
+      if (auto &EXInst = PS[STAGES::EX]) {
+        std::string Mnemo = EXInst->getMnemo();
+        Stats->addInst(Mnemo);
+        if (BTypeKinds.count(Mnemo))
+          Stats->addBDistAndReset();
+        else
+          Stats->incrementBDist();
+      }
+    }
 
     DEBUG_ONLY(PS.dump(); dumpGPRegs(););
   }
