@@ -2,6 +2,7 @@
 #define BRANCHPREDICTOR_H
 #include "CommonTypes.h"
 #include "Debug.h"
+#include "Interactive.h"
 #include <iostream>
 #include <map>
 #include <optional>
@@ -172,4 +173,42 @@ public:
   }
 };
 
+// FIXME: add test
+class InteractiveBranchPredictor : public BranchPredictor {
+private:
+  std::ostream &os;
+  std::istream &is;
+
+public:
+  InteractiveBranchPredictor(std::ostream &_os, std::istream &_is)
+      : BranchPredictor(), os(_os), is(_is) {}
+
+  void Learn(bool &cond, const Address &PC) override {
+
+    nlohmann::json JLearn;
+    JLearn["Kind"] = JSONKindToString(JSONKind::Learn);
+    JLearn["Cond"] = cond;
+    JLearn["PC"] = PC;
+    os << JLearn.dump() << std::endl;
+  }
+
+  bool Predict(const Address &PC) override {
+    nlohmann::json JPred, JPredRes;
+
+    JPred["Kind"] = JSONKindToString(JSONKind::Predict);
+    os << JPred.dump() << std::endl;
+    is >> JPredRes;
+
+    if (JPredRes.is_object() && JPredRes.size() == 1) {
+      std::string key = JPredRes.begin().key();
+
+      if (JPredRes[key].is_boolean()) {
+        return JPredRes[key].get<bool>();
+      }
+    }
+    std::cerr << "Interactive Predict result should be {\"PredRes\": bool}"
+              << std::endl;
+    assert(false && "Interactive Predict result should be {\"PredRes\": bool}");
+  }
+};
 #endif
