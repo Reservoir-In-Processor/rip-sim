@@ -491,5 +491,5 @@ Disassembly of section .text.init:
  6ac:	00000513          	li	a0,0
  6b0:	00000073          	ecall
  6b4:	c0001073          	unimp
- 6b8:	0000                	.2byte	0x0
+ 6b8:	0000                	.insn	2, 0x
 	...
