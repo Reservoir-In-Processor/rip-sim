@@ -14,5 +14,5 @@ target_include_directories(sim PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 file(GLOB RIPSIM_SOURCES CONFIGURE_DEPENDS RIPSimulator/*.cpp)
 add_library(ripsim SHARED ${RIPSIM_SOURCES})
-target_link_libraries(ripsim common nlohmann_json::nlohmann_json)
+target_link_libraries(ripsim common)
 target_include_directories(ripsim PUBLIC ${PROJECT_SOURCE_DIR}/include)

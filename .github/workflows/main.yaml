@@ -15,8 +15,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
     # FIXME: if the speed become problem, better to create original image.
     - name: Install Dependencies
       run: |
@@ -34,8 +32,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
 
     - name: Install Dependencies
       run: |
@@ -53,8 +49,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
 
     - name: Install Dependencies
       run: |
@@ -76,8 +70,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
 
     - name: Install Dependencies
       run: |
@@ -96,8 +88,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
 
     - name: Install Dependencies
       run: |
@@ -110,34 +100,12 @@ jobs:
         ninja -Cbuild dhrystone
         ninja -Cbuild rip-dhrystone
 
-  python-wrapper:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        submodules: true
-
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y clang llvm cmake ninja-build
-        python3 -m pip install pytest
-
-    - name: Build and Run pytest dhrystone
-      run: |
-        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
-        ninja -Cbuild pytest
-
   dump-fib:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
 
     - name: Install Dependencies
       run: |

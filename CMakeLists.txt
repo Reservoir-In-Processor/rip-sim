@@ -58,8 +58,6 @@ add_subdirectory(lib)
 
 add_subdirectory(tools)
 
-add_subdirectory(nlohmann_json)
-
 include(FetchContent)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.25")
@@ -90,6 +88,11 @@ add_custom_target(unittests
   DEPENDS ${ALL_TESTS}
 )
 
+# TODO: add those 
+# add_custom_target(asm-unittests
+#   COMMAND ctest -R "SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 30
+#   DEPENDS ${ALL_TESTS}
+# )
 
 add_custom_target(sim-unittests
   COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
@@ -103,49 +106,29 @@ add_custom_target(rip-unittests
 
 file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
 
-
-# Add custom target to make dependency for test files
-add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/rip-tests
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/rip-tests ${CMAKE_BINARY_DIR}/rip-tests
-  DEPENDS ${CMAKE_SOURCE_DIR}/rip-tests
-)
-
-add_custom_target(copy_tests DEPENDS ${CMAKE_BINARY_DIR}/rip-tests)
-
 add_subdirectory(riscvtests)
 # FIXME: do riscvtests
 add_custom_target(riscvtests
   COMMAND ctest --test-dir ./riscvtests/ --output-on-failure --timeout 10
-  DEPENDS RiscvTests copy_tests
+  DEPENDS RiscvTests
 )
 
 add_subdirectory(rip-riscvtests)
 add_custom_target(rip-riscvtests
   COMMAND ctest --test-dir ./rip-riscvtests/ --output-on-failure --timeout 10
-  DEPENDS RIPRiscvTests copy_tests
+  DEPENDS RIPRiscvTests
 )
 
 add_subdirectory(dhrystone)
 add_custom_target(dhrystone
-  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 150
-  DEPENDS DhrystoneTest copy_tests
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 120
+  DEPENDS DhrystoneTest
 )
 
 add_subdirectory(rip-dhrystone)
 add_custom_target(rip-dhrystone
-  COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 150
-  DEPENDS RIPDhrystoneTest copy_tests
-)
-
-# TODO: run paralelly.
-add_custom_target(rip-all
-  DEPENDS rip-unittests rip-dhrystone rip-riscvtests
-)
-
-# TODO: run paralelly.
-add_custom_target(sim-all
-  DEPENDS unittests dhrystone riscvtests
+  COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 120
+  DEPENDS RIPDhrystoneTest
 )
 
 
@@ -156,25 +139,9 @@ add_custom_target(asmtest
 
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
-
-# python wrapper for rip-sim
-add_custom_target(
-    rip-copy-py
-    COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_BINARY_DIR}/bin/rip-sim
-            ${CMAKE_SOURCE_DIR}/python-wrapper/rip_simulator/rip-sim
-    COMMENT "Copying rip-sim to python_wrapper directory"
-    DEPENDS rip-sim
-)
-
-add_custom_target(pytest
-    COMMAND python3 -m pytest ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
-    DEPENDS rip-sim rip-copy-py
-)
-
-# TODO: platform compatibility problem
-# add_custom_target(pybuild
-#     COMMAND python3 -m build
-#     DEPENDS rip-sim rip-copy-py
-#     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+# FIXME: use ctest
+# add_custom_target(simtests
+#   COMMAND ctest --test-dir ./simtests --output-on-failure
+#   WORKING_DIRECTORY 
+#   DEPENDS RiscvTests
 # )
