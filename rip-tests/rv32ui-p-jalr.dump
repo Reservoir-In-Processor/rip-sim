@@ -131,7 +131,7 @@ Disassembly of section .text.init:
 000001b0 <test_3>:
  1b0:	00300193          	li	gp,3
  1b4:	00000297          	auipc	t0,0x0
- 1b8:	01028293          	add	t0,t0,16 # 1c4 <target_3>
+ 1b8:	01028293          	addi	t0,t0,16 # 1c4 <target_3>
  1bc:	000282e7          	jalr	t0,t0
 
 000001c0 <linkaddr_3>:
