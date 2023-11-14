@@ -635,7 +635,10 @@ void RIPSimulator::run(std::optional<Address> StartAddress,
   }
   if (Stats)
     dumpStats();
-  DEBUG_ONLY(dumpStats());
+  else {
+    DEBUG_ONLY(dumpStats());
+  }
+
   return;
 }
 
