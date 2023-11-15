@@ -2,6 +2,12 @@
 
 ## how to build
 
+### before build
+
+```sh
+git submodule update --init
+```
+
 ### sanitizer build
 
 ```sh
