@@ -130,37 +130,6 @@ jobs:
         cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
         ninja -Cbuild pytest
 
-  dump-fib:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        submodules: true
-
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake ninja-build
-
-    - name: Build
-      run: |
-        cmake -GNinja -Bbuild -DSANITIZE=OFF -DCMAKE_BUILD_TYPE=Debug
-        ninja -Cbuild
-
-    - name: Dump
-      run: |
-        wget https://github.com/hashi0203/riscv-processor/raw/main/test-programs/fib.bin
-        # replace jal x0, 0 with nop
-        echo -n -e "\x13\x00\x00\x00" | dd of=fib.bin bs=1 seek=$(( $(stat -c %s fib.bin) - 4)) count=4 conv=notrunc
-        ./build/bin/simkheiv fib.bin 2> dump.txt
-
-    - name: Upload dump
-      uses: actions/upload-artifact@v2
-      with:
-        name: hassy-no-loop-dump.txt
-        path: ./dump.txt
     # FIXME: valgrind with clnag-14 seems like few problems exist.
     # https://github.com/google/sanitizers/issues/856
     # https://hg.mozilla.org/integration/autoland/rev/192810f500b5
