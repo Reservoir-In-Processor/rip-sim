@@ -83,21 +83,23 @@ enable_testing()
 # enable unit tests
 set(ALL_TESTS CACHE PATH "" FORCE)
 add_subdirectory(unittests)
+include(ProcessorCount)
+ProcessorCount(N)
 
 # FIXME: work filter
 add_custom_target(unittests
-  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 5
+  COMMAND ctest --test-dir ./unittests/ --output-on-failure --timeout 5 -j ${N}
   DEPENDS ${ALL_TESTS}
 )
 
 
 add_custom_target(sim-unittests
-  COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
+  COMMAND ctest -R "^SimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5 -j ${N}
   DEPENDS ${ALL_TESTS}
 )
 
 add_custom_target(rip-unittests
-  COMMAND ctest -R "RIPSimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5
+  COMMAND ctest -R "RIPSimulatorTest*" --test-dir ./unittests/ --output-on-failure --timeout 5 -j ${N}
   DEPENDS ${ALL_TESTS}
 )
 
@@ -116,25 +118,25 @@ add_custom_target(copy_tests DEPENDS ${CMAKE_BINARY_DIR}/rip-tests)
 add_subdirectory(riscvtests)
 # FIXME: do riscvtests
 add_custom_target(riscvtests
-  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure --timeout 10
+  COMMAND ctest --test-dir ./riscvtests/ --output-on-failure --timeout 10 -j ${N}
   DEPENDS RiscvTests copy_tests
 )
 
 add_subdirectory(rip-riscvtests)
 add_custom_target(rip-riscvtests
-  COMMAND ctest --test-dir ./rip-riscvtests/ --output-on-failure --timeout 10
+  COMMAND ctest --test-dir ./rip-riscvtests/ --output-on-failure --timeout 10 -j ${N}
   DEPENDS RIPRiscvTests copy_tests
 )
 
 add_subdirectory(dhrystone)
 add_custom_target(dhrystone
-  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 150
+  COMMAND ctest --test-dir ./dhrystone/ --output-on-failure --timeout 150 -j ${N}
   DEPENDS DhrystoneTest copy_tests
 )
 
 add_subdirectory(rip-dhrystone)
 add_custom_target(rip-dhrystone
-  COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 150
+  COMMAND ctest --test-dir ./rip-dhrystone/ --output-on-failure --timeout 150 -j ${N}
   DEPENDS RIPDhrystoneTest copy_tests
 )
 
