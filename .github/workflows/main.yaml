@@ -44,7 +44,7 @@ jobs:
 
     - name: Run unit tests with -werror
       run: |
-        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=ON
+        cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=ON
         ninja -Cbuild unittests
 
   asmtest:
@@ -127,7 +127,7 @@ jobs:
 
     - name: Build and Run pytest dhrystone
       run: |
-        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
+        cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Release
         ninja -Cbuild pytest
 
     # FIXME: valgrind with clnag-14 seems like few problems exist.
