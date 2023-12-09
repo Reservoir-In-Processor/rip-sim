@@ -11,6 +11,22 @@ enum BranchPredKind {
   // TODO: add interactive mode
   Interactive, // interactive
 };
+
+BranchPredKind BPKindFromStr(std::string &s) {
+  if (s == "no")
+    return BranchPredKind::No;
+  else if (s == "onebit")
+    return BranchPredKind::One;
+  else if (s == "twobit")
+    return BranchPredKind::Two;
+  else if (s == "gshare")
+    return BranchPredKind::Gshare;
+  else if (s == "interactive")
+    return BranchPredKind::Interactive;
+  else
+    assert(false && "unreachable!");
+  return BranchPredKind::No;
+}
 class Options {
 private:
   std::string FileName;
@@ -56,6 +72,7 @@ public:
                        "twobit, gshare and interactive.\n";
           return false;
         }
+        BPKind = BPKindFromStr(BPStr);
       } else if (arg == "-i") {
         Interactive = true;
       } else if (arg.substr(0, 12) == "--dram-size=") {
