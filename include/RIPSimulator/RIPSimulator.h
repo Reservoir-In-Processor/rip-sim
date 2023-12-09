@@ -49,6 +49,7 @@ public:
       return BP->getPrevPred();
     else
       assert(false && "No Branch Predictor!");
+    return false;
   }
 
   GPRegisters &getGPRegs() { return GPRegs; }
