@@ -39,6 +39,7 @@ class RIPSimulator:
             stderr=stderr,
             text=True,
         )
+        self.branch_predictor_kind = branch_predictor_kind
 
     def proceed(self):
         self.send_data("whatever\n")
@@ -52,6 +53,12 @@ class RIPSimulator:
             return res_json
         except json.JSONDecodeError:
             print("fin?")
+        return None
+
+    def predict(self, pred: bool):
+        assert self.branch_predictor_kind == BranchPredKind.Interactive
+        self.send_data('{"PredRes":' + str(pred).lower() + "}")
+        self.send_data(" FIXME!! ")
         return None
 
     def send_data(self, data):
