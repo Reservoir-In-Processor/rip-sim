@@ -209,6 +209,7 @@ public:
     std::cerr << "Interactive Predict result should be {\"PredRes\": bool}"
               << std::endl;
     assert(false && "Interactive Predict result should be {\"PredRes\": bool}");
+    return false;
   }
 };
 #endif
