@@ -20,7 +20,7 @@ def test_dhrystone_baremetal_interactive_gshare():
             pss.append(res)
         elif res["Kind"] == "Predict":
             # predict true if cycle % 2 == 0, false otherwise.
-            rsim.send_data('{ "PredRes": ' + str(cycle % 2 == 0) + " }")
+            rsim.predict(str(cycle % 2 == 0).lower())
         elif res["Kind"] == "Learn":
             learns.push(res)
         else:

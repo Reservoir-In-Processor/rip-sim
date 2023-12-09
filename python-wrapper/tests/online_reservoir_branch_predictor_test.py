@@ -22,11 +22,12 @@ def test_online_reservoir_bp():
             # print(res)
         elif res["Kind"] == "Predict":
             # predict true if cycle % 2 == 0, false otherwise.
-            # rsim.send_data('{ "PredRes": ' + str(cycle % 2 == 0) + " }")
-            print(res)
-            return
+            # print(res)
+            rsim.predict(str(cycle % 2 == 0).lower())
+            # hold the results
         elif res["Kind"] == "Learn":
             print(res)
+            return
         else:
             assert False, "unreachable!"
     # assert pss[-1]["EX"]["PC"] == 0x8084, "end PC unmatched!"
