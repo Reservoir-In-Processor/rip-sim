@@ -1,0 +1,30 @@
+name: Dhrystone 32-bit
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  dhrystone:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm cmake ninja-build
+
+    - name: Build and Run dhrystone
+      run: |
+        cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Debug
+        ninja -Cbuild dhrystone
+        ninja -Cbuild rip-dhrystone
