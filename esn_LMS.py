@@ -2,7 +2,7 @@
 import numpy as np
 from scipy import linalg
 import matplotlib.pyplot as plt
-from sklearn.model_selection import TimeSeriesSplit
+from tqdm import tqdm
 
 acc_his = []
 
@@ -34,99 +34,92 @@ class ESNOnline:
         self.Wout = np.zeros([reservoir_dim, output_dim])
 
 
-    def train(self, Y_train, epochs = 10, eta = 1e-5):
+    def train(self, Y_train, epochs = 10, eta = 1e-2):
       for i in range(epochs):
         pred = self.current_state @ self.Wout
-        error = (pred - Y_train)**2 
+        error = (Y_train - pred)
         self.Wout = self.Wout + eta * error * self.current_state.T
-        print("epoch: {}, loss {:2f}".format(i, error[0, 0]))
+        # print("epoch: {}, loss {:2f}".format(i, error[0, 0]))
 
     def predict(self, input):
       self.current_state = self.get_next_state(input)
-      pred = self.current_state @ self.Wout
+      pred = np.matmul(self.current_state, self.Wout)
 
       return pred
 
     def get_next_state(self, input):
-        next_state = (1 - self.lr) * self.current_state
-        next_state += self.lr * (np.matmul(input, self.Win) + self.current_state @ self.Wrec)
-        return self.activation(next_state)
+        next_state = (1 - self.lr) * self.current_state + self.lr * self.activation(np.matmul(input, self.Win) + np.matmul(self.current_state, self.Wrec))
+        return next_state
 
 
 #%%
-tscv = TimeSeriesSplit(n_splits=5)
 
-Y = data[:, 2].reshape([-1, 1])
+
+X_train = data[:, 2].reshape([-1, 1])
+Y_train = X_train[1:]
+X_train = X_train[:-1]
 preds = []
 
 
-for split, (train_index, test_index) in enumerate(tscv.split(data)):
-  print(len(train_index))
+model = ESNOnline(input_dim = 1, reservoir_dim = 100, output_dim=1)
+
+for x_train, y_train in tqdm(zip(X_train, Y_train)):
+  pred = model.predict(x_train[np.newaxis, ...])
+  preds.append(pred)
+  model.train(y_train[np.newaxis, ...])
+
+preds = np.array(preds).reshape([-1])
 
 
-  X_train = Y[train_index[:-1]]
-  Y_train = Y[train_index[1:]]
+  # thre = 0.
+  # pred_class = np.where(preds > thre, 1., 0.)
 
-  X_test = Y[test_index[:-1]]
-  Y_test = Y[test_index[1:]]
-
-
-
-  model = ESNOnline(input_dim = 1, reservoir_dim = 100, output_dim=1)
-
-  for x_train, y_train in zip(X_train, Y_train):
-    pred = model.predict(x_train[np.newaxis, ...])
-    preds.append(pred)
-    model.train(y_train[np.newaxis, ...])
-
-  preds = np.array(preds).reshape([-1])
+  # accuracy = np.mean(pred_class == Y_test)
+  # print("Split: {}, Accuracy: {:.3f}".format(split, accuracy))
 
 
-  thre = 0.1
-  pred_class = np.where(preds > thre, 1., 0.)
+  # fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-  accuracy = np.mean(pred_class == Y_test)
-  print("Split: {}, Accuracy: {:.3f}".format(split, accuracy))
+  # axes[0].grid()
+  # axes[0].plot(pred_class, label="Predicted", color="blue", alpha = 0.5)
+  # axes[0].plot(Y_test, label="True", color="red", alpha = 0.5)
+  # axes[0].set_xlabel("Step")
 
+  # axes[1].grid()
+  # axes[1].plot(preds[:100], label="Predicted", color="blue", alpha = 0.5)
+  # axes[1].plot(Y_test[:100], label="True", color="red", alpha = 0.5)
+  # axes[1].set_xlabel("Step")
 
-  fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-  axes[0].grid()
-  axes[0].plot(pred_class, label="Predicted", color="blue", alpha = 0.5)
-  axes[0].plot(Y_test, label="True", color="red", alpha = 0.5)
-  axes[0].set_xlabel("Step")
-
-  axes[1].grid()
-  axes[1].plot(preds[:100], label="Predicted", color="blue", alpha = 0.5)
-  axes[1].plot(Y_test[:100], label="True", color="red", alpha = 0.5)
-  axes[1].set_xlabel("Step")
-
-  acc_his.append(accuracy)
-
-  break
+  # acc_his.append(accuracy)
 
 
 # # %%
 
 # %%
-thre = 0.04
-pred_class = np.where(preds > thre, 1., 0.)
+pred_class = None
+thre_res = None
+accuracy = None
+max_accuracy = 0
+thresholds = np.linspace(0, np.max(preds)*1.1, 100)
 
-accuracy = np.mean(pred_class == Y_test)
-print("Split: {}, Accuracy: {:.3f}".format(split, accuracy))
+acuracy_list = []
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+for thre in thresholds:
+  # thre = 100
 
-axes[0].grid()
-axes[0].plot(pred_class, label="Predicted", color="blue", alpha = 0.5)
-axes[0].plot(Y_test, label="True", color="red", alpha = 0.5)
-axes[0].set_xlabel("Step")
+  pred_class = np.where(preds > thre, 1., 0.)
 
-axes[1].grid()
-axes[1].plot(pred_class[:100], label="Predicted", color="blue", alpha = 0.5)
-axes[1].plot(Y_test[:100], label="True", color="red", alpha = 0.5)
-axes[1].set_xlabel("Step")
+  accuracy = np.mean(pred_class == Y_train)
+  print("Thre: {}, Accuracy: {:.3f}".format(thre, accuracy))
+  if (0.8 < accuracy):
+    thre_res = thre
+    break
+  if (max_accuracy < accuracy):
+    max_accuracy = accuracy
+    thre_res = thre
 
-acc_his.append(accuracy)
+  acuracy_list.append(accuracy)
 
-# %%
+print("thre_res = ", thre_res)
+print("max_accuracy = ", max_accuracy)
+#%%
