@@ -1,0 +1,30 @@
+name: riscv-tests rv32im
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  riscv-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm cmake ninja-build
+
+    - name: Build and Run riscv-tests
+      run: |
+        cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+        ninja -Cbuild riscvtests
+        ninja -Cbuild rip-riscvtests
