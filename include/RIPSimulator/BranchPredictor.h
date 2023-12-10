@@ -196,6 +196,7 @@ public:
     nlohmann::json JPred, JPredRes;
 
     JPred["Kind"] = JSONKindToString(JSONKind::Predict);
+    JPred["PrevPred"] = getPrevPred();
     os << JPred.dump() << std::endl;
     std::string ResStr;
     // FIXME: remove whatever things
