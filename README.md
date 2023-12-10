@@ -1,12 +1,6 @@
 # Reservoir in Processor Simulator
 
-[![Build and Test](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml)
-
-[![Dhrystone 32-bit](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml)
-
-[![Python wrapper](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml)
-
-[![riscv-tests rv32im](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml)
+[![Build and Test](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml) [![Dhrystone 32-bit](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml) [![Python wrapper](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml) [![riscv-tests rv32im](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml)
 
 ## how to build
 
