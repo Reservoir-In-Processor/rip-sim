@@ -13,7 +13,18 @@ train_proportion = 0.8
 
 
 # online training
-class ESNOnline:
+class ESN_RLS:
+    # "リザバーコンピューティング", 田中剛平著, P. 64との対応
+    # d    <=> Y_train
+    # λ    <=> f_factor
+    # Nx   <=> self.reservoir_dim
+    # x(n) <=> self.current_state
+    # current_state.shape = (Nx, 1)
+    # Win.shape = (Nx, Nu)
+    # Wout.shape = (1, Nx)
+    # P.shape = (Nx, Nx)
+    # g.shape = (Nx, 1)
+    # v.shape = (1, 1)
 
     def __init__(self, reservoir_dim, input_dim, output_dim, lr=0.5, sr = 0.9, input_scaling=0.1, ridge = 1e-7, activation=np.tanh):
         self.reservoir_dim = reservoir_dim
@@ -33,17 +44,6 @@ class ESNOnline:
 
         self.Wout = np.zeros([output_dim, reservoir_dim])
 
-    # 教科書P. 64との対応
-    # d    <=> Y_train
-    # λ    <=> f_factor
-    # Nx   <=> self.reservoir_dim
-    # x(n) <=> self.current_state
-    # current_state.shape = (Nx, 1)
-    # Win.shape = ()
-    # Wout.shape = (1, Nx)
-    # P.shape = (Nx, Nx)
-    # g.shape = (Nx, 1)
-    # v.shape = (1, 1)
     def train(self, Y_train, epochs = 10, f_factor= 0.5, delta = 0.01):
       P =  1/delta * np.identity(self.reservoir_dim) 
       for i in range(epochs):
@@ -76,7 +76,7 @@ X_train = X_train[:-1]
 preds = []
 
 
-model = ESNOnline(input_dim = 1, reservoir_dim = 100, output_dim=1)
+model = ESN_RLS(input_dim = 1, reservoir_dim = 100, output_dim=1)
 
 for x_train, y_train in tqdm(zip(X_train, Y_train)):
   pred = model.predict(x_train[np.newaxis, ...])
@@ -99,8 +99,6 @@ thresholds = np.linspace(np.min(preds), np.max(preds), 100)
 acuracy_list = []
 
 for thre in thresholds:
-  # thre = 100
-
   pred_class = np.where(preds > thre, 1., 0.)
 
   accuracy = np.mean(pred_class == Y_train)
