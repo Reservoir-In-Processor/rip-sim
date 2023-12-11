@@ -44,12 +44,13 @@ class ESN_LMS:
 
         self.Wout = np.zeros([output_dim, reservoir_dim])
 
-    def train(self, Y_train, epochs = 10, eta = 1e-2):
+    def train(self, Y_train, epochs = 100, eta = 1e-1):
       for i in range(epochs):
         pred = np.matmul(self.Wout, self.current_state)
         error = (Y_train - pred)
         self.Wout = self.Wout + eta * np.matmul(error, self.current_state.T)
-        # print("epoch: {}, loss {:2f}".format(i, error[0, 0]))
+        # print("epoch: {}, loss {:2f}, pred: {:2f}, Y_train: {}".format(i, error[0, 0], pred[0, 0], Y_train[0, 0]))
+
 
     def predict(self, input):
       self.current_state = self.get_next_state(input)
@@ -77,6 +78,7 @@ for x_train, y_train in tqdm(zip(X_train, Y_train)):
   pred = model.predict(x_train[np.newaxis, ...])
   preds.append(pred)
   model.train(y_train[np.newaxis, ...])
+  # print(pred, y_train)
 
 preds = np.array(preds).reshape([-1])
 
@@ -115,7 +117,7 @@ plt.plot(accuracy_list)
 thre = 0.5
 pred_class = np.where(preds > thre, 1., 0.)
 
-accuracy = np.mean(pred_class == Y_train)
+accuracy = np.mean(pred_class == Y_train[:, 0])
 print("Accuracy: {:.3f}".format(accuracy))
 
 

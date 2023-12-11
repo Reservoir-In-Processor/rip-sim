@@ -26,14 +26,13 @@ class ESN_RLS:
     # g.shape = (Nx, 1)
     # v.shape = (1, 1)
 
-    def __init__(self, reservoir_dim, input_dim, output_dim, lr=0.5, sr = 0.9, input_scaling=0.1, ridge = 1e-7, activation=np.tanh):
+    def __init__(self, reservoir_dim, input_dim, output_dim, lr=0.5, sr = 0.9, input_scaling=0.1, activation=np.tanh):
         self.reservoir_dim = reservoir_dim
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.lr = lr
         self.input_scaling = input_scaling
         self.activation = activation
-        self.ridge = ridge
 
         self.current_state = np.empty(shape = (self.reservoir_dim, 1))
 
@@ -85,9 +84,17 @@ for x_train, y_train in tqdm(zip(X_train, Y_train)):
 
 preds = np.array(preds).reshape([-1])
 
+plt.xlim([650, 700])
+plt.plot(preds)
+plt.plot(Y_train)
 
 
-# # %%
+# %%
+
+plt.xlim([650, 700])
+plt.plot(preds)
+plt.plot(Y_train)
+
 
 # %%
 pred_class = None
@@ -119,7 +126,7 @@ print("max_accuracy = ", max_accuracy)
 thre = 0.5
 pred_class = np.where(preds > thre, 1., 0.)
 
-accuracy = np.mean(pred_class == Y_train)
+accuracy = np.mean(pred_class == Y_train[:, 0])
 print("Accuracy: {:.3f}".format(accuracy))
 
 
@@ -127,7 +134,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
 axes[0].set_xlim([650, 700])
 axes[0].grid()
-axes[0].plot(preds[1:], label="Predicted", color="blue", alpha = 0.5)
+axes[0].plot(preds, label="Predicted", color="blue", alpha = 0.5)
 axes[0].plot(Y_train, label="True", color="red", alpha = 0.5)
 axes[0].set_xlabel("Step")
 axes[0].legend()
