@@ -22,7 +22,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y clang llvm cmake ninja-build
-        python3 -m pip install pytest
+        python3 -m pip install pytest numpy scipy scikit-learn reservoirpy
 
     - name: Build and Run pytest dhrystone
       run: |
