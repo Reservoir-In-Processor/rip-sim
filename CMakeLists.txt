@@ -171,10 +171,16 @@ add_custom_target(pytest
     DEPENDS rip-sim rip-copy-py
 )
 
-add_custom_target(pytest-online
-    COMMAND python3 -m pytest -k "test_online_reservoir_bp" ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+add_custom_target(pytest-online-rls
+    COMMAND python3 -m pytest -k "test_online_reservoir_bp_rls" ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
     DEPENDS rip-sim rip-copy-py
 )
+
+add_custom_target(pytest-online-lms
+    COMMAND python3 -m pytest -k "test_online_reservoir_bp_lms" ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+    DEPENDS rip-sim rip-copy-py
+)
+
 
 # TODO: platform compatibility problem
 # add_custom_target(pybuild
