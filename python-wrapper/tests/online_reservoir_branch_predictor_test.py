@@ -41,6 +41,7 @@ def test_online_reservoir_bp_lms():
                 (prev_pred and res["Cond"]) or (not prev_pred and not res["Cond"])
             ):
                 hit += 1
+            prev_branch = res["Cond"]
         else:
             assert False, "unreachable!"
 
