@@ -171,13 +171,13 @@ add_custom_target(pytest
     DEPENDS rip-sim rip-copy-py
 )
 
-add_custom_target(pytest-online-rls
-    COMMAND python3 -m pytest -k "test_online_reservoir_bp_rls" ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+add_custom_target(python-online-rls
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/python-wrapper/online_reservoir_branch_predictor_rls.py
     DEPENDS rip-sim rip-copy-py
 )
 
-add_custom_target(pytest-online-lms
-    COMMAND python3 -m pytest -k "test_online_reservoir_bp_lms" ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+add_custom_target(python-online-lms
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/python-wrapper/online_reservoir_branch_predictor_lms.py
     DEPENDS rip-sim rip-copy-py
 )
 
