@@ -27,19 +27,6 @@ class ESNOnline:
         self.epochs = epochs
         self.threshold = threshold
 
-        # # Initialize weights
-        # self.Win = np.random.uniform(
-        #     low=-input_scaling, high=input_scaling, size=[self.reservoir_dim, input_dim]
-        # )
-        # self.Wrec = np.random.normal(
-        #     loc=0, scale=1, size=(self.reservoir_dim, self.reservoir_dim)
-        # )
-        # self.Wrec = (
-        #     self.Wrec * sr / max(abs(linalg.eigvals(self.Wrec)))
-        # )  # scale spectral radius
-
-        # self.Wout = np.zeros([output_dim, reservoir_dim])
-
         # Initialize weights
         self.Win = np.random.uniform(
             low=-input_scaling, high=input_scaling, size=[reservoir_dim, self.input_dim]
