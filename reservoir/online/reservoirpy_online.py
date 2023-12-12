@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
-data = np.loadtxt("data.txt")
+data = np.loadtxt("../data.txt")
 datasize = data.shape[0]
 X = data[:, 2][:-1][..., np.newaxis]
 Y = data[:, 2][1:][..., np.newaxis]

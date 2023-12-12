@@ -7,7 +7,7 @@ from tqdm import tqdm
 acc_his = []
 
 # %%
-data = np.loadtxt("data.txt")
+data = np.loadtxt("../data.txt")
 datasize = data.shape[0]
 
 
