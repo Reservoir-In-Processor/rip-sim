@@ -16,6 +16,7 @@ def test_online_reservoir_bp_lms():
     hit = 0
     prev_pred = None
     stage_num = 0
+    prev_branch = False
     rbp = ESN_LMS(reservoir_dim=100, input_dim=1, output_dim=1)
     for _ in tqdm(range(124791 * 2)):
         res = rsim.proceed()
@@ -28,7 +29,7 @@ def test_online_reservoir_bp_lms():
             pass
         elif res["Kind"] == "Predict":
             # predict here, currently input is only previous prediction result.
-            inputs = np.array([res["PrevPred"]]).reshape([1, 1])
+            inputs = np.array([prev_branch]).reshape([1, 1])
             predict = rbp.predict(inputs)
             rsim.predict(predict)
             prev_pred = predict
@@ -59,6 +60,7 @@ def test_online_reservoir_bp_rls():
     branch_num = 0
     hit = 0
     prev_pred = None
+    prev_branch = False
     stage_num = 0
     rbp = ESN_RLS(reservoir_dim=100, input_dim=1, output_dim=1)
     for _ in tqdm(range(124791 * 2)):
@@ -71,13 +73,11 @@ def test_online_reservoir_bp_rls():
             pass
         elif res["Kind"] == "Predict":
             # predict here, currently input is only previous prediction result.
-            inputs = np.array([res["PrevPred"]]).reshape([1, 1])
+            inputs = np.array([prev_branch]).reshape([1, 1])
             predict = rbp.predict(inputs)
             rsim.predict(predict)
             prev_pred = predict
-            print("predict: ", predict)
         elif res["Kind"] == "Learn":
-            print("res[Cond]: ", res["Cond"])
             branch_num += 1
             # train here
             rbp.train(res["Cond"])
@@ -85,6 +85,7 @@ def test_online_reservoir_bp_rls():
                 (prev_pred and res["Cond"]) or (not prev_pred and not res["Cond"])
             ):
                 hit += 1
+            prev_branch = res["Cond"]
         else:
             assert False, "unreachable!"
 

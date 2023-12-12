@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import linalg
 
-np.random.seed(0)
+# np.random.seed(0)
 
 
 class ESNOnline:
@@ -27,9 +27,22 @@ class ESNOnline:
         self.epochs = epochs
         self.threshold = threshold
 
+        # # Initialize weights
+        # self.Win = np.random.uniform(
+        #     low=-input_scaling, high=input_scaling, size=[self.reservoir_dim, input_dim]
+        # )
+        # self.Wrec = np.random.normal(
+        #     loc=0, scale=1, size=(self.reservoir_dim, self.reservoir_dim)
+        # )
+        # self.Wrec = (
+        #     self.Wrec * sr / max(abs(linalg.eigvals(self.Wrec)))
+        # )  # scale spectral radius
+
+        # self.Wout = np.zeros([output_dim, reservoir_dim])
+
         # Initialize weights
         self.Win = np.random.uniform(
-            low=-input_scaling, high=input_scaling, size=[self.reservoir_dim, input_dim]
+            low=-input_scaling, high=input_scaling, size=[reservoir_dim, self.input_dim]
         )
         self.Wrec = np.random.normal(
             loc=0, scale=1, size=(self.reservoir_dim, self.reservoir_dim)
@@ -102,20 +115,16 @@ class ESN_RLS(ESNOnline):
 
     def predict(self, inputs: np.ndarray) -> bool:
         self.current_state = self.get_next_state(inputs)
-        print("nonzero currentstate: ", (self.current_state == 0).sum())
-        # print("Wout: ", self.Wout)
-        # print("currentstate: ", self.current_state)
         pred: np.ndarray = np.matmul(self.Wout, self.current_state)
-        print(pred)
         assert pred.shape == (1, 1), f"pred.shape: {pred.shape} should be (1, 1)"
-        # print("pred: ", pred[0, 0])
         pred_class: bool = self.threshold < pred[0, 0]
         return pred_class
 
-    def get_next_state(self, input):
+    def get_next_state(self, input: bool):
         next_state = (1 - self.lr) * self.current_state + self.lr * self.activation(
             np.matmul(self.Win, input) + np.matmul(self.Wrec, self.current_state)
         )
+
         return next_state
 
 
