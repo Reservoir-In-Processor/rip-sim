@@ -28,8 +28,8 @@ class RIPSimulator:
             "--dram-size=268435456",
             "-i",
         ]
-
-        stderr = sys.stdout.buffer
+        # FIXME: work around for jupyter cell output
+        stderr =None  # sys.stdout.buffer
         if not output_sim_err:
             stderr = None
         self.process = subprocess.Popen(

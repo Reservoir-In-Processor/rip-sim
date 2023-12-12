@@ -167,7 +167,7 @@ class ESN_LMS(ESNOnline):
         pred_class: bool = self.threshold < pred[0, 0]
         return pred_class
 
-    def get_next_state(self, input):
+    def get_next_state(self, input) -> np.ndarray:
         next_state = (1 - self.lr) * self.current_state + self.lr * self.activation(
             np.matmul(self.Win, input) + np.matmul(self.Wrec, self.current_state)
         )
