@@ -61,6 +61,7 @@ void PipelineStates::printJSON(std::ostream &os) {
     std::stringstream ss;
     Insts[Stage]->mprint(ss);
     JStage["InstStr"] = ss.str();
+    JStage["InstVal"] = Insts[Stage]->getVal();
 
     JStage["mnemo"] = Insts[Stage]->getMnemo();
     JStage["PC"] = PCs[Stage];
@@ -69,24 +70,28 @@ void PipelineStates::printJSON(std::ostream &os) {
     switch (Stage) {
     case STAGES::DE:
       JStage["Rs1Val"] = DERs1Val;
-      // TODO: other field.
-      // std::cerr << "Rs2Val=" << DERs2Val << ", ";
-      // std::cerr << "ImmVal=" << DEImmVal << ", ";
-      // std::cerr << "CSRVal=" << DECSRVal << "\n";
+      JStage["Rs2Val"] = DERs2Val;
+      JStage["ImmVal"] = DEImmVal;
+      JStage["CSRVal"] = DECSRVal;
       break;
 
     case STAGES::EX:
-
       JStage["CSRVal"] = EXCSRVal;
-      // TODO: other field.
-      // std::cerr << "RdVal=" << EXRdVal << "\n";
+      JStage["RdVal"] = EXRdVal;
+      // TODO: Rs1Val
+      JStage["Rs2Val"] = EXRs2Val;
+      JStage["ImmVal"] = EXImmVal;
+      JStage["CSRVal"] = EXCSRVal;
       break;
 
     case STAGES::MA:
+      JStage["RdVal"] = MARdVal;
+      JStage["ImmVal"] = MAImmVal;
       JStage["CSRVal"] = MACSRVal;
-      // TODO: other field.
-      // std::cerr << "RdVal=" << MARdVal << "\n";
       break;
+
+    case STAGES::WB:
+      JStage["ImmVal"] = WBImmVal;
     default:
       break;
     }

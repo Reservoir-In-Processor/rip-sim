@@ -28,8 +28,8 @@ class RIPSimulator:
             "--dram-size=268435456",
             "-i",
         ]
-
-        stderr = sys.stdout.buffer
+        # FIXME: work around for jupyter cell output
+        stderr = None  # sys.stdout.buffer
         if not output_sim_err:
             stderr = None
         self.process = subprocess.Popen(
@@ -39,19 +39,25 @@ class RIPSimulator:
             stderr=stderr,
             text=True,
         )
+        self.branch_predictor_kind = branch_predictor_kind
 
     def proceed(self):
         self.send_data("whatever\n")
         res_line = self.process.stdout.readline()
 
         if len(res_line.strip()) == 0:
-            print("ebreak")
             return None
         try:
             res_json = json.loads(res_line)
             return res_json
         except json.JSONDecodeError:
             print("fin?")
+        return None
+
+    def predict(self, pred: bool):
+        assert self.branch_predictor_kind == BranchPredKind.Interactive
+        self.send_data('{"PredRes":' + str(pred).lower() + "}")
+        self.send_data(" FIXME!! ")
         return None
 
     def send_data(self, data):

@@ -16,9 +16,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
    add_compile_options (-fcolor-diagnostics)
 endif ()
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Default build type: RelWithDebInfo" FORCE)
-endif()
 
 # TODO switch on off by CMAKE option
 message(STATUS "build on ${CMAKE_SYSTEM_NAME}, ${CMAKE_SYSTEM_PROCESSOR}")
@@ -173,6 +170,17 @@ add_custom_target(pytest
     COMMAND python3 -m pytest ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
     DEPENDS rip-sim rip-copy-py
 )
+
+add_custom_target(python-online-rls
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/python-wrapper/online_reservoir_branch_predictor_rls.py
+    DEPENDS rip-sim rip-copy-py
+)
+
+add_custom_target(python-online-lms
+    COMMAND python3 ${CMAKE_SOURCE_DIR}/python-wrapper/online_reservoir_branch_predictor_lms.py
+    DEPENDS rip-sim rip-copy-py
+)
+
 
 # TODO: platform compatibility problem
 # add_custom_target(pybuild

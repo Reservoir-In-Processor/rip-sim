@@ -196,8 +196,13 @@ public:
     nlohmann::json JPred, JPredRes;
 
     JPred["Kind"] = JSONKindToString(JSONKind::Predict);
+    JPred["PrevPred"] = getPrevPred();
     os << JPred.dump() << std::endl;
-    is >> JPredRes;
+    std::string ResStr;
+    // FIXME: remove whatever things
+    while (is >> ResStr && ResStr.find("PredRes") == std::string::npos) {
+    }
+    JPredRes = nlohmann::json::parse(ResStr);
 
     if (JPredRes.is_object() && JPredRes.size() == 1) {
       std::string key = JPredRes.begin().key();
