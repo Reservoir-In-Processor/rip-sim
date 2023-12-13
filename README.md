@@ -47,10 +47,16 @@ ninja -Cbuild unittests
 ninja -Cbuild sim-unittests
 ```
 
-### Rip Simulator
+### RiP Simulator
 
 ```sh
 ninja -Cbuild rip-unittests
+```
+
+### Python wrapper for RiP simulator
+
+```sh
+ninja -Cbuild pytest
 ```
 
 ## Performance of each branch predictor on Dhrystone
