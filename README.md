@@ -86,7 +86,7 @@ Total stages: 121692
 ### 2-bit (Bimodal) branch predictor
 
 ```sh
-./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=twobit
+$ ./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=twobit
 break happens
 ========== BEGIN STATS ============
 Total stages: 119889
@@ -99,7 +99,7 @@ Total stages: 119889
 ### Gshare branch predictor
 
 ```sh
-./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=gshare
+$ ./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=gshare
 break happens
 ========== BEGIN STATS ============
 Total stages: 116617
