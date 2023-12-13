@@ -133,7 +133,12 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
   std::string Mnemo = Inst->getMnemo();
   // I-type
   if (Mnemo == "addi") {
-    RdVal = PS.getDERs1Val() + PS.getDEImmVal();
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)PS.getDERs1Val() + (unsigned)PS.getDEImmVal()};
+    RdVal = u.in;
   } else if (Mnemo == "slti") {
     RdVal = PS.getDERs1Val() < PS.getDEImmVal();
   } else if (Mnemo == "sltiu") {
@@ -247,9 +252,19 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
     States.setMPP((ModeKind)0);
     // R-type
   } else if (Mnemo == "add") {
-    RdVal = PS.getDERs1Val() + PS.getDERs2Val();
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)PS.getDERs1Val() + (unsigned)PS.getDERs2Val()};
+    RdVal = u.in;
   } else if (Mnemo == "sub") {
-    RdVal = PS.getDERs1Val() - PS.getDERs2Val();
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)PS.getDERs1Val() - (unsigned)PS.getDERs2Val()};
+    RdVal = u.in;
   } else if (Mnemo == "sll") {
     RdVal = PS.getDERs1Val() << (PS.getDERs2Val() & 0b11111);
   } else if (Mnemo == "slt") {
