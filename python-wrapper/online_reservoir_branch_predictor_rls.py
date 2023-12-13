@@ -9,20 +9,17 @@ from reservoir_branch_predictor.esn_rls import ESN_RLS
 rsim = RIPSimulator(
     Path("../rip-tests/dhry.bin"),
     BranchPredKind.Interactive,
-    output_sim_err=False,
+    output_sim_err=True,
 )
-branch_num = 0
-hit = 0
-prev_pred = None
+
 prev_branch = False
-stage_num = 0
 rbp = ESN_RLS(reservoir_dim=100, input_dim=1, output_dim=1)
-for _ in tqdm(range(124791 * 2)):
+
+while True:
     res = rsim.proceed()
     if res is None:  # end of simulation
         break
     if res["Kind"] == "PipelineStates":
-        stage_num += 1
         # FIXME: update reservoir state by pipeline states?
         pass
     elif res["Kind"] == "Predict":
@@ -30,20 +27,9 @@ for _ in tqdm(range(124791 * 2)):
         inputs = np.array([prev_branch]).reshape([1, 1])
         predict = rbp.predict(inputs)
         rsim.predict(predict)
-        prev_pred = predict
     elif res["Kind"] == "Learn":
-        branch_num += 1
         # train here
-        rbp.train(res["Cond"])
-        if prev_pred is not None and (
-            (prev_pred and res["Cond"]) or (not prev_pred and not res["Cond"])
-        ):
-            hit += 1
-        prev_branch = res["Cond"]
+        rbp.train(res["BranchResult"])
+        prev_branch = res["BranchResult"]
     else:
         assert False, "unreachable!"
-
-print("hit: ", hit)
-print("branch_num: ", branch_num)
-print("stage_num: ", stage_num)
-print("accuracy: ", hit / branch_num)

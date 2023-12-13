@@ -2,8 +2,6 @@ import numpy as np
 from scipy import linalg
 from .esn_online import ESNOnline
 
-# np.random.seed(0)
-
 
 class ESN_RLS(ESNOnline):
     # "リザバーコンピューティング", 田中剛平著, P. 64との対応

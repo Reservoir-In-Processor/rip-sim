@@ -26,10 +26,14 @@ class RIPSimulator:
             f"{str(input_file_path)}",
             f"-b={branch_predictor_kind.value}",
             "--dram-size=268435456",
+            "--stats",
             "-i",
         ]
         # FIXME: work around for jupyter cell output
-        stderr = None  # sys.stdout.buffer
+        try:
+            stderr = sys.stdout.buffer
+        except Exception:
+            stderr = None
         if not output_sim_err:
             stderr = None
         self.process = subprocess.Popen(
