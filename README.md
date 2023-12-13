@@ -33,27 +33,27 @@ cmake -GNinja -Bbuild -DSANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
 ninja -Cbuild
 ```
 
-### unit tests
+### Unit Tests
 
-### All
+#### All
 
 ```sh
 ninja -Cbuild unittests
 ```
 
-### Instruction Level Simulator
+#### Instruction Level Simulator
 
 ```sh
 ninja -Cbuild sim-unittests
 ```
 
-### RiP Simulator
+#### RiP Simulator
 
 ```sh
 ninja -Cbuild rip-unittests
 ```
 
-### Python wrapper for RiP simulator
+#### Python wrapper for RiP simulator
 
 ```sh
 ninja -Cbuild pytest
