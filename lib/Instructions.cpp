@@ -7,7 +7,12 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
   std::string Mnemo = IT.getMnemo();
   int ImmI = signExtend(Imm);
   if (Mnemo == "addi") {
-    GPRegs.write(Rd.to_ulong(), GPRegs[Rs1.to_ulong()] + ImmI);
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)GPRegs[Rs1.to_ulong()] + (unsigned)ImmI};
+    GPRegs.write(Rd.to_ulong(), u.in);
     PC += 4;
   } else if (Mnemo == "slti") {
     GPRegs.write(Rd.to_ulong(), (signed)GPRegs[Rs1.to_ulong()] < ImmI);
@@ -181,12 +186,22 @@ std::optional<Exception> RInstruction::exec(Address &PC, GPRegisters &GPRegs,
                                             ModeKind &Mode) {
   std::string Mnemo = RT.getMnemo();
   if (Mnemo == "add") {
-    GPRegs.write(Rd.to_ulong(),
-                 GPRegs[Rs1.to_ulong()] + GPRegs[Rs2.to_ulong()]);
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)GPRegs[Rs1.to_ulong()] +
+                 (unsigned)GPRegs[Rs2.to_ulong()]};
+    GPRegs.write(Rd.to_ulong(), u.in);
     PC += 4;
   } else if (Mnemo == "sub") {
-    GPRegs.write(Rd.to_ulong(),
-                 GPRegs[Rs1.to_ulong()] - GPRegs[Rs2.to_ulong()]);
+    // To avoid signed overflow.
+    union {
+      unsigned un;
+      int in;
+    } u = {.un = (unsigned)GPRegs[Rs1.to_ulong()] -
+                 (unsigned)GPRegs[Rs2.to_ulong()]};
+    GPRegs.write(Rd.to_ulong(), u.in);
     PC += 4;
   } else if (Mnemo == "sll") {
     GPRegs.write(Rd.to_ulong(),
