@@ -29,7 +29,7 @@ class RIPSimulator:
             "-i",
         ]
         # FIXME: work around for jupyter cell output
-        stderr =None  # sys.stdout.buffer
+        stderr = None  # sys.stdout.buffer
         if not output_sim_err:
             stderr = None
         self.process = subprocess.Popen(
@@ -46,7 +46,6 @@ class RIPSimulator:
         res_line = self.process.stdout.readline()
 
         if len(res_line.strip()) == 0:
-            print("ebreak")
             return None
         try:
             res_json = json.loads(res_line)

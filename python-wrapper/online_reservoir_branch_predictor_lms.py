@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
-from reservoir_branch_predictor.esn_online import ESN_LMS
+from reservoir_branch_predictor.esn_lms import ESN_LMS
 
 
 # %%
@@ -17,6 +17,7 @@ rsim = RIPSimulator(
 # %%
 
 
+pipeline_states = {"PC", "EXInstVal", ""}
 branch_num = 0
 hit = 0
 prev_pred = None
@@ -34,17 +35,14 @@ for _ in tqdm(range(124791 * 2)):
     if res["Kind"] == "PipelineStates":
         stage_num += 1
         # FIXME: update reservoir state by pipeline states?
-        print(res)
         pass
     elif res["Kind"] == "Predict":
-        print(res)
         # predict here, currently input is only previous prediction result.
         inputs = np.array([prev_branch]).reshape([1, 1])
         predict = rbp.predict(inputs)
         rsim.predict(predict)
         prev_pred = predict
     elif res["Kind"] == "Learn":
-        print(res)
         branch_num += 1
         # train here
         rbp.train(res["Cond"])
