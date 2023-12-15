@@ -2,6 +2,10 @@
 
 [![Build and Test](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/main.yaml) [![Dhrystone 32-bit](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/dhrystone.yaml) [![Python wrapper](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/python-wrapper.yaml) [![riscv-tests rv32im](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml/badge.svg)](https://github.com/Reservoir-In-Processor/rip-sim/actions/workflows/riscv-tests.yaml) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Overview
+
+RiP-Sim is an innovative 32-bit RISC-V(RV32IM) Simulator, currently under active development. This project stands out by integrating Reservoir Computing into branch prediction, a novel approach in the realm of processor simulation. As a Work in Progress, RiP-Sim invites contributions and feedback from the community, particularly from those interested in processor architecture or reservoir computing.
+
 ## Requirements
 
 The project requires cmake, ninja-build as dependencies. On Ubuntu/Debian, use
