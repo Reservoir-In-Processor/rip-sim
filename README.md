@@ -8,7 +8,7 @@ RiP-Sim is an innovative 32-bit RISC-V (RV32IM) Simulator, currently under activ
 
 ### Python Wrapper
 
-A notable feature of RiP-Sim is its Python wrapper, which allows users to test and develop their own branch predictor models. This interface provides an unprecedented level of accessibility and customization. Users can implement and evaluate complex algorithms, like reservoir computing models, directly within the simulation environment.
+A notable feature of RiP-Sim is its Python wrapper, which allows users to test and develop their own branch predictor models. This interface provides good accessibility and customization. Users can implement and evaluate complex branch prediction algorithms, like reservoir computing models, directly within the simulation environment.
 
 ```python
 
