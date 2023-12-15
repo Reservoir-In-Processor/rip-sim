@@ -3,7 +3,6 @@ from rip_simulator.rip_simulator import RIPSimulator, BranchPredKind
 from pathlib import Path
 
 import numpy as np
-from tqdm import tqdm
 from reservoir_branch_predictor.esn_lms import ESN_LMS
 
 np.random.seed(0)
@@ -20,31 +19,28 @@ rsim = RIPSimulator(
 
 # initialize reservoir state
 input_dim = 3
-prev_branch = False
-branch_dist = 0
 from collections import defaultdict
 
-inst_frequency_from_previous_branch = defaultdict(int)
 inputs = np.zeros(shape=(input_dim, 1))
 
 
-def update(
-    res: dict,
-    prev_branch: bool,
-    branch_dist: int,
-    inst_frequency_from_previous_branch: dict,
-) -> np.ndarray:
+def create_inputs(rsim: RIPSimulator) -> np.ndarray:
     """
     update inputs by res.
     preprocessing should be hardware friendly.
     """
-    print(res)
-    if res["Kind"] == "PipelineStates" and "IF" in res:
-        inst_frequency_from_previous_branch[res["IF"]["mnemo"]] += 1
+    inst_frequency_from_previous_branch: dict[str, int] = defaultdict(int)
+    for pipeline_state in rsim.pipeline_states:
+        assert pipeline_state["Kind"] == "PipelineStates"
+        if "IF" in pipeline_state:
+            inst_frequency_from_previous_branch[pipeline_state["IF"]["mnemo"]] += 1
+
+    branch_dist = len(rsim.pipeline_states)
     inputs = np.zeros(shape=(input_dim, 1))
-    inputs[0] = prev_branch
+    inputs[0] = rsim.previous_branch_result
     inputs[1] = branch_dist
     inputs[2] = inst_frequency_from_previous_branch["addi"]
+    rsim.pipeline_states.clear()
 
     return inputs
 
@@ -54,32 +50,14 @@ rbp = ESN_LMS(reservoir_dim=100, input_dim=input_dim, output_dim=1)
 
 # %%
 while True:
-    res = rsim.proceed()
-    if res is None:  # end of simulation
+    trap = rsim.proceed()
+    if trap == RIPSimulator.Trap.EBREAK:  # end of Dhrystone
         break
-    if res["Kind"] == "PipelineStates":
-        # FIXME: update reservoir state by pipeline states?
-        branch_dist += 1
-        inputs = update(
-            res, prev_branch, branch_dist, inst_frequency_from_previous_branch
-        )
-        pass
-    elif res["Kind"] == "Predict":
-        # predict here, currently input is only previous prediction result.
-        inputs = update(
-            res, prev_branch, branch_dist, inst_frequency_from_previous_branch
-        )
-        predict = rbp.predict(inputs)
-        branch_dist = 0
-        inst_frequency_from_previous_branch = defaultdict(int)
-        rsim.predict(predict)
-    elif res["Kind"] == "Learn":
-        # train here
-        rbp.train(res["BranchResult"])
-        prev_branch = res["BranchResult"]
+    elif trap == RIPSimulator.Trap.BRANCH_PRED:
+        rbp.train(rsim.previous_branch_result)
+        inputs = create_inputs(rsim)
+        rsim.predict(rbp.predict(inputs))
     else:
         assert False, "unreachable!"
-
-# %%
 
 # %%

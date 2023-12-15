@@ -11,25 +11,29 @@ rsim = RIPSimulator(
     BranchPredKind.Interactive,
     output_sim_err=True,
 )
+input_dim = 1
+inputs = np.zeros(shape=(input_dim, 1))
 
-prev_branch = False
-rbp = ESN_RLS(reservoir_dim=100, input_dim=1, output_dim=1)
 
+def create_inputs(rsim: RIPSimulator) -> np.ndarray:
+    """
+    update inputs by res.
+    preprocessing should be hardware friendly.
+    """
+    inputs[0] = rsim.previous_branch_result
+    rsim.pipeline_states.clear()
+
+    return inputs
+
+
+rbp = ESN_RLS(reservoir_dim=100, input_dim=input_dim, output_dim=1)
 while True:
-    res = rsim.proceed()
-    if res is None:  # end of simulation
+    trap = rsim.proceed()
+    if trap == RIPSimulator.Trap.EBREAK:  # end of Dhrystone
         break
-    if res["Kind"] == "PipelineStates":
-        # FIXME: update reservoir state by pipeline states?
-        pass
-    elif res["Kind"] == "Predict":
-        # predict here, currently input is only previous prediction result.
-        inputs = np.array([prev_branch]).reshape([1, 1])
-        predict = rbp.predict(inputs)
-        rsim.predict(predict)
-    elif res["Kind"] == "Learn":
-        # train here
-        rbp.train(res["BranchResult"])
-        prev_branch = res["BranchResult"]
+    elif trap == RIPSimulator.Trap.BRANCH_PRED:
+        rbp.train(rsim.previous_branch_result)
+        inputs = create_inputs(rsim)
+        rsim.predict(rbp.predict(inputs))
     else:
         assert False, "unreachable!"
