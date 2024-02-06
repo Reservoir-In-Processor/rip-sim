@@ -22,8 +22,8 @@ Disassembly of section .memory:
     802c:	00f52023          	sw	a5,0(a0)
     8030:	00000537          	lui	a0,0x0
     8034:	00000517          	auipc	a0,0x0
-    8038:	00051513          	sll	a0,a0,0x0
-    803c:	01f51513          	sll	a0,a0,0x1f
+    8038:	00051513          	slli	a0,a0,0x0
+    803c:	01f51513          	slli	a0,a0,0x1f
     8040:	00000593          	li	a1,0
     8044:	00b51533          	sll	a0,a0,a1
     8048:	01f00593          	li	a1,31
@@ -44,7 +44,7 @@ Disassembly of section .memory:
     8084:	00100073          	ebreak
 
 00008088 <Proc_1>:
-    8088:	ff010113          	add	sp,sp,-16 # fff0 <end+0x3e9e>
+    8088:	ff010113          	addi	sp,sp,-16 # fff0 <end+0x3e9e>
     808c:	01212023          	sw	s2,0(sp)
     8090:	0000c937          	lui	s2,0xc
     8094:	c8892783          	lw	a5,-888(s2) # bc88 <Ptr_Glob>
@@ -86,7 +86,7 @@ Disassembly of section .memory:
     8124:	c8892603          	lw	a2,-888(s2)
     8128:	00e42623          	sw	a4,12(s0)
     812c:	00a00513          	li	a0,10
-    8130:	00c60613          	add	a2,a2,12
+    8130:	00c60613          	addi	a2,a2,12
     8134:	1c4000ef          	jal	82f8 <Proc_7>
     8138:	00442783          	lw	a5,4(s0)
     813c:	08078063          	beqz	a5,81bc <Proc_1+0x134>
@@ -119,16 +119,16 @@ Disassembly of section .memory:
     81a8:	02f4a623          	sw	a5,44(s1)
     81ac:	00012903          	lw	s2,0(sp)
     81b0:	00412483          	lw	s1,4(sp)
-    81b4:	01010113          	add	sp,sp,16
+    81b4:	01010113          	addi	sp,sp,16
     81b8:	00008067          	ret
     81bc:	0084a503          	lw	a0,8(s1)
     81c0:	00600793          	li	a5,6
     81c4:	00f42623          	sw	a5,12(s0)
-    81c8:	00840593          	add	a1,s0,8
+    81c8:	00840593          	addi	a1,s0,8
     81cc:	0d8000ef          	jal	82a4 <Proc_6>
     81d0:	c8892783          	lw	a5,-888(s2)
     81d4:	00c42503          	lw	a0,12(s0)
-    81d8:	00c40613          	add	a2,s0,12
+    81d8:	00c40613          	addi	a2,s0,12
     81dc:	0007a783          	lw	a5,0(a5)
     81e0:	00c12083          	lw	ra,12(sp)
     81e4:	00412483          	lw	s1,4(sp)
@@ -136,7 +136,7 @@ Disassembly of section .memory:
     81ec:	00812403          	lw	s0,8(sp)
     81f0:	00012903          	lw	s2,0(sp)
     81f4:	00a00593          	li	a1,10
-    81f8:	01010113          	add	sp,sp,16
+    81f8:	01010113          	addi	sp,sp,16
     81fc:	0fc0006f          	j	82f8 <Proc_7>
 
 00008200 <Proc_2>:
@@ -148,7 +148,7 @@ Disassembly of section .memory:
     8214:	00052783          	lw	a5,0(a0)
     8218:	0000c737          	lui	a4,0xc
     821c:	c8072703          	lw	a4,-896(a4) # bc80 <Int_Glob>
-    8220:	00978793          	add	a5,a5,9
+    8220:	00978793          	addi	a5,a5,9
     8224:	40e787b3          	sub	a5,a5,a4
     8228:	00f52023          	sw	a5,0(a0)
     822c:	00008067          	ret
@@ -162,7 +162,7 @@ Disassembly of section .memory:
     8244:	c887a603          	lw	a2,-888(a5)
     8248:	0000c7b7          	lui	a5,0xc
     824c:	c807a583          	lw	a1,-896(a5) # bc80 <Int_Glob>
-    8250:	00c60613          	add	a2,a2,12
+    8250:	00c60613          	addi	a2,a2,12
     8254:	00a00513          	li	a0,10
     8258:	0a00006f          	j	82f8 <Proc_7>
 
@@ -171,7 +171,7 @@ Disassembly of section .memory:
     8260:	c797c783          	lbu	a5,-903(a5) # bc79 <Ch_1_Glob>
     8264:	0000c737          	lui	a4,0xc
     8268:	c7c72683          	lw	a3,-900(a4) # bc7c <Bool_Glob>
-    826c:	fbf78793          	add	a5,a5,-65
+    826c:	fbf78793          	addi	a5,a5,-65
     8270:	0017b793          	seqz	a5,a5
     8274:	00d7e7b3          	or	a5,a5,a3
     8278:	c6f72e23          	sw	a5,-900(a4)
@@ -212,17 +212,17 @@ Disassembly of section .memory:
     82f4:	00008067          	ret
 
 000082f8 <Proc_7>:
-    82f8:	00250513          	add	a0,a0,2
+    82f8:	00250513          	addi	a0,a0,2
     82fc:	00b505b3          	add	a1,a0,a1
     8300:	00b62023          	sw	a1,0(a2)
     8304:	00008067          	ret
 
 00008308 <Proc_8>:
-    8308:	00560713          	add	a4,a2,5
+    8308:	00560713          	addi	a4,a2,5
     830c:	0c800813          	li	a6,200
     8310:	03070833          	mul	a6,a4,a6
-    8314:	00261613          	sll	a2,a2,0x2
-    8318:	00271793          	sll	a5,a4,0x2
+    8314:	00261613          	slli	a2,a2,0x2
+    8318:	00271793          	slli	a5,a4,0x2
     831c:	00f50533          	add	a0,a0,a5
     8320:	00d52023          	sw	a3,0(a0)
     8324:	06e52c23          	sw	a4,120(a0)
@@ -232,7 +232,7 @@ Disassembly of section .memory:
     8334:	0107a683          	lw	a3,16(a5)
     8338:	00e7aa23          	sw	a4,20(a5)
     833c:	00e7ac23          	sw	a4,24(a5)
-    8340:	00168713          	add	a4,a3,1
+    8340:	00168713          	addi	a4,a3,1
     8344:	00e7a823          	sw	a4,16(a5)
     8348:	00052703          	lw	a4,0(a0)
     834c:	010585b3          	add	a1,a1,a6
@@ -257,7 +257,7 @@ Disassembly of section .memory:
     8390:	00008067          	ret
 
 00008394 <Func_2>:
-    8394:	ff010113          	add	sp,sp,-16
+    8394:	ff010113          	addi	sp,sp,-16
     8398:	00112623          	sw	ra,12(sp)
     839c:	00254703          	lbu	a4,2(a0)
     83a0:	0035c783          	lbu	a5,3(a1)
@@ -272,13 +272,13 @@ Disassembly of section .memory:
     83c4:	00100793          	li	a5,1
     83c8:	00c12083          	lw	ra,12(sp)
     83cc:	00078513          	mv	a0,a5
-    83d0:	01010113          	add	sp,sp,16
+    83d0:	01010113          	addi	sp,sp,16
     83d4:	00008067          	ret
     83d8:	c6f68ca3          	sb	a5,-903(a3) # bc79 <Ch_1_Glob>
     83dc:	fcdff06f          	j	83a8 <Func_2+0x14>
 
 000083e0 <Func_3>:
-    83e0:	ffe50513          	add	a0,a0,-2
+    83e0:	ffe50513          	addi	a0,a0,-2
     83e4:	00153513          	seqz	a0,a0
     83e8:	00008067          	ret
 
@@ -296,7 +296,7 @@ Disassembly of section .memory:
     8404:	00a707b3          	add	a5,a4,a0
     8408:	0000c537          	lui	a0,0xc
     840c:	0ef6ae23          	sw	a5,252(a3)
-    8410:	cfc50513          	add	a0,a0,-772 # bcfc <heap_memory>
+    8410:	cfc50513          	addi	a0,a0,-772 # bcfc <heap_memory>
     8414:	40000693          	li	a3,1024
     8418:	00e50533          	add	a0,a0,a4
     841c:	00f6d463          	bge	a3,a5,8424 <malloc+0x28>
@@ -304,10 +304,10 @@ Disassembly of section .memory:
     8424:	00008067          	ret
 
 00008428 <printf>:
-    8428:	fb010113          	add	sp,sp,-80
+    8428:	fb010113          	addi	sp,sp,-80
     842c:	00054303          	lbu	t1,0(a0)
     8430:	04f12223          	sw	a5,68(sp)
-    8434:	03410793          	add	a5,sp,52
+    8434:	03410793          	addi	a5,sp,52
     8438:	02b12a23          	sw	a1,52(sp)
     843c:	02c12c23          	sw	a2,56(sp)
     8440:	02d12e23          	sw	a3,60(sp)
@@ -324,63 +324,63 @@ Disassembly of section .memory:
     846c:	10000eb7          	lui	t4,0x10000
     8470:	03c30463          	beq	t1,t3,8498 <printf+0x70>
     8474:	006ea023          	sw	t1,0(t4) # 10000000 <end+0xfff3eae>
-    8478:	00178793          	add	a5,a5,1
+    8478:	00178793          	addi	a5,a5,1
     847c:	00f50733          	add	a4,a0,a5
     8480:	00074303          	lbu	t1,0(a4)
     8484:	fe0316e3          	bnez	t1,8470 <printf+0x48>
-    8488:	05010113          	add	sp,sp,80
+    8488:	05010113          	addi	sp,sp,80
     848c:	00008067          	ret
     8490:	03070c63          	beq	a4,a6,84c8 <printf+0xa0>
     8494:	07170263          	beq	a4,a7,84f8 <printf+0xd0>
-    8498:	00178793          	add	a5,a5,1
+    8498:	00178793          	addi	a5,a5,1
     849c:	00f50733          	add	a4,a0,a5
     84a0:	00074703          	lbu	a4,0(a4)
     84a4:	fc070ae3          	beqz	a4,8478 <printf+0x50>
     84a8:	feb714e3          	bne	a4,a1,8490 <printf+0x68>
     84ac:	00c12703          	lw	a4,12(sp)
     84b0:	00072683          	lw	a3,0(a4)
-    84b4:	00470713          	add	a4,a4,4
+    84b4:	00470713          	addi	a4,a4,4
     84b8:	00e12623          	sw	a4,12(sp)
     84bc:	10000737          	lui	a4,0x10000
     84c0:	00d72023          	sw	a3,0(a4) # 10000000 <end+0xfff3eae>
     84c4:	fb5ff06f          	j	8478 <printf+0x50>
     84c8:	00c12683          	lw	a3,12(sp)
     84cc:	0006a703          	lw	a4,0(a3)
-    84d0:	00468693          	add	a3,a3,4
+    84d0:	00468693          	addi	a3,a3,4
     84d4:	00d12623          	sw	a3,12(sp)
     84d8:	00074683          	lbu	a3,0(a4)
     84dc:	f8068ee3          	beqz	a3,8478 <printf+0x50>
     84e0:	10000637          	lui	a2,0x10000
-    84e4:	00170713          	add	a4,a4,1
+    84e4:	00170713          	addi	a4,a4,1
     84e8:	00d62023          	sw	a3,0(a2) # 10000000 <end+0xfff3eae>
     84ec:	00074683          	lbu	a3,0(a4)
     84f0:	fe069ae3          	bnez	a3,84e4 <printf+0xbc>
     84f4:	f85ff06f          	j	8478 <printf+0x50>
     84f8:	00c12703          	lw	a4,12(sp)
     84fc:	00072683          	lw	a3,0(a4)
-    8500:	00470713          	add	a4,a4,4
+    8500:	00470713          	addi	a4,a4,4
     8504:	00e12623          	sw	a4,12(sp)
     8508:	0406c463          	bltz	a3,8550 <printf+0x128>
-    850c:	01010f13          	add	t5,sp,16
+    850c:	01010f13          	addi	t5,sp,16
     8510:	000f0713          	mv	a4,t5
     8514:	00a00313          	li	t1,10
     8518:	00069463          	bnez	a3,8520 <printf+0xf8>
     851c:	01e71e63          	bne	a4,t5,8538 <printf+0x110>
     8520:	0266e633          	rem	a2,a3,t1
-    8524:	00170713          	add	a4,a4,1
-    8528:	03060613          	add	a2,a2,48
+    8524:	00170713          	addi	a4,a4,1
+    8528:	03060613          	addi	a2,a2,48
     852c:	0266c6b3          	div	a3,a3,t1
     8530:	fec70fa3          	sb	a2,-1(a4)
     8534:	fe5ff06f          	j	8518 <printf+0xf0>
     8538:	10000637          	lui	a2,0x10000
     853c:	fff74683          	lbu	a3,-1(a4)
-    8540:	fff70713          	add	a4,a4,-1
+    8540:	fff70713          	addi	a4,a4,-1
     8544:	00d62023          	sw	a3,0(a2) # 10000000 <end+0xfff3eae>
     8548:	ffe71ae3          	bne	a4,t5,853c <printf+0x114>
     854c:	f2dff06f          	j	8478 <printf+0x50>
     8550:	10000737          	lui	a4,0x10000
     8554:	02d00613          	li	a2,45
-    8558:	01010f13          	add	t5,sp,16
+    8558:	01010f13          	addi	t5,sp,16
     855c:	00c72023          	sw	a2,0(a4) # 10000000 <end+0xfff3eae>
     8560:	40d006b3          	neg	a3,a3
     8564:	000f0713          	mv	a4,t5
@@ -388,24 +388,24 @@ Disassembly of section .memory:
     856c:	fadff06f          	j	8518 <printf+0xf0>
 
 00008570 <memcpy>:
-    8570:	fff60813          	add	a6,a2,-1
+    8570:	fff60813          	addi	a6,a2,-1
     8574:	08060e63          	beqz	a2,8610 <memcpy+0xa0>
     8578:	00600793          	li	a5,6
-    857c:	00158713          	add	a4,a1,1
+    857c:	00158713          	addi	a4,a1,1
     8580:	0707fa63          	bgeu	a5,a6,85f4 <memcpy+0x84>
     8584:	00a5e7b3          	or	a5,a1,a0
-    8588:	0037f793          	and	a5,a5,3
-    858c:	00158713          	add	a4,a1,1
+    8588:	0037f793          	andi	a5,a5,3
+    858c:	00158713          	addi	a4,a1,1
     8590:	06079263          	bnez	a5,85f4 <memcpy+0x84>
     8594:	40e507b3          	sub	a5,a0,a4
     8598:	0037b793          	sltiu	a5,a5,3
     859c:	04079c63          	bnez	a5,85f4 <memcpy+0x84>
-    85a0:	ffc67893          	and	a7,a2,-4
+    85a0:	ffc67893          	andi	a7,a2,-4
     85a4:	00050793          	mv	a5,a0
     85a8:	011586b3          	add	a3,a1,a7
     85ac:	0005a703          	lw	a4,0(a1)
-    85b0:	00458593          	add	a1,a1,4
-    85b4:	00478793          	add	a5,a5,4
+    85b0:	00458593          	addi	a1,a1,4
+    85b4:	00478793          	addi	a5,a5,4
     85b8:	fee7ae23          	sw	a4,-4(a5)
     85bc:	feb698e3          	bne	a3,a1,85ac <memcpy+0x3c>
     85c0:	011507b3          	add	a5,a0,a7
@@ -424,8 +424,8 @@ Disassembly of section .memory:
     85f4:	00c506b3          	add	a3,a0,a2
     85f8:	00050793          	mv	a5,a0
     85fc:	fff74603          	lbu	a2,-1(a4)
-    8600:	00178793          	add	a5,a5,1
-    8604:	00170713          	add	a4,a4,1
+    8600:	00178793          	addi	a5,a5,1
+    8604:	00170713          	addi	a4,a4,1
     8608:	fec78fa3          	sb	a2,-1(a5)
     860c:	fed798e3          	bne	a5,a3,85fc <memcpy+0x8c>
     8610:	00008067          	ret
@@ -434,27 +434,27 @@ Disassembly of section .memory:
     8614:	00050793          	mv	a5,a0
     8618:	0180006f          	j	8630 <strcpy+0x1c>
     861c:	0005c703          	lbu	a4,0(a1)
-    8620:	00178793          	add	a5,a5,1
-    8624:	00158593          	add	a1,a1,1
+    8620:	00178793          	addi	a5,a5,1
+    8624:	00158593          	addi	a1,a1,1
     8628:	fee78fa3          	sb	a4,-1(a5)
     862c:	08070463          	beqz	a4,86b4 <strcpy+0xa0>
     8630:	00f5e733          	or	a4,a1,a5
-    8634:	00377713          	and	a4,a4,3
+    8634:	00377713          	andi	a4,a4,3
     8638:	fe0712e3          	bnez	a4,861c <strcpy+0x8>
     863c:	0005a683          	lw	a3,0(a1)
     8640:	feff08b7          	lui	a7,0xfeff0
-    8644:	eff88893          	add	a7,a7,-257 # fefefeff <end+0xfefe3dad>
+    8644:	eff88893          	addi	a7,a7,-257 # fefefeff <end+0xfefe3dad>
     8648:	01168733          	add	a4,a3,a7
     864c:	fff6c613          	not	a2,a3
     8650:	80808837          	lui	a6,0x80808
     8654:	00c77733          	and	a4,a4,a2
-    8658:	08080813          	add	a6,a6,128 # 80808080 <end+0x807fbf2e>
+    8658:	08080813          	addi	a6,a6,128 # 80808080 <end+0x807fbf2e>
     865c:	01077733          	and	a4,a4,a6
     8660:	02071463          	bnez	a4,8688 <strcpy+0x74>
     8664:	00d7a023          	sw	a3,0(a5)
     8668:	0045a683          	lw	a3,4(a1)
-    866c:	00478793          	add	a5,a5,4
-    8670:	00458593          	add	a1,a1,4
+    866c:	00478793          	addi	a5,a5,4
+    8670:	00458593          	addi	a1,a1,4
     8674:	01168733          	add	a4,a3,a7
     8678:	fff6c613          	not	a2,a3
     867c:	00c77733          	and	a4,a4,a2
@@ -463,16 +463,16 @@ Disassembly of section .memory:
     8688:	00d78023          	sb	a3,0(a5)
     868c:	0ff6f713          	zext.b	a4,a3
     8690:	02070263          	beqz	a4,86b4 <strcpy+0xa0>
-    8694:	0086d713          	srl	a4,a3,0x8
+    8694:	0086d713          	srli	a4,a3,0x8
     8698:	00e780a3          	sb	a4,1(a5)
     869c:	0ff77713          	zext.b	a4,a4
     86a0:	00070a63          	beqz	a4,86b4 <strcpy+0xa0>
-    86a4:	0106d713          	srl	a4,a3,0x10
+    86a4:	0106d713          	srli	a4,a3,0x10
     86a8:	00e78123          	sb	a4,2(a5)
     86ac:	0ff77713          	zext.b	a4,a4
     86b0:	00071463          	bnez	a4,86b8 <strcpy+0xa4>
     86b4:	00008067          	ret
-    86b8:	0186d693          	srl	a3,a3,0x18
+    86b8:	0186d693          	srli	a3,a3,0x18
     86bc:	00d781a3          	sb	a3,3(a5)
     86c0:	00008067          	ret
 
@@ -480,19 +480,19 @@ Disassembly of section .memory:
     86c4:	01c0006f          	j	86e0 <strcmp+0x1c>
     86c8:	00054783          	lbu	a5,0(a0)
     86cc:	0005c703          	lbu	a4,0(a1)
-    86d0:	00150513          	add	a0,a0,1
-    86d4:	00158593          	add	a1,a1,1
+    86d0:	00150513          	addi	a0,a0,1
+    86d4:	00158593          	addi	a1,a1,1
     86d8:	06e79263          	bne	a5,a4,873c <strcmp+0x78>
     86dc:	04078c63          	beqz	a5,8734 <strcmp+0x70>
     86e0:	00b567b3          	or	a5,a0,a1
-    86e4:	0037f793          	and	a5,a5,3
+    86e4:	0037f793          	andi	a5,a5,3
     86e8:	fe0790e3          	bnez	a5,86c8 <strcmp+0x4>
     86ec:	00052783          	lw	a5,0(a0)
     86f0:	0005a703          	lw	a4,0(a1)
     86f4:	feff0637          	lui	a2,0xfeff0
     86f8:	808086b7          	lui	a3,0x80808
-    86fc:	eff60613          	add	a2,a2,-257 # fefefeff <end+0xfefe3dad>
-    8700:	08068693          	add	a3,a3,128 # 80808080 <end+0x807fbf2e>
+    86fc:	eff60613          	addi	a2,a2,-257 # fefefeff <end+0xfefe3dad>
+    8700:	08068693          	addi	a3,a3,128 # 80808080 <end+0x807fbf2e>
     8704:	00f70a63          	beq	a4,a5,8718 <strcmp+0x54>
     8708:	0440006f          	j	874c <strcmp+0x88>
     870c:	00052783          	lw	a5,0(a0)
@@ -502,42 +502,42 @@ Disassembly of section .memory:
     871c:	fff7c793          	not	a5,a5
     8720:	00f777b3          	and	a5,a4,a5
     8724:	00d7f7b3          	and	a5,a5,a3
-    8728:	00450513          	add	a0,a0,4
-    872c:	00458593          	add	a1,a1,4
+    8728:	00450513          	addi	a0,a0,4
+    872c:	00458593          	addi	a1,a1,4
     8730:	fc078ee3          	beqz	a5,870c <strcmp+0x48>
     8734:	00000513          	li	a0,0
     8738:	00008067          	ret
     873c:	00e7b533          	sltu	a0,a5,a4
     8740:	40a00533          	neg	a0,a0
-    8744:	00156513          	or	a0,a0,1
+    8744:	00156513          	ori	a0,a0,1
     8748:	00008067          	ret
     874c:	0ff7f693          	zext.b	a3,a5
     8750:	0ff77613          	zext.b	a2,a4
     8754:	04c69c63          	bne	a3,a2,87ac <strcmp+0xe8>
     8758:	00000513          	li	a0,0
     875c:	fc068ee3          	beqz	a3,8738 <strcmp+0x74>
-    8760:	0087d693          	srl	a3,a5,0x8
-    8764:	00875613          	srl	a2,a4,0x8
+    8760:	0087d693          	srli	a3,a5,0x8
+    8764:	00875613          	srli	a2,a4,0x8
     8768:	0ff6f693          	zext.b	a3,a3
     876c:	0ff67613          	zext.b	a2,a2
     8770:	02c69e63          	bne	a3,a2,87ac <strcmp+0xe8>
     8774:	fc0682e3          	beqz	a3,8738 <strcmp+0x74>
-    8778:	0107d693          	srl	a3,a5,0x10
-    877c:	01075613          	srl	a2,a4,0x10
+    8778:	0107d693          	srli	a3,a5,0x10
+    877c:	01075613          	srli	a2,a4,0x10
     8780:	0ff6f693          	zext.b	a3,a3
     8784:	0ff67613          	zext.b	a2,a2
     8788:	02c69263          	bne	a3,a2,87ac <strcmp+0xe8>
     878c:	fa0686e3          	beqz	a3,8738 <strcmp+0x74>
-    8790:	0187d793          	srl	a5,a5,0x18
-    8794:	01875713          	srl	a4,a4,0x18
+    8790:	0187d793          	srli	a5,a5,0x18
+    8794:	01875713          	srli	a4,a4,0x18
     8798:	fae780e3          	beq	a5,a4,8738 <strcmp+0x74>
     879c:	00e7b7b3          	sltu	a5,a5,a4
     87a0:	40f007b3          	neg	a5,a5
-    87a4:	0017e513          	or	a0,a5,1
+    87a4:	0017e513          	ori	a0,a5,1
     87a8:	00008067          	ret
     87ac:	00c6b7b3          	sltu	a5,a3,a2
     87b0:	40f007b3          	neg	a5,a5
-    87b4:	0017e513          	or	a0,a5,1
+    87b4:	0017e513          	ori	a0,a5,1
     87b8:	00008067          	ret
 
 000087bc <Arr_1_Glob>:
@@ -545,103 +545,648 @@ Disassembly of section .memory:
 
 00008884 <Arr_2_Glob>:
 	...
-    af94:	59524844 4e4f5453 52502045 4152474f     DHRYSTONE PROGRA
-    afa4:	53202c4d 20454d4f 49525453 0000474e     M, SOME STRING..
-    afb4:	00000000 59524844 4e4f5453 52502045     ....DHRYSTONE PR
-    afc4:	4152474f 31202c4d 20545327 49525453     OGRAM, 1'ST STRI
-    afd4:	0000474e 0000000a 79726844 6e6f7473     NG......Dhryston
-    afe4:	65422065 6d68636e 2c6b7261 72655620     e Benchmark, Ver
-    aff4:	6e6f6973 312e3220 614c2820 6175676e     sion 2.1 (Langua
-    b004:	203a6567 000a2943 676f7250 206d6172     ge: C)..Program 
-    b014:	706d6f63 64656c69 74697720 72272068     compiled with 'r
-    b024:	73696765 27726574 74746120 75626972     egister' attribu
-    b034:	000a6574 676f7250 206d6172 706d6f63     te..Program comp
-    b044:	64656c69 74697720 74756f68 65722720     iled without 're
-    b054:	74736967 20277265 72747461 74756269     gister' attribut
-    b064:	00000a65 61656c50 67206573 20657669     e...Please give 
-    b074:	20656874 626d756e 6f207265 75722066     the number of ru
-    b084:	7420736e 756f7268 74206867 62206568     ns through the b
-    b094:	68636e65 6b72616d 0000203a 63657845     enchmark: ..Exec
-    b0a4:	6f697475 7473206e 73747261 6425202c     ution starts, %d
-    b0b4:	6e757220 68742073 67756f72 68442068      runs through Dh
-    b0c4:	74737972 0a656e6f 00000000 59524844     rystone.....DHRY
-    b0d4:	4e4f5453 52502045 4152474f 32202c4d     STONE PROGRAM, 2
-    b0e4:	20444e27 49525453 0000474e 59524844     'ND STRING..DHRY
-    b0f4:	4e4f5453 52502045 4152474f 33202c4d     STONE PROGRAM, 3
-    b104:	20445227 49525453 0000474e 63657845     'RD STRING..Exec
-    b114:	6f697475 6e65206e 000a7364 616e6946     ution ends..Fina
-    b124:	6176206c 7365756c 20666f20 20656874     l values of the 
-    b134:	69726176 656c6261 73752073 69206465     variables used i
-    b144:	6874206e 65622065 6d68636e 3a6b7261     n the benchmark:
-    b154:	0000000a 5f746e49 626f6c47 2020203a     ....Int_Glob:   
-    b164:	20202020 20202020 0a642520 00000000              %d.....
-    b174:	20202020 20202020 756f6873 6220646c             should b
-    b184:	20203a65 0a642520 00000000 6c6f6f42     e:   %d.....Bool
-    b194:	6f6c475f 20203a62 20202020 20202020     _Glob:          
-    b1a4:	0a642520 00000000 315f6843 6f6c475f      %d.....Ch_1_Glo
-    b1b4:	20203a62 20202020 20202020 0a632520     b:           %c.
-    b1c4:	00000000 20202020 20202020 756f6873     ....        shou
-    b1d4:	6220646c 20203a65 0a632520 00000000     ld be:   %c.....
-    b1e4:	325f6843 6f6c475f 20203a62 20202020     Ch_2_Glob:      
-    b1f4:	20202020 0a632520 00000000 5f727241          %c.....Arr_
-    b204:	6c475f31 385b626f 20203a5d 20202020     1_Glob[8]:      
-    b214:	0a642520 00000000 5f727241 6c475f32      %d.....Arr_2_Gl
-    b224:	385b626f 5d375b5d 2020203a 0a642520     ob[8][7]:    %d.
-    b234:	00000000 20202020 20202020 756f6873     ....        shou
-    b244:	6220646c 20203a65 6d754e20 5f726562     ld be:   Number_
-    b254:	525f664f 20736e75 3031202b 0000000a     Of_Runs + 10....
-    b264:	5f727450 626f6c47 000a3e2d 74502020     Ptr_Glob->..  Pt
-    b274:	6f435f72 203a706d 20202020 20202020     r_Comp:         
-    b284:	0a642520 00000000 20202020 20202020      %d.....        
-    b294:	756f6873 6220646c 20203a65 6d692820     should be:   (im
-    b2a4:	6d656c70 61746e65 6e6f6974 7065642d     plementation-dep
-    b2b4:	65646e65 0a29746e 00000000 69442020     endent).....  Di
-    b2c4:	3a726373 20202020 20202020 20202020     scr:            
-    b2d4:	0a642520 00000000 6e452020 435f6d75      %d.....  Enum_C
-    b2e4:	3a706d6f 20202020 20202020 0a642520     omp:         %d.
-    b2f4:	00000000 6e492020 6f435f74 203a706d     ....  Int_Comp: 
-    b304:	20202020 20202020 0a642520 00000000              %d.....
-    b314:	74532020 6f435f72 203a706d 20202020       Str_Comp:     
-    b324:	20202020 0a732520 00000000 20202020          %s.....    
-    b334:	20202020 756f6873 6220646c 20203a65         should be:  
-    b344:	52484420 4f545359 5020454e 52474f52      DHRYSTONE PROGR
-    b354:	202c4d41 454d4f53 52545320 0a474e49     AM, SOME STRING.
-    b364:	00000000 7478654e 7274505f 6f6c475f     ....Next_Ptr_Glo
-    b374:	0a3e2d62 00000000 20202020 20202020     b->.....        
-    b384:	756f6873 6220646c 20203a65 6d692820     should be:   (im
-    b394:	6d656c70 61746e65 6e6f6974 7065642d     plementation-dep
-    b3a4:	65646e65 2c29746e 6d617320 73612065     endent), same as
-    b3b4:	6f626120 000a6576 5f746e49 6f4c5f31      above..Int_1_Lo
-    b3c4:	20203a63 20202020 20202020 0a642520     c:           %d.
-    b3d4:	00000000 5f746e49 6f4c5f32 20203a63     ....Int_2_Loc:  
-    b3e4:	20202020 20202020 0a642520 00000000              %d.....
-    b3f4:	5f746e49 6f4c5f33 20203a63 20202020     Int_3_Loc:      
-    b404:	20202020 0a642520 00000000 6d756e45          %d.....Enum
-    b414:	636f4c5f 2020203a 20202020 20202020     _Loc:           
-    b424:	0a642520 00000000 5f727453 6f4c5f31      %d.....Str_1_Lo
-    b434:	20203a63 20202020 20202020 0a732520     c:           %s.
-    b444:	00000000 20202020 20202020 756f6873     ....        shou
-    b454:	6220646c 20203a65 52484420 4f545359     ld be:   DHRYSTO
-    b464:	5020454e 52474f52 202c4d41 54532731     NE PROGRAM, 1'ST
-    b474:	52545320 0a474e49 00000000 5f727453      STRING.....Str_
-    b484:	6f4c5f32 20203a63 20202020 20202020     2_Loc:          
-    b494:	0a732520 00000000 20202020 20202020      %s.....        
-    b4a4:	756f6873 6220646c 20203a65 52484420     should be:   DHR
-    b4b4:	4f545359 5020454e 52474f52 202c4d41     YSTONE PROGRAM, 
-    b4c4:	444e2732 52545320 0a474e49 00000000     2'ND STRING.....
-    b4d4:	626d754e 4f5f7265 75525f66 203a736e     Number_Of_Runs: 
-    b4e4:	000a6425 72657355 6d69545f 25203a65     %d..User_Time: %
-    b4f4:	79632064 73656c63 6425202c 736e6920     d cycles, %d ins
-    b504:	00000a6e 6c637943 505f7365 495f7265     n...Cycles_Per_I
-    b514:	7274736e 69746375 203a6e6f 252e6425     nstruction: %d.%
-    b524:	25642564 00000a64 79726844 6e6f7473     d%d%d...Dhryston
-    b534:	505f7365 535f7265 6e6f6365 65505f64     es_Per_Second_Pe
-    b544:	484d5f72 25203a7a 00000a64 50494d44     r_MHz: %d...DMIP
-    b554:	65505f53 484d5f72 25203a7a 64252e64     S_Per_MHz: %d.%d
-    b564:	64256425 0000000a                       %d%d....
+    af94:	4844                	.insn	2, 0x4844
+    af96:	5952                	.insn	2, 0x5952
+    af98:	4e4f5453          	.insn	4, 0x4e4f5453
+    af9c:	2045                	.insn	2, 0x2045
+    af9e:	5250                	.insn	2, 0x5250
+    afa0:	4152474f          	.insn	4, 0x4152474f
+    afa4:	2c4d                	.insn	2, 0x2c4d
+    afa6:	5320                	.insn	2, 0x5320
+    afa8:	20454d4f          	.insn	4, 0x20454d4f
+    afac:	49525453          	.insn	4, 0x49525453
+    afb0:	474e                	.insn	2, 0x474e
+    afb2:	0000                	.insn	2, 0x
+    afb4:	0000                	.insn	2, 0x
+    afb6:	0000                	.insn	2, 0x
+    afb8:	4844                	.insn	2, 0x4844
+    afba:	5952                	.insn	2, 0x5952
+    afbc:	4e4f5453          	.insn	4, 0x4e4f5453
+    afc0:	2045                	.insn	2, 0x2045
+    afc2:	5250                	.insn	2, 0x5250
+    afc4:	4152474f          	.insn	4, 0x4152474f
+    afc8:	2c4d                	.insn	2, 0x2c4d
+    afca:	3120                	.insn	2, 0x3120
+    afcc:	20545327          	.insn	4, 0x20545327
+    afd0:	49525453          	.insn	4, 0x49525453
+    afd4:	474e                	.insn	2, 0x474e
+    afd6:	0000                	.insn	2, 0x
+    afd8:	000a                	.insn	2, 0x000a
+    afda:	0000                	.insn	2, 0x
+    afdc:	6844                	.insn	2, 0x6844
+    afde:	7972                	.insn	2, 0x7972
+    afe0:	6e6f7473          	.insn	4, 0x6e6f7473
+    afe4:	2065                	.insn	2, 0x2065
+    afe6:	6542                	.insn	2, 0x6542
+    afe8:	636e                	.insn	2, 0x636e
+    afea:	6d68                	.insn	2, 0x6d68
+    afec:	7261                	.insn	2, 0x7261
+    afee:	56202c6b          	.insn	4, 0x56202c6b
+    aff2:	7265                	.insn	2, 0x7265
+    aff4:	6e6f6973          	.insn	4, 0x6e6f6973
+    aff8:	3220                	.insn	2, 0x3220
+    affa:	312e                	.insn	2, 0x312e
+    affc:	2820                	.insn	2, 0x2820
+    affe:	614c                	.insn	2, 0x614c
+    b000:	676e                	.insn	2, 0x676e
+    b002:	6175                	.insn	2, 0x6175
+    b004:	203a6567          	.insn	4, 0x203a6567
+    b008:	000a2943          	.insn	4, 0x000a2943
+    b00c:	7250                	.insn	2, 0x7250
+    b00e:	6172676f          	jal	a4,31e24 <end+0x25cd2>
+    b012:	206d                	.insn	2, 0x206d
+    b014:	706d6f63          	bltu	s10,t1,b732 <main+0x1c6>
+    b018:	6c69                	.insn	2, 0x6c69
+    b01a:	6465                	.insn	2, 0x6465
+    b01c:	7720                	.insn	2, 0x7720
+    b01e:	7469                	.insn	2, 0x7469
+    b020:	2068                	.insn	2, 0x2068
+    b022:	67657227          	.insn	4, 0x67657227
+    b026:	7369                	.insn	2, 0x7369
+    b028:	6574                	.insn	2, 0x6574
+    b02a:	2772                	.insn	2, 0x2772
+    b02c:	6120                	.insn	2, 0x6120
+    b02e:	7474                	.insn	2, 0x7474
+    b030:	6972                	.insn	2, 0x6972
+    b032:	7562                	.insn	2, 0x7562
+    b034:	6574                	.insn	2, 0x6574
+    b036:	000a                	.insn	2, 0x000a
+    b038:	7250                	.insn	2, 0x7250
+    b03a:	6172676f          	jal	a4,31e50 <end+0x25cfe>
+    b03e:	206d                	.insn	2, 0x206d
+    b040:	706d6f63          	bltu	s10,t1,b75e <main+0x1f2>
+    b044:	6c69                	.insn	2, 0x6c69
+    b046:	6465                	.insn	2, 0x6465
+    b048:	7720                	.insn	2, 0x7720
+    b04a:	7469                	.insn	2, 0x7469
+    b04c:	6f68                	.insn	2, 0x6f68
+    b04e:	7475                	.insn	2, 0x7475
+    b050:	2720                	.insn	2, 0x2720
+    b052:	6572                	.insn	2, 0x6572
+    b054:	74736967          	.insn	4, 0x74736967
+    b058:	7265                	.insn	2, 0x7265
+    b05a:	74612027          	.insn	4, 0x74612027
+    b05e:	7274                	.insn	2, 0x7274
+    b060:	6269                	.insn	2, 0x6269
+    b062:	7475                	.insn	2, 0x7475
+    b064:	0a65                	.insn	2, 0x0a65
+    b066:	0000                	.insn	2, 0x
+    b068:	6c50                	.insn	2, 0x6c50
+    b06a:	6165                	.insn	2, 0x6165
+    b06c:	67206573          	.insn	4, 0x67206573
+    b070:	7669                	.insn	2, 0x7669
+    b072:	2065                	.insn	2, 0x2065
+    b074:	6874                	.insn	2, 0x6874
+    b076:	2065                	.insn	2, 0x2065
+    b078:	756e                	.insn	2, 0x756e
+    b07a:	626d                	.insn	2, 0x626d
+    b07c:	7265                	.insn	2, 0x7265
+    b07e:	6f20                	.insn	2, 0x6f20
+    b080:	2066                	.insn	2, 0x2066
+    b082:	7572                	.insn	2, 0x7572
+    b084:	736e                	.insn	2, 0x736e
+    b086:	7420                	.insn	2, 0x7420
+    b088:	7268                	.insn	2, 0x7268
+    b08a:	6867756f          	jal	a0,82710 <end+0x765be>
+    b08e:	7420                	.insn	2, 0x7420
+    b090:	6568                	.insn	2, 0x6568
+    b092:	6220                	.insn	2, 0x6220
+    b094:	6e65                	.insn	2, 0x6e65
+    b096:	616d6863          	bltu	s10,s6,b6a6 <main+0x13a>
+    b09a:	6b72                	.insn	2, 0x6b72
+    b09c:	203a                	.insn	2, 0x203a
+    b09e:	0000                	.insn	2, 0x
+    b0a0:	7845                	.insn	2, 0x7845
+    b0a2:	6365                	.insn	2, 0x6365
+    b0a4:	7475                	.insn	2, 0x7475
+    b0a6:	6f69                	.insn	2, 0x6f69
+    b0a8:	206e                	.insn	2, 0x206e
+    b0aa:	72617473          	.insn	4, 0x72617473
+    b0ae:	7374                	.insn	2, 0x7374
+    b0b0:	202c                	.insn	2, 0x202c
+    b0b2:	6425                	.insn	2, 0x6425
+    b0b4:	7220                	.insn	2, 0x7220
+    b0b6:	6e75                	.insn	2, 0x6e75
+    b0b8:	68742073          	.insn	4, 0x68742073
+    b0bc:	6f72                	.insn	2, 0x6f72
+    b0be:	6775                	.insn	2, 0x6775
+    b0c0:	2068                	.insn	2, 0x2068
+    b0c2:	6844                	.insn	2, 0x6844
+    b0c4:	7972                	.insn	2, 0x7972
+    b0c6:	6e6f7473          	.insn	4, 0x6e6f7473
+    b0ca:	0a65                	.insn	2, 0x0a65
+    b0cc:	0000                	.insn	2, 0x
+    b0ce:	0000                	.insn	2, 0x
+    b0d0:	4844                	.insn	2, 0x4844
+    b0d2:	5952                	.insn	2, 0x5952
+    b0d4:	4e4f5453          	.insn	4, 0x4e4f5453
+    b0d8:	2045                	.insn	2, 0x2045
+    b0da:	5250                	.insn	2, 0x5250
+    b0dc:	4152474f          	.insn	4, 0x4152474f
+    b0e0:	2c4d                	.insn	2, 0x2c4d
+    b0e2:	3220                	.insn	2, 0x3220
+    b0e4:	20444e27          	.insn	4, 0x20444e27
+    b0e8:	49525453          	.insn	4, 0x49525453
+    b0ec:	474e                	.insn	2, 0x474e
+    b0ee:	0000                	.insn	2, 0x
+    b0f0:	4844                	.insn	2, 0x4844
+    b0f2:	5952                	.insn	2, 0x5952
+    b0f4:	4e4f5453          	.insn	4, 0x4e4f5453
+    b0f8:	2045                	.insn	2, 0x2045
+    b0fa:	5250                	.insn	2, 0x5250
+    b0fc:	4152474f          	.insn	4, 0x4152474f
+    b100:	2c4d                	.insn	2, 0x2c4d
+    b102:	3320                	.insn	2, 0x3320
+    b104:	20445227          	.insn	4, 0x20445227
+    b108:	49525453          	.insn	4, 0x49525453
+    b10c:	474e                	.insn	2, 0x474e
+    b10e:	0000                	.insn	2, 0x
+    b110:	7845                	.insn	2, 0x7845
+    b112:	6365                	.insn	2, 0x6365
+    b114:	7475                	.insn	2, 0x7475
+    b116:	6f69                	.insn	2, 0x6f69
+    b118:	206e                	.insn	2, 0x206e
+    b11a:	6e65                	.insn	2, 0x6e65
+    b11c:	7364                	.insn	2, 0x7364
+    b11e:	000a                	.insn	2, 0x000a
+    b120:	6946                	.insn	2, 0x6946
+    b122:	616e                	.insn	2, 0x616e
+    b124:	206c                	.insn	2, 0x206c
+    b126:	6176                	.insn	2, 0x6176
+    b128:	756c                	.insn	2, 0x756c
+    b12a:	7365                	.insn	2, 0x7365
+    b12c:	6f20                	.insn	2, 0x6f20
+    b12e:	2066                	.insn	2, 0x2066
+    b130:	6874                	.insn	2, 0x6874
+    b132:	2065                	.insn	2, 0x2065
+    b134:	6176                	.insn	2, 0x6176
+    b136:	6972                	.insn	2, 0x6972
+    b138:	6261                	.insn	2, 0x6261
+    b13a:	656c                	.insn	2, 0x656c
+    b13c:	73752073          	.insn	4, 0x73752073
+    b140:	6465                	.insn	2, 0x6465
+    b142:	6920                	.insn	2, 0x6920
+    b144:	206e                	.insn	2, 0x206e
+    b146:	6874                	.insn	2, 0x6874
+    b148:	2065                	.insn	2, 0x2065
+    b14a:	6562                	.insn	2, 0x6562
+    b14c:	636e                	.insn	2, 0x636e
+    b14e:	6d68                	.insn	2, 0x6d68
+    b150:	7261                	.insn	2, 0x7261
+    b152:	000a3a6b          	.insn	4, 0x000a3a6b
+    b156:	0000                	.insn	2, 0x
+    b158:	6e49                	.insn	2, 0x6e49
+    b15a:	5f74                	.insn	2, 0x5f74
+    b15c:	626f6c47          	.insn	4, 0x626f6c47
+    b160:	203a                	.insn	2, 0x203a
+    b162:	2020                	.insn	2, 0x2020
+    b164:	2020                	.insn	2, 0x2020
+    b166:	2020                	.insn	2, 0x2020
+    b168:	2020                	.insn	2, 0x2020
+    b16a:	2020                	.insn	2, 0x2020
+    b16c:	2520                	.insn	2, 0x2520
+    b16e:	0a64                	.insn	2, 0x0a64
+    b170:	0000                	.insn	2, 0x
+    b172:	0000                	.insn	2, 0x
+    b174:	2020                	.insn	2, 0x2020
+    b176:	2020                	.insn	2, 0x2020
+    b178:	2020                	.insn	2, 0x2020
+    b17a:	2020                	.insn	2, 0x2020
+    b17c:	756f6873          	.insn	4, 0x756f6873
+    b180:	646c                	.insn	2, 0x646c
+    b182:	6220                	.insn	2, 0x6220
+    b184:	3a65                	.insn	2, 0x3a65
+    b186:	2020                	.insn	2, 0x2020
+    b188:	2520                	.insn	2, 0x2520
+    b18a:	0a64                	.insn	2, 0x0a64
+    b18c:	0000                	.insn	2, 0x
+    b18e:	0000                	.insn	2, 0x
+    b190:	6f42                	.insn	2, 0x6f42
+    b192:	475f6c6f          	jal	s8,101e06 <end+0xf5cb4>
+    b196:	6f6c                	.insn	2, 0x6f6c
+    b198:	3a62                	.insn	2, 0x3a62
+    b19a:	2020                	.insn	2, 0x2020
+    b19c:	2020                	.insn	2, 0x2020
+    b19e:	2020                	.insn	2, 0x2020
+    b1a0:	2020                	.insn	2, 0x2020
+    b1a2:	2020                	.insn	2, 0x2020
+    b1a4:	2520                	.insn	2, 0x2520
+    b1a6:	0a64                	.insn	2, 0x0a64
+    b1a8:	0000                	.insn	2, 0x
+    b1aa:	0000                	.insn	2, 0x
+    b1ac:	315f6843          	.insn	4, 0x315f6843
+    b1b0:	475f 6f6c 3a62      	.insn	6, 0x3a626f6c475f
+    b1b6:	2020                	.insn	2, 0x2020
+    b1b8:	2020                	.insn	2, 0x2020
+    b1ba:	2020                	.insn	2, 0x2020
+    b1bc:	2020                	.insn	2, 0x2020
+    b1be:	2020                	.insn	2, 0x2020
+    b1c0:	2520                	.insn	2, 0x2520
+    b1c2:	00000a63          	beqz	zero,b1d6 <Arr_2_Glob+0x2952>
+    b1c6:	0000                	.insn	2, 0x
+    b1c8:	2020                	.insn	2, 0x2020
+    b1ca:	2020                	.insn	2, 0x2020
+    b1cc:	2020                	.insn	2, 0x2020
+    b1ce:	2020                	.insn	2, 0x2020
+    b1d0:	756f6873          	.insn	4, 0x756f6873
+    b1d4:	646c                	.insn	2, 0x646c
+    b1d6:	6220                	.insn	2, 0x6220
+    b1d8:	3a65                	.insn	2, 0x3a65
+    b1da:	2020                	.insn	2, 0x2020
+    b1dc:	2520                	.insn	2, 0x2520
+    b1de:	00000a63          	beqz	zero,b1f2 <Arr_2_Glob+0x296e>
+    b1e2:	0000                	.insn	2, 0x
+    b1e4:	325f6843          	.insn	4, 0x325f6843
+    b1e8:	475f 6f6c 3a62      	.insn	6, 0x3a626f6c475f
+    b1ee:	2020                	.insn	2, 0x2020
+    b1f0:	2020                	.insn	2, 0x2020
+    b1f2:	2020                	.insn	2, 0x2020
+    b1f4:	2020                	.insn	2, 0x2020
+    b1f6:	2020                	.insn	2, 0x2020
+    b1f8:	2520                	.insn	2, 0x2520
+    b1fa:	00000a63          	beqz	zero,b20e <Arr_2_Glob+0x298a>
+    b1fe:	0000                	.insn	2, 0x
+    b200:	7241                	.insn	2, 0x7241
+    b202:	5f72                	.insn	2, 0x5f72
+    b204:	5f31                	.insn	2, 0x5f31
+    b206:	626f6c47          	.insn	4, 0x626f6c47
+    b20a:	3a5d385b          	.insn	4, 0x3a5d385b
+    b20e:	2020                	.insn	2, 0x2020
+    b210:	2020                	.insn	2, 0x2020
+    b212:	2020                	.insn	2, 0x2020
+    b214:	2520                	.insn	2, 0x2520
+    b216:	0a64                	.insn	2, 0x0a64
+    b218:	0000                	.insn	2, 0x
+    b21a:	0000                	.insn	2, 0x
+    b21c:	7241                	.insn	2, 0x7241
+    b21e:	5f72                	.insn	2, 0x5f72
+    b220:	5f32                	.insn	2, 0x5f32
+    b222:	626f6c47          	.insn	4, 0x626f6c47
+    b226:	5b5d385b          	.insn	4, 0x5b5d385b
+    b22a:	203a5d37          	lui	s10,0x203a5
+    b22e:	2020                	.insn	2, 0x2020
+    b230:	2520                	.insn	2, 0x2520
+    b232:	0a64                	.insn	2, 0x0a64
+    b234:	0000                	.insn	2, 0x
+    b236:	0000                	.insn	2, 0x
+    b238:	2020                	.insn	2, 0x2020
+    b23a:	2020                	.insn	2, 0x2020
+    b23c:	2020                	.insn	2, 0x2020
+    b23e:	2020                	.insn	2, 0x2020
+    b240:	756f6873          	.insn	4, 0x756f6873
+    b244:	646c                	.insn	2, 0x646c
+    b246:	6220                	.insn	2, 0x6220
+    b248:	3a65                	.insn	2, 0x3a65
+    b24a:	2020                	.insn	2, 0x2020
+    b24c:	4e20                	.insn	2, 0x4e20
+    b24e:	6d75                	.insn	2, 0x6d75
+    b250:	6562                	.insn	2, 0x6562
+    b252:	5f72                	.insn	2, 0x5f72
+    b254:	525f664f          	.insn	4, 0x525f664f
+    b258:	6e75                	.insn	2, 0x6e75
+    b25a:	202b2073          	.insn	4, 0x202b2073
+    b25e:	3031                	.insn	2, 0x3031
+    b260:	000a                	.insn	2, 0x000a
+    b262:	0000                	.insn	2, 0x
+    b264:	7450                	.insn	2, 0x7450
+    b266:	5f72                	.insn	2, 0x5f72
+    b268:	626f6c47          	.insn	4, 0x626f6c47
+    b26c:	3e2d                	.insn	2, 0x3e2d
+    b26e:	000a                	.insn	2, 0x000a
+    b270:	2020                	.insn	2, 0x2020
+    b272:	7450                	.insn	2, 0x7450
+    b274:	5f72                	.insn	2, 0x5f72
+    b276:	706d6f43          	.insn	4, 0x706d6f43
+    b27a:	203a                	.insn	2, 0x203a
+    b27c:	2020                	.insn	2, 0x2020
+    b27e:	2020                	.insn	2, 0x2020
+    b280:	2020                	.insn	2, 0x2020
+    b282:	2020                	.insn	2, 0x2020
+    b284:	2520                	.insn	2, 0x2520
+    b286:	0a64                	.insn	2, 0x0a64
+    b288:	0000                	.insn	2, 0x
+    b28a:	0000                	.insn	2, 0x
+    b28c:	2020                	.insn	2, 0x2020
+    b28e:	2020                	.insn	2, 0x2020
+    b290:	2020                	.insn	2, 0x2020
+    b292:	2020                	.insn	2, 0x2020
+    b294:	756f6873          	.insn	4, 0x756f6873
+    b298:	646c                	.insn	2, 0x646c
+    b29a:	6220                	.insn	2, 0x6220
+    b29c:	3a65                	.insn	2, 0x3a65
+    b29e:	2020                	.insn	2, 0x2020
+    b2a0:	2820                	.insn	2, 0x2820
+    b2a2:	6d69                	.insn	2, 0x6d69
+    b2a4:	6c70                	.insn	2, 0x6c70
+    b2a6:	6d65                	.insn	2, 0x6d65
+    b2a8:	6e65                	.insn	2, 0x6e65
+    b2aa:	6174                	.insn	2, 0x6174
+    b2ac:	6974                	.insn	2, 0x6974
+    b2ae:	642d6e6f          	jal	t3,e18f0 <end+0xd579e>
+    b2b2:	7065                	.insn	2, 0x7065
+    b2b4:	6e65                	.insn	2, 0x6e65
+    b2b6:	6564                	.insn	2, 0x6564
+    b2b8:	746e                	.insn	2, 0x746e
+    b2ba:	0a29                	.insn	2, 0x0a29
+    b2bc:	0000                	.insn	2, 0x
+    b2be:	0000                	.insn	2, 0x
+    b2c0:	2020                	.insn	2, 0x2020
+    b2c2:	6944                	.insn	2, 0x6944
+    b2c4:	3a726373          	.insn	4, 0x3a726373
+    b2c8:	2020                	.insn	2, 0x2020
+    b2ca:	2020                	.insn	2, 0x2020
+    b2cc:	2020                	.insn	2, 0x2020
+    b2ce:	2020                	.insn	2, 0x2020
+    b2d0:	2020                	.insn	2, 0x2020
+    b2d2:	2020                	.insn	2, 0x2020
+    b2d4:	2520                	.insn	2, 0x2520
+    b2d6:	0a64                	.insn	2, 0x0a64
+    b2d8:	0000                	.insn	2, 0x
+    b2da:	0000                	.insn	2, 0x
+    b2dc:	2020                	.insn	2, 0x2020
+    b2de:	6e45                	.insn	2, 0x6e45
+    b2e0:	6d75                	.insn	2, 0x6d75
+    b2e2:	435f 6d6f 3a70      	.insn	6, 0x3a706d6f435f
+    b2e8:	2020                	.insn	2, 0x2020
+    b2ea:	2020                	.insn	2, 0x2020
+    b2ec:	2020                	.insn	2, 0x2020
+    b2ee:	2020                	.insn	2, 0x2020
+    b2f0:	2520                	.insn	2, 0x2520
+    b2f2:	0a64                	.insn	2, 0x0a64
+    b2f4:	0000                	.insn	2, 0x
+    b2f6:	0000                	.insn	2, 0x
+    b2f8:	2020                	.insn	2, 0x2020
+    b2fa:	6e49                	.insn	2, 0x6e49
+    b2fc:	5f74                	.insn	2, 0x5f74
+    b2fe:	706d6f43          	.insn	4, 0x706d6f43
+    b302:	203a                	.insn	2, 0x203a
+    b304:	2020                	.insn	2, 0x2020
+    b306:	2020                	.insn	2, 0x2020
+    b308:	2020                	.insn	2, 0x2020
+    b30a:	2020                	.insn	2, 0x2020
+    b30c:	2520                	.insn	2, 0x2520
+    b30e:	0a64                	.insn	2, 0x0a64
+    b310:	0000                	.insn	2, 0x
+    b312:	0000                	.insn	2, 0x
+    b314:	2020                	.insn	2, 0x2020
+    b316:	5f727453          	.insn	4, 0x5f727453
+    b31a:	706d6f43          	.insn	4, 0x706d6f43
+    b31e:	203a                	.insn	2, 0x203a
+    b320:	2020                	.insn	2, 0x2020
+    b322:	2020                	.insn	2, 0x2020
+    b324:	2020                	.insn	2, 0x2020
+    b326:	2020                	.insn	2, 0x2020
+    b328:	2520                	.insn	2, 0x2520
+    b32a:	00000a73          	.insn	4, 0x0a73
+    b32e:	0000                	.insn	2, 0x
+    b330:	2020                	.insn	2, 0x2020
+    b332:	2020                	.insn	2, 0x2020
+    b334:	2020                	.insn	2, 0x2020
+    b336:	2020                	.insn	2, 0x2020
+    b338:	756f6873          	.insn	4, 0x756f6873
+    b33c:	646c                	.insn	2, 0x646c
+    b33e:	6220                	.insn	2, 0x6220
+    b340:	3a65                	.insn	2, 0x3a65
+    b342:	2020                	.insn	2, 0x2020
+    b344:	4420                	.insn	2, 0x4420
+    b346:	5248                	.insn	2, 0x5248
+    b348:	5359                	.insn	2, 0x5359
+    b34a:	4f54                	.insn	2, 0x4f54
+    b34c:	454e                	.insn	2, 0x454e
+    b34e:	5020                	.insn	2, 0x5020
+    b350:	4f52                	.insn	2, 0x4f52
+    b352:	4d415247          	.insn	4, 0x4d415247
+    b356:	202c                	.insn	2, 0x202c
+    b358:	454d4f53          	.insn	4, 0x454d4f53
+    b35c:	5320                	.insn	2, 0x5320
+    b35e:	5254                	.insn	2, 0x5254
+    b360:	4e49                	.insn	2, 0x4e49
+    b362:	00000a47          	.insn	4, 0x0a47
+    b366:	0000                	.insn	2, 0x
+    b368:	654e                	.insn	2, 0x654e
+    b36a:	7478                	.insn	2, 0x7478
+    b36c:	505f 7274 475f      	.insn	6, 0x475f7274505f
+    b372:	6f6c                	.insn	2, 0x6f6c
+    b374:	2d62                	.insn	2, 0x2d62
+    b376:	0a3e                	.insn	2, 0x0a3e
+    b378:	0000                	.insn	2, 0x
+    b37a:	0000                	.insn	2, 0x
+    b37c:	2020                	.insn	2, 0x2020
+    b37e:	2020                	.insn	2, 0x2020
+    b380:	2020                	.insn	2, 0x2020
+    b382:	2020                	.insn	2, 0x2020
+    b384:	756f6873          	.insn	4, 0x756f6873
+    b388:	646c                	.insn	2, 0x646c
+    b38a:	6220                	.insn	2, 0x6220
+    b38c:	3a65                	.insn	2, 0x3a65
+    b38e:	2020                	.insn	2, 0x2020
+    b390:	2820                	.insn	2, 0x2820
+    b392:	6d69                	.insn	2, 0x6d69
+    b394:	6c70                	.insn	2, 0x6c70
+    b396:	6d65                	.insn	2, 0x6d65
+    b398:	6e65                	.insn	2, 0x6e65
+    b39a:	6174                	.insn	2, 0x6174
+    b39c:	6974                	.insn	2, 0x6974
+    b39e:	642d6e6f          	jal	t3,e19e0 <end+0xd588e>
+    b3a2:	7065                	.insn	2, 0x7065
+    b3a4:	6e65                	.insn	2, 0x6e65
+    b3a6:	6564                	.insn	2, 0x6564
+    b3a8:	746e                	.insn	2, 0x746e
+    b3aa:	2c29                	.insn	2, 0x2c29
+    b3ac:	7320                	.insn	2, 0x7320
+    b3ae:	6d61                	.insn	2, 0x6d61
+    b3b0:	2065                	.insn	2, 0x2065
+    b3b2:	7361                	.insn	2, 0x7361
+    b3b4:	6120                	.insn	2, 0x6120
+    b3b6:	6f62                	.insn	2, 0x6f62
+    b3b8:	6576                	.insn	2, 0x6576
+    b3ba:	000a                	.insn	2, 0x000a
+    b3bc:	6e49                	.insn	2, 0x6e49
+    b3be:	5f74                	.insn	2, 0x5f74
+    b3c0:	5f31                	.insn	2, 0x5f31
+    b3c2:	6f4c                	.insn	2, 0x6f4c
+    b3c4:	20203a63          	.insn	4, 0x20203a63
+    b3c8:	2020                	.insn	2, 0x2020
+    b3ca:	2020                	.insn	2, 0x2020
+    b3cc:	2020                	.insn	2, 0x2020
+    b3ce:	2020                	.insn	2, 0x2020
+    b3d0:	2520                	.insn	2, 0x2520
+    b3d2:	0a64                	.insn	2, 0x0a64
+    b3d4:	0000                	.insn	2, 0x
+    b3d6:	0000                	.insn	2, 0x
+    b3d8:	6e49                	.insn	2, 0x6e49
+    b3da:	5f74                	.insn	2, 0x5f74
+    b3dc:	5f32                	.insn	2, 0x5f32
+    b3de:	6f4c                	.insn	2, 0x6f4c
+    b3e0:	20203a63          	.insn	4, 0x20203a63
+    b3e4:	2020                	.insn	2, 0x2020
+    b3e6:	2020                	.insn	2, 0x2020
+    b3e8:	2020                	.insn	2, 0x2020
+    b3ea:	2020                	.insn	2, 0x2020
+    b3ec:	2520                	.insn	2, 0x2520
+    b3ee:	0a64                	.insn	2, 0x0a64
+    b3f0:	0000                	.insn	2, 0x
+    b3f2:	0000                	.insn	2, 0x
+    b3f4:	6e49                	.insn	2, 0x6e49
+    b3f6:	5f74                	.insn	2, 0x5f74
+    b3f8:	6f4c5f33          	.insn	4, 0x6f4c5f33
+    b3fc:	20203a63          	.insn	4, 0x20203a63
+    b400:	2020                	.insn	2, 0x2020
+    b402:	2020                	.insn	2, 0x2020
+    b404:	2020                	.insn	2, 0x2020
+    b406:	2020                	.insn	2, 0x2020
+    b408:	2520                	.insn	2, 0x2520
+    b40a:	0a64                	.insn	2, 0x0a64
+    b40c:	0000                	.insn	2, 0x
+    b40e:	0000                	.insn	2, 0x
+    b410:	6e45                	.insn	2, 0x6e45
+    b412:	6d75                	.insn	2, 0x6d75
+    b414:	4c5f 636f 203a      	.insn	6, 0x203a636f4c5f
+    b41a:	2020                	.insn	2, 0x2020
+    b41c:	2020                	.insn	2, 0x2020
+    b41e:	2020                	.insn	2, 0x2020
+    b420:	2020                	.insn	2, 0x2020
+    b422:	2020                	.insn	2, 0x2020
+    b424:	2520                	.insn	2, 0x2520
+    b426:	0a64                	.insn	2, 0x0a64
+    b428:	0000                	.insn	2, 0x
+    b42a:	0000                	.insn	2, 0x
+    b42c:	5f727453          	.insn	4, 0x5f727453
+    b430:	5f31                	.insn	2, 0x5f31
+    b432:	6f4c                	.insn	2, 0x6f4c
+    b434:	20203a63          	.insn	4, 0x20203a63
+    b438:	2020                	.insn	2, 0x2020
+    b43a:	2020                	.insn	2, 0x2020
+    b43c:	2020                	.insn	2, 0x2020
+    b43e:	2020                	.insn	2, 0x2020
+    b440:	2520                	.insn	2, 0x2520
+    b442:	00000a73          	.insn	4, 0x0a73
+    b446:	0000                	.insn	2, 0x
+    b448:	2020                	.insn	2, 0x2020
+    b44a:	2020                	.insn	2, 0x2020
+    b44c:	2020                	.insn	2, 0x2020
+    b44e:	2020                	.insn	2, 0x2020
+    b450:	756f6873          	.insn	4, 0x756f6873
+    b454:	646c                	.insn	2, 0x646c
+    b456:	6220                	.insn	2, 0x6220
+    b458:	3a65                	.insn	2, 0x3a65
+    b45a:	2020                	.insn	2, 0x2020
+    b45c:	4420                	.insn	2, 0x4420
+    b45e:	5248                	.insn	2, 0x5248
+    b460:	5359                	.insn	2, 0x5359
+    b462:	4f54                	.insn	2, 0x4f54
+    b464:	454e                	.insn	2, 0x454e
+    b466:	5020                	.insn	2, 0x5020
+    b468:	4f52                	.insn	2, 0x4f52
+    b46a:	4d415247          	.insn	4, 0x4d415247
+    b46e:	202c                	.insn	2, 0x202c
+    b470:	2731                	.insn	2, 0x2731
+    b472:	53205453          	.insn	4, 0x53205453
+    b476:	5254                	.insn	2, 0x5254
+    b478:	4e49                	.insn	2, 0x4e49
+    b47a:	00000a47          	.insn	4, 0x0a47
+    b47e:	0000                	.insn	2, 0x
+    b480:	5f727453          	.insn	4, 0x5f727453
+    b484:	5f32                	.insn	2, 0x5f32
+    b486:	6f4c                	.insn	2, 0x6f4c
+    b488:	20203a63          	.insn	4, 0x20203a63
+    b48c:	2020                	.insn	2, 0x2020
+    b48e:	2020                	.insn	2, 0x2020
+    b490:	2020                	.insn	2, 0x2020
+    b492:	2020                	.insn	2, 0x2020
+    b494:	2520                	.insn	2, 0x2520
+    b496:	00000a73          	.insn	4, 0x0a73
+    b49a:	0000                	.insn	2, 0x
+    b49c:	2020                	.insn	2, 0x2020
+    b49e:	2020                	.insn	2, 0x2020
+    b4a0:	2020                	.insn	2, 0x2020
+    b4a2:	2020                	.insn	2, 0x2020
+    b4a4:	756f6873          	.insn	4, 0x756f6873
+    b4a8:	646c                	.insn	2, 0x646c
+    b4aa:	6220                	.insn	2, 0x6220
+    b4ac:	3a65                	.insn	2, 0x3a65
+    b4ae:	2020                	.insn	2, 0x2020
+    b4b0:	4420                	.insn	2, 0x4420
+    b4b2:	5248                	.insn	2, 0x5248
+    b4b4:	5359                	.insn	2, 0x5359
+    b4b6:	4f54                	.insn	2, 0x4f54
+    b4b8:	454e                	.insn	2, 0x454e
+    b4ba:	5020                	.insn	2, 0x5020
+    b4bc:	4f52                	.insn	2, 0x4f52
+    b4be:	4d415247          	.insn	4, 0x4d415247
+    b4c2:	202c                	.insn	2, 0x202c
+    b4c4:	2732                	.insn	2, 0x2732
+    b4c6:	444e                	.insn	2, 0x444e
+    b4c8:	5320                	.insn	2, 0x5320
+    b4ca:	5254                	.insn	2, 0x5254
+    b4cc:	4e49                	.insn	2, 0x4e49
+    b4ce:	00000a47          	.insn	4, 0x0a47
+    b4d2:	0000                	.insn	2, 0x
+    b4d4:	754e                	.insn	2, 0x754e
+    b4d6:	626d                	.insn	2, 0x626d
+    b4d8:	7265                	.insn	2, 0x7265
+    b4da:	4f5f 5f66 7552      	.insn	6, 0x75525f664f5f
+    b4e0:	736e                	.insn	2, 0x736e
+    b4e2:	203a                	.insn	2, 0x203a
+    b4e4:	6425                	.insn	2, 0x6425
+    b4e6:	000a                	.insn	2, 0x000a
+    b4e8:	7355                	.insn	2, 0x7355
+    b4ea:	7265                	.insn	2, 0x7265
+    b4ec:	545f 6d69 3a65      	.insn	6, 0x3a656d69545f
+    b4f2:	2520                	.insn	2, 0x2520
+    b4f4:	2064                	.insn	2, 0x2064
+    b4f6:	6c637963          	bgeu	t1,t1,bbc8 <main+0x65c>
+    b4fa:	7365                	.insn	2, 0x7365
+    b4fc:	202c                	.insn	2, 0x202c
+    b4fe:	6425                	.insn	2, 0x6425
+    b500:	6920                	.insn	2, 0x6920
+    b502:	736e                	.insn	2, 0x736e
+    b504:	0a6e                	.insn	2, 0x0a6e
+    b506:	0000                	.insn	2, 0x
+    b508:	6c637943          	.insn	4, 0x6c637943
+    b50c:	7365                	.insn	2, 0x7365
+    b50e:	505f 7265 495f      	.insn	6, 0x495f7265505f
+    b514:	736e                	.insn	2, 0x736e
+    b516:	7274                	.insn	2, 0x7274
+    b518:	6375                	.insn	2, 0x6375
+    b51a:	6974                	.insn	2, 0x6974
+    b51c:	203a6e6f          	jal	t3,b1f1e <end+0xa5dcc>
+    b520:	6425                	.insn	2, 0x6425
+    b522:	252e                	.insn	2, 0x252e
+    b524:	2564                	.insn	2, 0x2564
+    b526:	2564                	.insn	2, 0x2564
+    b528:	0a64                	.insn	2, 0x0a64
+    b52a:	0000                	.insn	2, 0x
+    b52c:	6844                	.insn	2, 0x6844
+    b52e:	7972                	.insn	2, 0x7972
+    b530:	6e6f7473          	.insn	4, 0x6e6f7473
+    b534:	7365                	.insn	2, 0x7365
+    b536:	505f 7265 535f      	.insn	6, 0x535f7265505f
+    b53c:	6365                	.insn	2, 0x6365
+    b53e:	5f646e6f          	jal	t3,51b34 <end+0x459e2>
+    b542:	6550                	.insn	2, 0x6550
+    b544:	5f72                	.insn	2, 0x5f72
+    b546:	484d                	.insn	2, 0x484d
+    b548:	3a7a                	.insn	2, 0x3a7a
+    b54a:	2520                	.insn	2, 0x2520
+    b54c:	0a64                	.insn	2, 0x0a64
+    b54e:	0000                	.insn	2, 0x
+    b550:	4d44                	.insn	2, 0x4d44
+    b552:	5049                	.insn	2, 0x5049
+    b554:	65505f53          	.insn	4, 0x65505f53
+    b558:	5f72                	.insn	2, 0x5f72
+    b55a:	484d                	.insn	2, 0x484d
+    b55c:	3a7a                	.insn	2, 0x3a7a
+    b55e:	2520                	.insn	2, 0x2520
+    b560:	2e64                	.insn	2, 0x2e64
+    b562:	6425                	.insn	2, 0x6425
+    b564:	6425                	.insn	2, 0x6425
+    b566:	6425                	.insn	2, 0x6425
+    b568:	000a                	.insn	2, 0x000a
+	...
 
 0000b56c <main>:
-    b56c:	f6010113          	add	sp,sp,-160
+    b56c:	f6010113          	addi	sp,sp,-160
     b570:	03000513          	li	a0,48
     b574:	08112e23          	sw	ra,156(sp)
     b578:	08812c23          	sw	s0,152(sp)
@@ -672,42 +1217,42 @@ Disassembly of section .memory:
     b5dc:	02800793          	li	a5,40
     b5e0:	00f52623          	sw	a5,12(a0)
     b5e4:	00052223          	sw	zero,4(a0)
-    b5e8:	f9458593          	add	a1,a1,-108 # af94 <Arr_2_Glob+0x2710>
-    b5ec:	01050513          	add	a0,a0,16
+    b5e8:	f9458593          	addi	a1,a1,-108 # af94 <Arr_2_Glob+0x2710>
+    b5ec:	01050513          	addi	a0,a0,16
     b5f0:	824fd0ef          	jal	8614 <strcpy>
     b5f4:	0000b5b7          	lui	a1,0xb
-    b5f8:	fb858593          	add	a1,a1,-72 # afb8 <Arr_2_Glob+0x2734>
-    b5fc:	02010513          	add	a0,sp,32
+    b5f8:	fb858593          	addi	a1,a1,-72 # afb8 <Arr_2_Glob+0x2734>
+    b5fc:	02010513          	addi	a0,sp,32
     b600:	814fd0ef          	jal	8614 <strcpy>
     b604:	0000b437          	lui	s0,0xb
     b608:	00009737          	lui	a4,0x9
     b60c:	00a00793          	li	a5,10
-    b610:	88470713          	add	a4,a4,-1916 # 8884 <Arr_2_Glob>
-    b614:	fd840513          	add	a0,s0,-40 # afd8 <Arr_2_Glob+0x2754>
+    b610:	88470713          	addi	a4,a4,-1916 # 8884 <Arr_2_Glob>
+    b614:	fd840513          	addi	a0,s0,-40 # afd8 <Arr_2_Glob+0x2754>
     b618:	64f72e23          	sw	a5,1628(a4)
     b61c:	e0dfc0ef          	jal	8428 <printf>
     b620:	0000b537          	lui	a0,0xb
-    b624:	fdc50513          	add	a0,a0,-36 # afdc <Arr_2_Glob+0x2758>
+    b624:	fdc50513          	addi	a0,a0,-36 # afdc <Arr_2_Glob+0x2758>
     b628:	e01fc0ef          	jal	8428 <printf>
-    b62c:	fd840513          	add	a0,s0,-40
+    b62c:	fd840513          	addi	a0,s0,-40
     b630:	df9fc0ef          	jal	8428 <printf>
     b634:	0000c7b7          	lui	a5,0xc
     b638:	c747a783          	lw	a5,-908(a5) # bc74 <Reg>
     b63c:	5e078e63          	beqz	a5,bc38 <main+0x6cc>
     b640:	0000b537          	lui	a0,0xb
-    b644:	00c50513          	add	a0,a0,12 # b00c <Arr_2_Glob+0x2788>
+    b644:	00c50513          	addi	a0,a0,12 # b00c <Arr_2_Glob+0x2788>
     b648:	de1fc0ef          	jal	8428 <printf>
-    b64c:	fd840513          	add	a0,s0,-40
+    b64c:	fd840513          	addi	a0,s0,-40
     b650:	dd9fc0ef          	jal	8428 <printf>
     b654:	0000b537          	lui	a0,0xb
-    b658:	06850513          	add	a0,a0,104 # b068 <Arr_2_Glob+0x27e4>
+    b658:	06850513          	addi	a0,a0,104 # b068 <Arr_2_Glob+0x27e4>
     b65c:	dcdfc0ef          	jal	8428 <printf>
     b660:	0000b7b7          	lui	a5,0xb
-    b664:	fd878513          	add	a0,a5,-40 # afd8 <Arr_2_Glob+0x2754>
+    b664:	fd878513          	addi	a0,a5,-40 # afd8 <Arr_2_Glob+0x2754>
     b668:	dc1fc0ef          	jal	8428 <printf>
     b66c:	0000b537          	lui	a0,0xb
     b670:	06400593          	li	a1,100
-    b674:	0a050513          	add	a0,a0,160 # b0a0 <Arr_2_Glob+0x281c>
+    b674:	0a050513          	addi	a0,a0,160 # b0a0 <Arr_2_Glob+0x281c>
     b678:	db1fc0ef          	jal	8428 <printf>
     b67c:	00000513          	li	a0,0
     b680:	d6dfc0ef          	jal	83ec <time>
@@ -728,19 +1273,19 @@ Disassembly of section .memory:
     b6bc:	00100a93          	li	s5,1
     b6c0:	0000bc37          	lui	s8,0xb
     b6c4:	0000b7b7          	lui	a5,0xb
-    b6c8:	0d078593          	add	a1,a5,208 # b0d0 <Arr_2_Glob+0x284c>
-    b6cc:	04010513          	add	a0,sp,64
+    b6c8:	0d078593          	addi	a1,a5,208 # b0d0 <Arr_2_Glob+0x284c>
+    b6cc:	04010513          	addi	a0,sp,64
     b6d0:	04200793          	li	a5,66
     b6d4:	c6f40c23          	sb	a5,-904(s0) # bc78 <Ch_2_Glob>
     b6d8:	c7698ca3          	sb	s6,-903(s3) # bc79 <Ch_1_Glob>
     b6dc:	c75a2e23          	sw	s5,-900(s4) # bc7c <Bool_Glob>
     b6e0:	f35fc0ef          	jal	8614 <strcpy>
-    b6e4:	04010593          	add	a1,sp,64
-    b6e8:	02010513          	add	a0,sp,32
+    b6e4:	04010593          	addi	a1,sp,64
+    b6e8:	02010513          	addi	a0,sp,32
     b6ec:	01512e23          	sw	s5,28(sp)
     b6f0:	ca5fc0ef          	jal	8394 <Func_2>
     b6f4:	00153793          	seqz	a5,a0
-    b6f8:	01810613          	add	a2,sp,24
+    b6f8:	01810613          	addi	a2,sp,24
     b6fc:	00300593          	li	a1,3
     b700:	c6fa2e23          	sw	a5,-900(s4)
     b704:	00200513          	li	a0,2
@@ -749,9 +1294,9 @@ Disassembly of section .memory:
     b710:	be9fc0ef          	jal	82f8 <Proc_7>
     b714:	01812683          	lw	a3,24(sp)
     b718:	000097b7          	lui	a5,0x9
-    b71c:	88478593          	add	a1,a5,-1916 # 8884 <Arr_2_Glob>
+    b71c:	88478593          	addi	a1,a5,-1916 # 8884 <Arr_2_Glob>
     b720:	00300613          	li	a2,3
-    b724:	7bcd0513          	add	a0,s10,1980 # 87bc <Arr_1_Glob>
+    b724:	7bcd0513          	addi	a0,s10,1980 # 87bc <Arr_1_Glob>
     b728:	be1fc0ef          	jal	8308 <Proc_8>
     b72c:	c88ca503          	lw	a0,-888(s9)
     b730:	959fc0ef          	jal	8088 <Proc_1>
@@ -764,12 +1309,12 @@ Disassembly of section .memory:
     b74c:	000d8513          	mv	a0,s11
     b750:	c21fc0ef          	jal	8370 <Func_1>
     b754:	01c12703          	lw	a4,28(sp)
-    b758:	001d8693          	add	a3,s11,1
+    b758:	001d8693          	addi	a3,s11,1
     b75c:	4ae50063          	beq	a0,a4,bbfc <main+0x690>
     b760:	c7844703          	lbu	a4,-904(s0)
     b764:	0ff6fd93          	zext.b	s11,a3
     b768:	ffb770e3          	bgeu	a4,s11,b748 <main+0x1dc>
-    b76c:	00191793          	sll	a5,s2,0x1
+    b76c:	00191793          	slli	a5,s2,0x1
     b770:	01278933          	add	s2,a5,s2
     b774:	01812603          	lw	a2,24(sp)
     b778:	c799c703          	lbu	a4,-903(s3)
@@ -777,9 +1322,9 @@ Disassembly of section .memory:
     b780:	00068793          	mv	a5,a3
     b784:	01671863          	bne	a4,s6,b794 <main+0x228>
     b788:	c80ba703          	lw	a4,-896(s7) # bc80 <Int_Glob>
-    b78c:	00968793          	add	a5,a3,9
+    b78c:	00968793          	addi	a5,a3,9
     b790:	40e787b3          	sub	a5,a5,a4
-    b794:	00148493          	add	s1,s1,1
+    b794:	00148493          	addi	s1,s1,1
     b798:	06500713          	li	a4,101
     b79c:	f2e494e3          	bne	s1,a4,b6c4 <main+0x158>
     b7a0:	00000513          	li	a0,0
@@ -795,194 +1340,194 @@ Disassembly of section .memory:
     b7c8:	00050713          	mv	a4,a0
     b7cc:	0000b537          	lui	a0,0xb
     b7d0:	0000cab7          	lui	s5,0xc
-    b7d4:	11050513          	add	a0,a0,272 # b110 <Arr_2_Glob+0x288c>
+    b7d4:	11050513          	addi	a0,a0,272 # b110 <Arr_2_Glob+0x288c>
     b7d8:	c6eaa023          	sw	a4,-928(s5) # bc60 <End_Insn>
     b7dc:	0000bdb7          	lui	s11,0xb
     b7e0:	c49fc0ef          	jal	8428 <printf>
-    b7e4:	fd8d8513          	add	a0,s11,-40 # afd8 <Arr_2_Glob+0x2754>
+    b7e4:	fd8d8513          	addi	a0,s11,-40 # afd8 <Arr_2_Glob+0x2754>
     b7e8:	c41fc0ef          	jal	8428 <printf>
     b7ec:	0000b537          	lui	a0,0xb
-    b7f0:	12050513          	add	a0,a0,288 # b120 <Arr_2_Glob+0x289c>
+    b7f0:	12050513          	addi	a0,a0,288 # b120 <Arr_2_Glob+0x289c>
     b7f4:	c35fc0ef          	jal	8428 <printf>
-    b7f8:	fd8d8513          	add	a0,s11,-40
+    b7f8:	fd8d8513          	addi	a0,s11,-40
     b7fc:	c2dfc0ef          	jal	8428 <printf>
     b800:	c80ba583          	lw	a1,-896(s7)
     b804:	0000b537          	lui	a0,0xb
-    b808:	15850513          	add	a0,a0,344 # b158 <Arr_2_Glob+0x28d4>
+    b808:	15850513          	addi	a0,a0,344 # b158 <Arr_2_Glob+0x28d4>
     b80c:	0000b4b7          	lui	s1,0xb
     b810:	c19fc0ef          	jal	8428 <printf>
     b814:	00500593          	li	a1,5
-    b818:	17448513          	add	a0,s1,372 # b174 <Arr_2_Glob+0x28f0>
+    b818:	17448513          	addi	a0,s1,372 # b174 <Arr_2_Glob+0x28f0>
     b81c:	c0dfc0ef          	jal	8428 <printf>
     b820:	c7ca2583          	lw	a1,-900(s4)
     b824:	0000b537          	lui	a0,0xb
-    b828:	19050513          	add	a0,a0,400 # b190 <Arr_2_Glob+0x290c>
+    b828:	19050513          	addi	a0,a0,400 # b190 <Arr_2_Glob+0x290c>
     b82c:	bfdfc0ef          	jal	8428 <printf>
     b830:	00100593          	li	a1,1
-    b834:	17448513          	add	a0,s1,372
+    b834:	17448513          	addi	a0,s1,372
     b838:	bf1fc0ef          	jal	8428 <printf>
     b83c:	c799c583          	lbu	a1,-903(s3)
     b840:	0000b537          	lui	a0,0xb
-    b844:	1ac50513          	add	a0,a0,428 # b1ac <Arr_2_Glob+0x2928>
+    b844:	1ac50513          	addi	a0,a0,428 # b1ac <Arr_2_Glob+0x2928>
     b848:	be1fc0ef          	jal	8428 <printf>
     b84c:	0000b9b7          	lui	s3,0xb
     b850:	04100593          	li	a1,65
-    b854:	1c898513          	add	a0,s3,456 # b1c8 <Arr_2_Glob+0x2944>
+    b854:	1c898513          	addi	a0,s3,456 # b1c8 <Arr_2_Glob+0x2944>
     b858:	bd1fc0ef          	jal	8428 <printf>
     b85c:	c7844583          	lbu	a1,-904(s0)
     b860:	0000b537          	lui	a0,0xb
-    b864:	1e450513          	add	a0,a0,484 # b1e4 <Arr_2_Glob+0x2960>
+    b864:	1e450513          	addi	a0,a0,484 # b1e4 <Arr_2_Glob+0x2960>
     b868:	bc1fc0ef          	jal	8428 <printf>
     b86c:	04200593          	li	a1,66
-    b870:	1c898513          	add	a0,s3,456
+    b870:	1c898513          	addi	a0,s3,456
     b874:	bb5fc0ef          	jal	8428 <printf>
-    b878:	7bcd0d13          	add	s10,s10,1980
+    b878:	7bcd0d13          	addi	s10,s10,1980
     b87c:	020d2583          	lw	a1,32(s10)
     b880:	0000b537          	lui	a0,0xb
-    b884:	20050513          	add	a0,a0,512 # b200 <Arr_2_Glob+0x297c>
+    b884:	20050513          	addi	a0,a0,512 # b200 <Arr_2_Glob+0x297c>
     b888:	ba1fc0ef          	jal	8428 <printf>
     b88c:	00700593          	li	a1,7
-    b890:	17448513          	add	a0,s1,372
+    b890:	17448513          	addi	a0,s1,372
     b894:	b95fc0ef          	jal	8428 <printf>
     b898:	000097b7          	lui	a5,0x9
-    b89c:	88478793          	add	a5,a5,-1916 # 8884 <Arr_2_Glob>
+    b89c:	88478793          	addi	a5,a5,-1916 # 8884 <Arr_2_Glob>
     b8a0:	65c7a583          	lw	a1,1628(a5)
     b8a4:	0000b537          	lui	a0,0xb
-    b8a8:	21c50513          	add	a0,a0,540 # b21c <Arr_2_Glob+0x2998>
+    b8a8:	21c50513          	addi	a0,a0,540 # b21c <Arr_2_Glob+0x2998>
     b8ac:	b7dfc0ef          	jal	8428 <printf>
     b8b0:	0000b537          	lui	a0,0xb
-    b8b4:	23850513          	add	a0,a0,568 # b238 <Arr_2_Glob+0x29b4>
+    b8b4:	23850513          	addi	a0,a0,568 # b238 <Arr_2_Glob+0x29b4>
     b8b8:	b71fc0ef          	jal	8428 <printf>
     b8bc:	0000b537          	lui	a0,0xb
-    b8c0:	26450513          	add	a0,a0,612 # b264 <Arr_2_Glob+0x29e0>
+    b8c0:	26450513          	addi	a0,a0,612 # b264 <Arr_2_Glob+0x29e0>
     b8c4:	b65fc0ef          	jal	8428 <printf>
     b8c8:	c88ca703          	lw	a4,-888(s9)
     b8cc:	0000bd37          	lui	s10,0xb
-    b8d0:	270d0513          	add	a0,s10,624 # b270 <Arr_2_Glob+0x29ec>
+    b8d0:	270d0513          	addi	a0,s10,624 # b270 <Arr_2_Glob+0x29ec>
     b8d4:	00072583          	lw	a1,0(a4)
     b8d8:	0000bc37          	lui	s8,0xb
     b8dc:	0000bbb7          	lui	s7,0xb
     b8e0:	b49fc0ef          	jal	8428 <printf>
     b8e4:	0000b537          	lui	a0,0xb
-    b8e8:	28c50513          	add	a0,a0,652 # b28c <Arr_2_Glob+0x2a08>
+    b8e8:	28c50513          	addi	a0,a0,652 # b28c <Arr_2_Glob+0x2a08>
     b8ec:	b3dfc0ef          	jal	8428 <printf>
     b8f0:	c88ca703          	lw	a4,-888(s9)
-    b8f4:	2c0c0513          	add	a0,s8,704 # b2c0 <Arr_2_Glob+0x2a3c>
+    b8f4:	2c0c0513          	addi	a0,s8,704 # b2c0 <Arr_2_Glob+0x2a3c>
     b8f8:	0000ba37          	lui	s4,0xb
     b8fc:	00472583          	lw	a1,4(a4)
     b900:	0000b9b7          	lui	s3,0xb
     b904:	0000b437          	lui	s0,0xb
     b908:	b21fc0ef          	jal	8428 <printf>
     b90c:	00000593          	li	a1,0
-    b910:	17448513          	add	a0,s1,372
+    b910:	17448513          	addi	a0,s1,372
     b914:	b15fc0ef          	jal	8428 <printf>
     b918:	c88ca703          	lw	a4,-888(s9)
-    b91c:	2dcb8513          	add	a0,s7,732 # b2dc <Arr_2_Glob+0x2a58>
+    b91c:	2dcb8513          	addi	a0,s7,732 # b2dc <Arr_2_Glob+0x2a58>
     b920:	00872583          	lw	a1,8(a4)
     b924:	b05fc0ef          	jal	8428 <printf>
     b928:	00200593          	li	a1,2
-    b92c:	17448513          	add	a0,s1,372
+    b92c:	17448513          	addi	a0,s1,372
     b930:	af9fc0ef          	jal	8428 <printf>
     b934:	c88ca703          	lw	a4,-888(s9)
-    b938:	2f8a0513          	add	a0,s4,760 # b2f8 <Arr_2_Glob+0x2a74>
+    b938:	2f8a0513          	addi	a0,s4,760 # b2f8 <Arr_2_Glob+0x2a74>
     b93c:	00c72583          	lw	a1,12(a4)
     b940:	ae9fc0ef          	jal	8428 <printf>
     b944:	01100593          	li	a1,17
-    b948:	17448513          	add	a0,s1,372
+    b948:	17448513          	addi	a0,s1,372
     b94c:	addfc0ef          	jal	8428 <printf>
     b950:	c88ca583          	lw	a1,-888(s9)
-    b954:	31498513          	add	a0,s3,788 # b314 <Arr_2_Glob+0x2a90>
+    b954:	31498513          	addi	a0,s3,788 # b314 <Arr_2_Glob+0x2a90>
     b958:	0000ccb7          	lui	s9,0xc
-    b95c:	01058593          	add	a1,a1,16
+    b95c:	01058593          	addi	a1,a1,16
     b960:	ac9fc0ef          	jal	8428 <printf>
-    b964:	33040513          	add	a0,s0,816 # b330 <Arr_2_Glob+0x2aac>
+    b964:	33040513          	addi	a0,s0,816 # b330 <Arr_2_Glob+0x2aac>
     b968:	ac1fc0ef          	jal	8428 <printf>
     b96c:	0000b537          	lui	a0,0xb
-    b970:	36850513          	add	a0,a0,872 # b368 <Arr_2_Glob+0x2ae4>
+    b970:	36850513          	addi	a0,a0,872 # b368 <Arr_2_Glob+0x2ae4>
     b974:	ab5fc0ef          	jal	8428 <printf>
     b978:	c84ca703          	lw	a4,-892(s9) # bc84 <Next_Ptr_Glob>
-    b97c:	270d0513          	add	a0,s10,624
+    b97c:	270d0513          	addi	a0,s10,624
     b980:	00072583          	lw	a1,0(a4)
     b984:	aa5fc0ef          	jal	8428 <printf>
     b988:	0000b537          	lui	a0,0xb
-    b98c:	37c50513          	add	a0,a0,892 # b37c <Arr_2_Glob+0x2af8>
+    b98c:	37c50513          	addi	a0,a0,892 # b37c <Arr_2_Glob+0x2af8>
     b990:	a99fc0ef          	jal	8428 <printf>
     b994:	c84ca703          	lw	a4,-892(s9)
-    b998:	2c0c0513          	add	a0,s8,704
+    b998:	2c0c0513          	addi	a0,s8,704
     b99c:	00472583          	lw	a1,4(a4)
     b9a0:	a89fc0ef          	jal	8428 <printf>
     b9a4:	00000593          	li	a1,0
-    b9a8:	17448513          	add	a0,s1,372
+    b9a8:	17448513          	addi	a0,s1,372
     b9ac:	a7dfc0ef          	jal	8428 <printf>
     b9b0:	c84ca703          	lw	a4,-892(s9)
-    b9b4:	2dcb8513          	add	a0,s7,732
+    b9b4:	2dcb8513          	addi	a0,s7,732
     b9b8:	00872583          	lw	a1,8(a4)
     b9bc:	a6dfc0ef          	jal	8428 <printf>
     b9c0:	00100593          	li	a1,1
-    b9c4:	17448513          	add	a0,s1,372
+    b9c4:	17448513          	addi	a0,s1,372
     b9c8:	a61fc0ef          	jal	8428 <printf>
     b9cc:	c84ca703          	lw	a4,-892(s9)
-    b9d0:	2f8a0513          	add	a0,s4,760
+    b9d0:	2f8a0513          	addi	a0,s4,760
     b9d4:	00c72583          	lw	a1,12(a4)
     b9d8:	a51fc0ef          	jal	8428 <printf>
     b9dc:	01200593          	li	a1,18
-    b9e0:	17448513          	add	a0,s1,372
+    b9e0:	17448513          	addi	a0,s1,372
     b9e4:	a45fc0ef          	jal	8428 <printf>
     b9e8:	c84ca583          	lw	a1,-892(s9)
-    b9ec:	31498513          	add	a0,s3,788
-    b9f0:	01058593          	add	a1,a1,16
+    b9ec:	31498513          	addi	a0,s3,788
+    b9f0:	01058593          	addi	a1,a1,16
     b9f4:	a35fc0ef          	jal	8428 <printf>
-    b9f8:	33040513          	add	a0,s0,816
+    b9f8:	33040513          	addi	a0,s0,816
     b9fc:	a2dfc0ef          	jal	8428 <printf>
     ba00:	00c12783          	lw	a5,12(sp)
     ba04:	0000b537          	lui	a0,0xb
-    ba08:	3bc50513          	add	a0,a0,956 # b3bc <Arr_2_Glob+0x2b38>
+    ba08:	3bc50513          	addi	a0,a0,956 # b3bc <Arr_2_Glob+0x2b38>
     ba0c:	00078593          	mv	a1,a5
     ba10:	a19fc0ef          	jal	8428 <printf>
     ba14:	00500593          	li	a1,5
-    ba18:	17448513          	add	a0,s1,372
+    ba18:	17448513          	addi	a0,s1,372
     ba1c:	a0dfc0ef          	jal	8428 <printf>
     ba20:	00412603          	lw	a2,4(sp)
     ba24:	00812683          	lw	a3,8(sp)
     ba28:	0000b537          	lui	a0,0xb
     ba2c:	40c90933          	sub	s2,s2,a2
-    ba30:	00391593          	sll	a1,s2,0x3
+    ba30:	00391593          	slli	a1,s2,0x3
     ba34:	412585b3          	sub	a1,a1,s2
     ba38:	40d585b3          	sub	a1,a1,a3
-    ba3c:	3d850513          	add	a0,a0,984 # b3d8 <Arr_2_Glob+0x2b54>
+    ba3c:	3d850513          	addi	a0,a0,984 # b3d8 <Arr_2_Glob+0x2b54>
     ba40:	9e9fc0ef          	jal	8428 <printf>
     ba44:	00d00593          	li	a1,13
-    ba48:	17448513          	add	a0,s1,372
+    ba48:	17448513          	addi	a0,s1,372
     ba4c:	9ddfc0ef          	jal	8428 <printf>
     ba50:	01812583          	lw	a1,24(sp)
     ba54:	0000b537          	lui	a0,0xb
-    ba58:	3f450513          	add	a0,a0,1012 # b3f4 <Arr_2_Glob+0x2b70>
+    ba58:	3f450513          	addi	a0,a0,1012 # b3f4 <Arr_2_Glob+0x2b70>
     ba5c:	9cdfc0ef          	jal	8428 <printf>
     ba60:	00700593          	li	a1,7
-    ba64:	17448513          	add	a0,s1,372
+    ba64:	17448513          	addi	a0,s1,372
     ba68:	9c1fc0ef          	jal	8428 <printf>
     ba6c:	01c12583          	lw	a1,28(sp)
     ba70:	0000b537          	lui	a0,0xb
-    ba74:	41050513          	add	a0,a0,1040 # b410 <Arr_2_Glob+0x2b8c>
+    ba74:	41050513          	addi	a0,a0,1040 # b410 <Arr_2_Glob+0x2b8c>
     ba78:	9b1fc0ef          	jal	8428 <printf>
     ba7c:	00100593          	li	a1,1
-    ba80:	17448513          	add	a0,s1,372
+    ba80:	17448513          	addi	a0,s1,372
     ba84:	9a5fc0ef          	jal	8428 <printf>
     ba88:	0000b537          	lui	a0,0xb
-    ba8c:	02010593          	add	a1,sp,32
-    ba90:	42c50513          	add	a0,a0,1068 # b42c <Arr_2_Glob+0x2ba8>
+    ba8c:	02010593          	addi	a1,sp,32
+    ba90:	42c50513          	addi	a0,a0,1068 # b42c <Arr_2_Glob+0x2ba8>
     ba94:	995fc0ef          	jal	8428 <printf>
     ba98:	0000b537          	lui	a0,0xb
-    ba9c:	44850513          	add	a0,a0,1096 # b448 <Arr_2_Glob+0x2bc4>
+    ba9c:	44850513          	addi	a0,a0,1096 # b448 <Arr_2_Glob+0x2bc4>
     baa0:	989fc0ef          	jal	8428 <printf>
     baa4:	0000b537          	lui	a0,0xb
-    baa8:	04010593          	add	a1,sp,64
-    baac:	48050513          	add	a0,a0,1152 # b480 <Arr_2_Glob+0x2bfc>
+    baa8:	04010593          	addi	a1,sp,64
+    baac:	48050513          	addi	a0,a0,1152 # b480 <Arr_2_Glob+0x2bfc>
     bab0:	979fc0ef          	jal	8428 <printf>
     bab4:	0000b537          	lui	a0,0xb
-    bab8:	49c50513          	add	a0,a0,1180 # b49c <Arr_2_Glob+0x2c18>
+    bab8:	49c50513          	addi	a0,a0,1180 # b49c <Arr_2_Glob+0x2c18>
     babc:	96dfc0ef          	jal	8428 <printf>
-    bac0:	fd8d8513          	add	a0,s11,-40
+    bac0:	fd8d8513          	addi	a0,s11,-40
     bac4:	965fc0ef          	jal	8428 <printf>
     bac8:	0000c7b7          	lui	a5,0xc
     bacc:	0000c6b7          	lui	a3,0xc
@@ -996,14 +1541,14 @@ Disassembly of section .memory:
     baec:	40d787b3          	sub	a5,a5,a3
     baf0:	0000c4b7          	lui	s1,0xc
     baf4:	06400593          	li	a1,100
-    baf8:	4d450513          	add	a0,a0,1236 # b4d4 <Arr_2_Glob+0x2c50>
+    baf8:	4d450513          	addi	a0,a0,1236 # b4d4 <Arr_2_Glob+0x2c50>
     bafc:	c6e42423          	sw	a4,-920(s0) # bc68 <User_Time>
     bb00:	c4f4ae23          	sw	a5,-932(s1) # bc5c <User_Insn>
     bb04:	925fc0ef          	jal	8428 <printf>
     bb08:	c5c4a603          	lw	a2,-932(s1)
     bb0c:	c6842583          	lw	a1,-920(s0)
     bb10:	0000b537          	lui	a0,0xb
-    bb14:	4e850513          	add	a0,a0,1256 # b4e8 <Arr_2_Glob+0x2c64>
+    bb14:	4e850513          	addi	a0,a0,1256 # b4e8 <Arr_2_Glob+0x2c64>
     bb18:	911fc0ef          	jal	8428 <printf>
     bb1c:	c6842583          	lw	a1,-920(s0)
     bb20:	3e800913          	li	s2,1000
@@ -1012,7 +1557,7 @@ Disassembly of section .memory:
     bb2c:	00a00493          	li	s1,10
     bb30:	06400613          	li	a2,100
     bb34:	0000b537          	lui	a0,0xb
-    bb38:	50850513          	add	a0,a0,1288 # b508 <Arr_2_Glob+0x2c84>
+    bb38:	50850513          	addi	a0,a0,1288 # b508 <Arr_2_Glob+0x2c84>
     bb3c:	02f5c5b3          	div	a1,a1,a5
     bb40:	0295c6b3          	div	a3,a1,s1
     bb44:	02c5c633          	div	a2,a1,a2
@@ -1023,20 +1568,20 @@ Disassembly of section .memory:
     bb58:	8d1fc0ef          	jal	8428 <printf>
     bb5c:	c6842703          	lw	a4,-920(s0)
     bb60:	05f5e7b7          	lui	a5,0x5f5e
-    bb64:	10078793          	add	a5,a5,256 # 5f5e100 <end+0x5f51fae>
+    bb64:	10078793          	addi	a5,a5,256 # 5f5e100 <end+0x5f51fae>
     bb68:	02e7c433          	div	s0,a5,a4
     bb6c:	0000b537          	lui	a0,0xb
-    bb70:	52c50513          	add	a0,a0,1324 # b52c <Arr_2_Glob+0x2ca8>
+    bb70:	52c50513          	addi	a0,a0,1324 # b52c <Arr_2_Glob+0x2ca8>
     bb74:	00040593          	mv	a1,s0
     bb78:	03240433          	mul	s0,s0,s2
     bb7c:	8adfc0ef          	jal	8428 <printf>
     bb80:	6dd00713          	li	a4,1757
     bb84:	0002b6b7          	lui	a3,0x2b
-    bb88:	e5468693          	add	a3,a3,-428 # 2ae54 <end+0x1ed02>
+    bb88:	e5468693          	addi	a3,a3,-428 # 2ae54 <end+0x1ed02>
     bb8c:	001ad5b7          	lui	a1,0x1ad
-    bb90:	f4858593          	add	a1,a1,-184 # 1acf48 <end+0x1a0df6>
+    bb90:	f4858593          	addi	a1,a1,-184 # 1acf48 <end+0x1a0df6>
     bb94:	0000b537          	lui	a0,0xb
-    bb98:	55050513          	add	a0,a0,1360 # b550 <Arr_2_Glob+0x2ccc>
+    bb98:	55050513          	addi	a0,a0,1360 # b550 <Arr_2_Glob+0x2ccc>
     bb9c:	02e44733          	div	a4,s0,a4
     bba0:	02d44633          	div	a2,s0,a3
     bba4:	029746b3          	div	a3,a4,s1
@@ -1059,16 +1604,16 @@ Disassembly of section .memory:
     bbe8:	07012d03          	lw	s10,112(sp)
     bbec:	06c12d83          	lw	s11,108(sp)
     bbf0:	00000513          	li	a0,0
-    bbf4:	0a010113          	add	sp,sp,160
+    bbf4:	0a010113          	addi	sp,sp,160
     bbf8:	00008067          	ret
-    bbfc:	01c10593          	add	a1,sp,28
+    bbfc:	01c10593          	addi	a1,sp,28
     bc00:	00000513          	li	a0,0
     bc04:	ea0fc0ef          	jal	82a4 <Proc_6>
-    bc08:	0f0c0593          	add	a1,s8,240
-    bc0c:	04010513          	add	a0,sp,64
+    bc08:	0f0c0593          	addi	a1,s8,240
+    bc0c:	04010513          	addi	a0,sp,64
     bc10:	a05fc0ef          	jal	8614 <strcpy>
     bc14:	c7844703          	lbu	a4,-904(s0)
-    bc18:	001d8793          	add	a5,s11,1
+    bc18:	001d8793          	addi	a5,s11,1
     bc1c:	c89ba023          	sw	s1,-896(s7)
     bc20:	0ff7fd93          	zext.b	s11,a5
     bc24:	00048913          	mv	s2,s1
@@ -1077,72 +1622,153 @@ Disassembly of section .memory:
     bc30:	00900913          	li	s2,9
     bc34:	b41ff06f          	j	b774 <main+0x208>
     bc38:	0000b537          	lui	a0,0xb
-    bc3c:	03850513          	add	a0,a0,56 # b038 <Arr_2_Glob+0x27b4>
+    bc3c:	03850513          	addi	a0,a0,56 # b038 <Arr_2_Glob+0x27b4>
     bc40:	fe8fc0ef          	jal	8428 <printf>
     bc44:	0000b7b7          	lui	a5,0xb
-    bc48:	fd878513          	add	a0,a5,-40 # afd8 <Arr_2_Glob+0x2754>
+    bc48:	fd878513          	addi	a0,a5,-40 # afd8 <Arr_2_Glob+0x2754>
     bc4c:	fdcfc0ef          	jal	8428 <printf>
     bc50:	a05ff06f          	j	b654 <main+0xe8>
 
 0000bc54 <Dhrystones_Per_Second>:
-    bc54:	00000000                                ....
+    bc54:	0000                	.insn	2, 0x
+	...
 
 0000bc58 <Microseconds>:
-    bc58:	00000000                                ....
+    bc58:	0000                	.insn	2, 0x
+	...
 
 0000bc5c <User_Insn>:
-    bc5c:	00000000                                ....
+    bc5c:	0000                	.insn	2, 0x
+	...
 
 0000bc60 <End_Insn>:
-    bc60:	00000000                                ....
+    bc60:	0000                	.insn	2, 0x
+	...
 
 0000bc64 <Begin_Insn>:
-    bc64:	00000000                                ....
+    bc64:	0000                	.insn	2, 0x
+	...
 
 0000bc68 <User_Time>:
-    bc68:	00000000                                ....
+    bc68:	0000                	.insn	2, 0x
+	...
 
 0000bc6c <End_Time>:
-    bc6c:	00000000                                ....
+    bc6c:	0000                	.insn	2, 0x
+	...
 
 0000bc70 <Begin_Time>:
-    bc70:	00000000                                ....
+    bc70:	0000                	.insn	2, 0x
+	...
 
 0000bc74 <Reg>:
-    bc74:	00000000                                ....
+    bc74:	0000                	.insn	2, 0x
+	...
 
 0000bc78 <Ch_2_Glob>:
 	...
 
 0000bc79 <Ch_1_Glob>:
-    bc79:	                                         ...
+    bc79:	0000                	.insn	2, 0x
+	...
 
 0000bc7c <Bool_Glob>:
-    bc7c:	00000000                                ....
+    bc7c:	0000                	.insn	2, 0x
+	...
 
 0000bc80 <Int_Glob>:
-    bc80:	00000000                                ....
+    bc80:	0000                	.insn	2, 0x
+	...
 
 0000bc84 <Next_Ptr_Glob>:
-    bc84:	00000000                                ....
+    bc84:	0000                	.insn	2, 0x
+	...
 
 0000bc88 <Ptr_Glob>:
-    bc88:	00000000 3a434347 63672820 64313938     ....GCC: (gc891d
-    bc98:	32636438 20296533 322e3331 4100302e     8dc23e) 13.2.0.A
-    bca8:	00000029 63736972 1f010076 04000000     )...riscv.......
-    bcb8:	76720510 32693233 6d5f3170 5f307032     ..rv32i2p1_m2p0_
-    bcc8:	756d6d7a 3070316c 00294100 69720000     zmmul1p0.A)...ri
-    bcd8:	00766373 00001f01 05100400 32337672     scv.........rv32
-    bce8:	31703269 70326d5f 6d7a5f30 316c756d     i2p1_m2p0_zmmul1
-    bcf8:	00003070                                p0..
+    bc88:	0000                	.insn	2, 0x
+    bc8a:	0000                	.insn	2, 0x
+    bc8c:	3a434347          	.insn	4, 0x3a434347
+    bc90:	2820                	.insn	2, 0x2820
+    bc92:	39386367          	.insn	4, 0x39386367
+    bc96:	6431                	.insn	2, 0x6431
+    bc98:	6438                	.insn	2, 0x6438
+    bc9a:	65333263          	.insn	4, 0x65333263
+    bc9e:	2029                	.insn	2, 0x2029
+    bca0:	3331                	.insn	2, 0x3331
+    bca2:	322e                	.insn	2, 0x322e
+    bca4:	302e                	.insn	2, 0x302e
+    bca6:	4100                	.insn	2, 0x4100
+    bca8:	0029                	.insn	2, 0x0029
+    bcaa:	0000                	.insn	2, 0x
+    bcac:	6972                	.insn	2, 0x6972
+    bcae:	00766373          	.insn	4, 0x00766373
+    bcb2:	1f01                	.insn	2, 0x1f01
+    bcb4:	0000                	.insn	2, 0x
+    bcb6:	0400                	.insn	2, 0x0400
+    bcb8:	0510                	.insn	2, 0x0510
+    bcba:	7672                	.insn	2, 0x7672
+    bcbc:	32693233          	.insn	4, 0x32693233
+    bcc0:	3170                	.insn	2, 0x3170
+    bcc2:	6d5f 7032 5f30      	.insn	6, 0x5f3070326d5f
+    bcc8:	6d7a                	.insn	2, 0x6d7a
+    bcca:	756d                	.insn	2, 0x756d
+    bccc:	316c                	.insn	2, 0x316c
+    bcce:	3070                	.insn	2, 0x3070
+    bcd0:	4100                	.insn	2, 0x4100
+    bcd2:	0029                	.insn	2, 0x0029
+    bcd4:	0000                	.insn	2, 0x
+    bcd6:	6972                	.insn	2, 0x6972
+    bcd8:	00766373          	.insn	4, 0x00766373
+    bcdc:	1f01                	.insn	2, 0x1f01
+    bcde:	0000                	.insn	2, 0x
+    bce0:	0400                	.insn	2, 0x0400
+    bce2:	0510                	.insn	2, 0x0510
+    bce4:	7672                	.insn	2, 0x7672
+    bce6:	32693233          	.insn	4, 0x32693233
+    bcea:	3170                	.insn	2, 0x3170
+    bcec:	6d5f 7032 5f30      	.insn	6, 0x5f3070326d5f
+    bcf2:	6d7a                	.insn	2, 0x6d7a
+    bcf4:	756d                	.insn	2, 0x756d
+    bcf6:	316c                	.insn	2, 0x316c
+    bcf8:	3070                	.insn	2, 0x3070
+	...
 
 0000bcfc <heap_memory>:
 	...
 
 0000c0fc <heap_memory_used>:
-    c0fc:	00000000 00002941 73697200 01007663     ....A)...riscv..
-    c10c:	0000001f 72051004 69323376 5f317032     .......rv32i2p1_
-    c11c:	3070326d 6d6d7a5f 70316c75 27410030     m2p0_zmmul1p0.A'
-    c12c:	72000000 76637369 001d0100 72050000     ...riscv.......r
-    c13c:	69323376 5f317032 3070326d 6d6d7a5f     v32i2p1_m2p0_zmm
-    c14c:	70316c75                                 ul1p0.
+    c0fc:	0000                	.insn	2, 0x
+    c0fe:	0000                	.insn	2, 0x
+    c100:	2941                	.insn	2, 0x2941
+    c102:	0000                	.insn	2, 0x
+    c104:	7200                	.insn	2, 0x7200
+    c106:	7369                	.insn	2, 0x7369
+    c108:	01007663          	bgeu	zero,a6,c114 <heap_memory_used+0x18>
+    c10c:	001f 0000 1004      	.insn	6, 0x10040000001f
+    c112:	7205                	.insn	2, 0x7205
+    c114:	3376                	.insn	2, 0x3376
+    c116:	6932                	.insn	2, 0x6932
+    c118:	7032                	.insn	2, 0x7032
+    c11a:	5f31                	.insn	2, 0x5f31
+    c11c:	326d                	.insn	2, 0x326d
+    c11e:	3070                	.insn	2, 0x3070
+    c120:	7a5f 6d6d 6c75      	.insn	6, 0x6c756d6d7a5f
+    c126:	7031                	.insn	2, 0x7031
+    c128:	0030                	.insn	2, 0x0030
+    c12a:	2741                	.insn	2, 0x2741
+    c12c:	0000                	.insn	2, 0x
+    c12e:	7200                	.insn	2, 0x7200
+    c130:	7369                	.insn	2, 0x7369
+    c132:	01007663          	bgeu	zero,a6,c13e <heap_memory_used+0x42>
+    c136:	001d                	.insn	2, 0x001d
+    c138:	0000                	.insn	2, 0x
+    c13a:	7205                	.insn	2, 0x7205
+    c13c:	3376                	.insn	2, 0x3376
+    c13e:	6932                	.insn	2, 0x6932
+    c140:	7032                	.insn	2, 0x7032
+    c142:	5f31                	.insn	2, 0x5f31
+    c144:	326d                	.insn	2, 0x326d
+    c146:	3070                	.insn	2, 0x3070
+    c148:	7a5f 6d6d 6c75      	.insn	6, 0x6c756d6d7a5f
+    c14e:	7031                	.insn	2, 0x7031
+    c150:	0030                	.insn	2, 0x0030

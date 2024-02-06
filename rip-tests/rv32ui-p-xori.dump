@@ -23,7 +23,7 @@ Disassembly of section .text.init:
     8034:	0040006f          	j	8038 <handle_exception>
 
 00008038 <handle_exception>:
-    8038:	5391e193          	or	gp,gp,1337
+    8038:	5391e193          	ori	gp,gp,1337
 
 0000803c <write_tohost>:
     803c:	00001f17          	auipc	t5,0x1
@@ -67,33 +67,33 @@ Disassembly of section .text.init:
     80cc:	f1402573          	csrr	a0,mhartid
     80d0:	00051063          	bnez	a0,80d0 <reset_vector+0x80>
     80d4:	00000297          	auipc	t0,0x0
-    80d8:	01028293          	add	t0,t0,16 # 80e4 <reset_vector+0x94>
+    80d8:	01028293          	addi	t0,t0,16 # 80e4 <reset_vector+0x94>
     80dc:	30529073          	csrw	mtvec,t0
-    80e0:	74445073          	csrw	0x744,8
+    80e0:	74445073          	csrwi	0x744,8
     80e4:	00000297          	auipc	t0,0x0
-    80e8:	01028293          	add	t0,t0,16 # 80f4 <reset_vector+0xa4>
+    80e8:	01028293          	addi	t0,t0,16 # 80f4 <reset_vector+0xa4>
     80ec:	30529073          	csrw	mtvec,t0
-    80f0:	18005073          	csrw	satp,0
+    80f0:	18005073          	csrwi	satp,0
     80f4:	00000297          	auipc	t0,0x0
-    80f8:	02028293          	add	t0,t0,32 # 8114 <reset_vector+0xc4>
+    80f8:	02028293          	addi	t0,t0,32 # 8114 <reset_vector+0xc4>
     80fc:	30529073          	csrw	mtvec,t0
     8100:	800002b7          	lui	t0,0x80000
-    8104:	fff28293          	add	t0,t0,-1 # 7fffffff <_end+0x7fff5fff>
+    8104:	fff28293          	addi	t0,t0,-1 # 7fffffff <_end+0x7fff5fff>
     8108:	3b029073          	csrw	pmpaddr0,t0
     810c:	01f00293          	li	t0,31
     8110:	3a029073          	csrw	pmpcfg0,t0
-    8114:	30405073          	csrw	mie,0
+    8114:	30405073          	csrwi	mie,0
     8118:	00000297          	auipc	t0,0x0
-    811c:	01428293          	add	t0,t0,20 # 812c <reset_vector+0xdc>
+    811c:	01428293          	addi	t0,t0,20 # 812c <reset_vector+0xdc>
     8120:	30529073          	csrw	mtvec,t0
-    8124:	30205073          	csrw	medeleg,0
-    8128:	30305073          	csrw	mideleg,0
+    8124:	30205073          	csrwi	medeleg,0
+    8128:	30305073          	csrwi	mideleg,0
     812c:	00000193          	li	gp,0
     8130:	00000297          	auipc	t0,0x0
-    8134:	ed428293          	add	t0,t0,-300 # 8004 <trap_vector>
+    8134:	ed428293          	addi	t0,t0,-300 # 8004 <trap_vector>
     8138:	30529073          	csrw	mtvec,t0
     813c:	00100513          	li	a0,1
-    8140:	01f51513          	sll	a0,a0,0x1f
+    8140:	01f51513          	slli	a0,a0,0x1f
     8144:	00054c63          	bltz	a0,815c <reset_vector+0x10c>
     8148:	0ff0000f          	fence
     814c:	00100193          	li	gp,1
@@ -104,11 +104,11 @@ Disassembly of section .text.init:
     8160:	00028a63          	beqz	t0,8174 <reset_vector+0x124>
     8164:	10529073          	csrw	stvec,t0
     8168:	0000b2b7          	lui	t0,0xb
-    816c:	10928293          	add	t0,t0,265 # b109 <_end+0x1109>
+    816c:	10928293          	addi	t0,t0,265 # b109 <_end+0x1109>
     8170:	30229073          	csrw	medeleg,t0
-    8174:	30005073          	csrw	mstatus,0
+    8174:	30005073          	csrwi	mstatus,0
     8178:	00000297          	auipc	t0,0x0
-    817c:	01428293          	add	t0,t0,20 # 818c <test_2>
+    817c:	01428293          	addi	t0,t0,20 # 818c <test_2>
     8180:	34129073          	csrw	mepc,t0
     8184:	f1402573          	csrr	a0,mhartid
     8188:	30200073          	mret
@@ -116,146 +116,146 @@ Disassembly of section .text.init:
 0000818c <test_2>:
     818c:	00200193          	li	gp,2
     8190:	00ff10b7          	lui	ra,0xff1
-    8194:	f0008093          	add	ra,ra,-256 # ff0f00 <_end+0xfe6f00>
-    8198:	f0f0c713          	xor	a4,ra,-241
+    8194:	f0008093          	addi	ra,ra,-256 # ff0f00 <_end+0xfe6f00>
+    8198:	f0f0c713          	xori	a4,ra,-241
     819c:	ff00f3b7          	lui	t2,0xff00f
-    81a0:	00f38393          	add	t2,t2,15 # ff00f00f <_end+0xff00500f>
+    81a0:	00f38393          	addi	t2,t2,15 # ff00f00f <_end+0xff00500f>
     81a4:	1c771663          	bne	a4,t2,8370 <fail>
 
 000081a8 <test_3>:
     81a8:	00300193          	li	gp,3
     81ac:	0ff010b7          	lui	ra,0xff01
-    81b0:	ff008093          	add	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
-    81b4:	0f00c713          	xor	a4,ra,240
+    81b0:	ff008093          	addi	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
+    81b4:	0f00c713          	xori	a4,ra,240
     81b8:	0ff013b7          	lui	t2,0xff01
-    81bc:	f0038393          	add	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
+    81bc:	f0038393          	addi	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
     81c0:	1a771863          	bne	a4,t2,8370 <fail>
 
 000081c4 <test_4>:
     81c4:	00400193          	li	gp,4
     81c8:	00ff10b7          	lui	ra,0xff1
-    81cc:	8ff08093          	add	ra,ra,-1793 # ff08ff <_end+0xfe68ff>
-    81d0:	70f0c713          	xor	a4,ra,1807
+    81cc:	8ff08093          	addi	ra,ra,-1793 # ff08ff <_end+0xfe68ff>
+    81d0:	70f0c713          	xori	a4,ra,1807
     81d4:	00ff13b7          	lui	t2,0xff1
-    81d8:	ff038393          	add	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
+    81d8:	ff038393          	addi	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
     81dc:	18771a63          	bne	a4,t2,8370 <fail>
 
 000081e0 <test_5>:
     81e0:	00500193          	li	gp,5
     81e4:	f00ff0b7          	lui	ra,0xf00ff
-    81e8:	00f08093          	add	ra,ra,15 # f00ff00f <_end+0xf00f500f>
-    81ec:	0f00c713          	xor	a4,ra,240
+    81e8:	00f08093          	addi	ra,ra,15 # f00ff00f <_end+0xf00f500f>
+    81ec:	0f00c713          	xori	a4,ra,240
     81f0:	f00ff3b7          	lui	t2,0xf00ff
-    81f4:	0ff38393          	add	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
+    81f4:	0ff38393          	addi	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
     81f8:	16771c63          	bne	a4,t2,8370 <fail>
 
 000081fc <test_6>:
     81fc:	00600193          	li	gp,6
     8200:	ff00f0b7          	lui	ra,0xff00f
-    8204:	70008093          	add	ra,ra,1792 # ff00f700 <_end+0xff005700>
-    8208:	70f0c093          	xor	ra,ra,1807
+    8204:	70008093          	addi	ra,ra,1792 # ff00f700 <_end+0xff005700>
+    8208:	70f0c093          	xori	ra,ra,1807
     820c:	ff00f3b7          	lui	t2,0xff00f
-    8210:	00f38393          	add	t2,t2,15 # ff00f00f <_end+0xff00500f>
+    8210:	00f38393          	addi	t2,t2,15 # ff00f00f <_end+0xff00500f>
     8214:	14709e63          	bne	ra,t2,8370 <fail>
 
 00008218 <test_7>:
     8218:	00700193          	li	gp,7
     821c:	00000213          	li	tp,0
     8220:	0ff010b7          	lui	ra,0xff01
-    8224:	ff008093          	add	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
-    8228:	0f00c713          	xor	a4,ra,240
+    8224:	ff008093          	addi	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
+    8228:	0f00c713          	xori	a4,ra,240
     822c:	00070313          	mv	t1,a4
-    8230:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    8230:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     8234:	00200293          	li	t0,2
     8238:	fe5214e3          	bne	tp,t0,8220 <test_7+0x8>
     823c:	0ff013b7          	lui	t2,0xff01
-    8240:	f0038393          	add	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
+    8240:	f0038393          	addi	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
     8244:	12731663          	bne	t1,t2,8370 <fail>
 
 00008248 <test_8>:
     8248:	00800193          	li	gp,8
     824c:	00000213          	li	tp,0
     8250:	00ff10b7          	lui	ra,0xff1
-    8254:	8ff08093          	add	ra,ra,-1793 # ff08ff <_end+0xfe68ff>
-    8258:	70f0c713          	xor	a4,ra,1807
+    8254:	8ff08093          	addi	ra,ra,-1793 # ff08ff <_end+0xfe68ff>
+    8258:	70f0c713          	xori	a4,ra,1807
     825c:	00000013          	nop
     8260:	00070313          	mv	t1,a4
-    8264:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    8264:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     8268:	00200293          	li	t0,2
     826c:	fe5212e3          	bne	tp,t0,8250 <test_8+0x8>
     8270:	00ff13b7          	lui	t2,0xff1
-    8274:	ff038393          	add	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
+    8274:	ff038393          	addi	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
     8278:	0e731c63          	bne	t1,t2,8370 <fail>
 
 0000827c <test_9>:
     827c:	00900193          	li	gp,9
     8280:	00000213          	li	tp,0
     8284:	f00ff0b7          	lui	ra,0xf00ff
-    8288:	00f08093          	add	ra,ra,15 # f00ff00f <_end+0xf00f500f>
-    828c:	0f00c713          	xor	a4,ra,240
+    8288:	00f08093          	addi	ra,ra,15 # f00ff00f <_end+0xf00f500f>
+    828c:	0f00c713          	xori	a4,ra,240
     8290:	00000013          	nop
     8294:	00000013          	nop
     8298:	00070313          	mv	t1,a4
-    829c:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    829c:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     82a0:	00200293          	li	t0,2
     82a4:	fe5210e3          	bne	tp,t0,8284 <test_9+0x8>
     82a8:	f00ff3b7          	lui	t2,0xf00ff
-    82ac:	0ff38393          	add	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
+    82ac:	0ff38393          	addi	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
     82b0:	0c731063          	bne	t1,t2,8370 <fail>
 
 000082b4 <test_10>:
     82b4:	00a00193          	li	gp,10
     82b8:	00000213          	li	tp,0
     82bc:	0ff010b7          	lui	ra,0xff01
-    82c0:	ff008093          	add	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
-    82c4:	0f00c713          	xor	a4,ra,240
-    82c8:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    82c0:	ff008093          	addi	ra,ra,-16 # ff00ff0 <_end+0xfef6ff0>
+    82c4:	0f00c713          	xori	a4,ra,240
+    82c8:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     82cc:	00200293          	li	t0,2
     82d0:	fe5216e3          	bne	tp,t0,82bc <test_10+0x8>
     82d4:	0ff013b7          	lui	t2,0xff01
-    82d8:	f0038393          	add	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
+    82d8:	f0038393          	addi	t2,t2,-256 # ff00f00 <_end+0xfef6f00>
     82dc:	08771a63          	bne	a4,t2,8370 <fail>
 
 000082e0 <test_11>:
     82e0:	00b00193          	li	gp,11
     82e4:	00000213          	li	tp,0
     82e8:	00ff10b7          	lui	ra,0xff1
-    82ec:	fff08093          	add	ra,ra,-1 # ff0fff <_end+0xfe6fff>
+    82ec:	fff08093          	addi	ra,ra,-1 # ff0fff <_end+0xfe6fff>
     82f0:	00000013          	nop
-    82f4:	00f0c713          	xor	a4,ra,15
-    82f8:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    82f4:	00f0c713          	xori	a4,ra,15
+    82f8:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     82fc:	00200293          	li	t0,2
     8300:	fe5214e3          	bne	tp,t0,82e8 <test_11+0x8>
     8304:	00ff13b7          	lui	t2,0xff1
-    8308:	ff038393          	add	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
+    8308:	ff038393          	addi	t2,t2,-16 # ff0ff0 <_end+0xfe6ff0>
     830c:	06771263          	bne	a4,t2,8370 <fail>
 
 00008310 <test_12>:
     8310:	00c00193          	li	gp,12
     8314:	00000213          	li	tp,0
     8318:	f00ff0b7          	lui	ra,0xf00ff
-    831c:	00f08093          	add	ra,ra,15 # f00ff00f <_end+0xf00f500f>
+    831c:	00f08093          	addi	ra,ra,15 # f00ff00f <_end+0xf00f500f>
     8320:	00000013          	nop
     8324:	00000013          	nop
-    8328:	0f00c713          	xor	a4,ra,240
-    832c:	00120213          	add	tp,tp,1 # 1 <_start-0x7fff>
+    8328:	0f00c713          	xori	a4,ra,240
+    832c:	00120213          	addi	tp,tp,1 # 1 <_start-0x7fff>
     8330:	00200293          	li	t0,2
     8334:	fe5212e3          	bne	tp,t0,8318 <test_12+0x8>
     8338:	f00ff3b7          	lui	t2,0xf00ff
-    833c:	0ff38393          	add	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
+    833c:	0ff38393          	addi	t2,t2,255 # f00ff0ff <_end+0xf00f50ff>
     8340:	02771863          	bne	a4,t2,8370 <fail>
 
 00008344 <test_13>:
     8344:	00d00193          	li	gp,13
-    8348:	0f004093          	xor	ra,zero,240
+    8348:	0f004093          	xori	ra,zero,240
     834c:	0f000393          	li	t2,240
     8350:	02709063          	bne	ra,t2,8370 <fail>
 
 00008354 <test_14>:
     8354:	00e00193          	li	gp,14
     8358:	00ff00b7          	lui	ra,0xff0
-    835c:	0ff08093          	add	ra,ra,255 # ff00ff <_end+0xfe60ff>
-    8360:	70f0c013          	xor	zero,ra,1807
+    835c:	0ff08093          	addi	ra,ra,255 # ff00ff <_end+0xfe60ff>
+    8360:	70f0c013          	xori	zero,ra,1807
     8364:	00000393          	li	t2,0
     8368:	00701463          	bne	zero,t2,8370 <fail>
     836c:	02301063          	bne	zero,gp,838c <pass>
@@ -263,8 +263,8 @@ Disassembly of section .text.init:
 00008370 <fail>:
     8370:	0ff0000f          	fence
     8374:	00018063          	beqz	gp,8374 <fail+0x4>
-    8378:	00119193          	sll	gp,gp,0x1
-    837c:	0011e193          	or	gp,gp,1
+    8378:	00119193          	slli	gp,gp,0x1
+    837c:	0011e193          	ori	gp,gp,1
     8380:	05d00893          	li	a7,93
     8384:	00018513          	mv	a0,gp
     8388:	00000073          	ecall
