@@ -191,13 +191,13 @@ public:
     Theta = 1.93 * HistoryLength + 14;
     BranchHistory = 0;
     // WeightArrayの動的な初期化
-    WeightArray = new signed int *[PerceptronIndexWidth];
-    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+    WeightArray = new signed int *[2 << PerceptronIndexWidth];
+    for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
       WeightArray[i] = new signed int[HistoryLength];
     }
 
     // WeightArrayの初期化
-    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+    for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
       for (int j = 0; j < HistoryLength; ++j) {
         WeightArray[i][j] = 0; // 初期値を設定する
       }
