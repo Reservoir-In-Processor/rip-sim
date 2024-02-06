@@ -12,7 +12,7 @@ TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
   // FIXME: access on above sp initial value happens, what is the requirements
   // for DRAMSize, DRAMBase, and sp init value?
   std::unique_ptr<BranchPredictor> bp =
-      std::make_unique<OneBitBranchPredictor>();
+      std::make_unique<PerceptronBranchPredictor>();
 
   RIPSimulator RSim(Files, /*BP = */ std::move(bp),
                     /*DRAMSize = */ 1LL << 28,

@@ -3,6 +3,7 @@
 #include "CommonTypes.h"
 #include "Debug.h"
 #include "Interactive.h"
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -170,6 +171,94 @@ public:
     unsigned BHTIndex = getLowerNBits(PC >> 2, BHTIndexWidth) ^ BranchHistory;
     return BranchHistoryTable.count(BHTIndex) &&
            BranchHistoryTable[BHTIndex] >= 2;
+  }
+};
+
+class PerceptronBranchPredictor : public BranchPredictor {
+private:
+  std::map<Address, int> BranchHistoryTable;
+  const int PerceptronIndexWidth =
+      10;                       // DynamicBranchPredictionWithPerceptronsでのN
+  const int HistoryLength = 10; // DynamicBranchPredictionWithPerceptronsでのn
+  unsigned int Theta;
+  unsigned int BranchHistory;
+  signed int **WeightArray; // {PerceptronIndexWidth, HistoryLength}
+  signed int y;
+
+public:
+  PerceptronBranchPredictor() : BranchPredictor() {
+    // ここに初期化コードを追加します。
+    Theta = 1.93 * HistoryLength + 14;
+    BranchHistory = 0;
+    // WeightArrayの動的な初期化
+    WeightArray = new signed int *[PerceptronIndexWidth];
+    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+      WeightArray[i] = new signed int[HistoryLength];
+    }
+
+    // WeightArrayの初期化
+    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+      for (int j = 0; j < HistoryLength; ++j) {
+        WeightArray[i][j] = 0; // 初期値を設定する
+      }
+    }
+  }
+
+  ~PerceptronBranchPredictor() {
+    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+      delete[] WeightArray[i];
+    }
+    delete[] WeightArray;
+  }
+
+  int getBranchHistory() { return BranchHistory; }
+  int getBHTIndex(Address PC) {
+    unsigned BHTIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    return BHTIndex;
+  }
+
+  void Learn(bool &cond, const Address &PC) override {
+    // unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    // int tmpBranchHistory = BranchHistory;
+
+    // TODO: ADD perceptrol training
+    //   if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
+    //     for (int i = 0; i <= HistoryLength; i++) {
+    //       signed int w = WeightArray[PerceptronIndex][i];
+    //       w = w + cond * (tmpBranchHistory % 2);
+    //       tmpBranchHistory = tmpBranchHistory >> 1;
+    //     }
+    //   }
+
+    //   BranchHistory = (BranchHistory << 1) + cond; // update of Branch Hitory
+    //   BranchHistory %= 1 << HistoryLength;
+
+    //   DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" <<
+    //   BranchHistory
+    //                        << "\n");
+  }
+
+  bool Predict(const Address &PC) override {
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    // TODO: ADD Perceptron prediction
+    int tmpBranchHistory = BranchHistory;
+
+    std::cerr << "FOR DEBUG ====" << PerceptronIndexWidth << " "
+              << PerceptronIndex << "====\n";
+
+    y = WeightArray[PerceptronIndex][0];
+
+    for (int i = 1; i < HistoryLength; i++) {
+      signed int w = WeightArray[PerceptronIndex][i];
+      y = y + w * (tmpBranchHistory % 2);
+      tmpBranchHistory = tmpBranchHistory >> 1;
+    }
+
+    if (y <= 0) {
+      return 0;
+    } else {
+      return 1;
+    }
   }
 };
 
