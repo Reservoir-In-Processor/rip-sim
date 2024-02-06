@@ -221,9 +221,14 @@ public:
     unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
     int tmpBranchHistory = BranchHistory;
 
-    // TODO: ADD perceptrol training
     if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
-      for (int i = 0; i <= HistoryLength; i++) {
+      // update bias
+      signed int w = WeightArray[PerceptronIndex][0];
+      w = w + cond;
+      WeightArray[PerceptronIndex][0] = w;
+
+      // update weights
+      for (int i = 1; i < HistoryLength; i++) {
         signed int w = WeightArray[PerceptronIndex][i];
         w = w + cond * (tmpBranchHistory % 2);
         WeightArray[PerceptronIndex][i] = w;
@@ -244,11 +249,15 @@ public:
     int tmpBranchHistory = BranchHistory;
 
     y = WeightArray[PerceptronIndex][0];
+    DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG (BIAS) ====" << 1 << " " << y
+                         << " " << std::bitset<10>(tmpBranchHistory)
+                         << "====\n");
 
     for (int i = 1; i < HistoryLength; i++) {
       signed int w = WeightArray[PerceptronIndex][i];
 
       y = y + w * (tmpBranchHistory % 2);
+
       DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ====" << w << " " << y
                            << " " << std::bitset<10>(tmpBranchHistory)
                            << "====\n");
