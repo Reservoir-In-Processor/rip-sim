@@ -218,24 +218,24 @@ public:
   }
 
   void Learn(bool &cond, const Address &PC) override {
-    // unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
-    // int tmpBranchHistory = BranchHistory;
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    int tmpBranchHistory = BranchHistory;
 
     // TODO: ADD perceptrol training
-    //   if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
-    //     for (int i = 0; i <= HistoryLength; i++) {
-    //       signed int w = WeightArray[PerceptronIndex][i];
-    //       w = w + cond * (tmpBranchHistory % 2);
-    //       tmpBranchHistory = tmpBranchHistory >> 1;
-    //     }
-    //   }
+    if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
+      for (int i = 0; i <= HistoryLength; i++) {
+        signed int w = WeightArray[PerceptronIndex][i];
+        w = w + cond * (tmpBranchHistory % 2);
+        WeightArray[PerceptronIndex][i] = w;
+        tmpBranchHistory = tmpBranchHistory >> 1;
+      }
+    }
 
-    //   BranchHistory = (BranchHistory << 1) + cond; // update of Branch Hitory
-    //   BranchHistory %= 1 << HistoryLength;
+    BranchHistory = (BranchHistory << 1) + cond; // update of Branch Hitory
+    BranchHistory %= 1 << HistoryLength;
 
-    //   DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" <<
-    //   BranchHistory
-    //                        << "\n");
+    DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" << BranchHistory
+                         << "\n");
   }
 
   bool Predict(const Address &PC) override {
@@ -243,14 +243,16 @@ public:
     // TODO: ADD Perceptron prediction
     int tmpBranchHistory = BranchHistory;
 
-    std::cerr << "FOR DEBUG ====" << PerceptronIndexWidth << " "
-              << PerceptronIndex << "====\n";
-
     y = WeightArray[PerceptronIndex][0];
 
     for (int i = 1; i < HistoryLength; i++) {
       signed int w = WeightArray[PerceptronIndex][i];
+
       y = y + w * (tmpBranchHistory % 2);
+      DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ====" << w << " " << y
+                           << " " << std::bitset<10>(tmpBranchHistory)
+                           << "====\n");
+
       tmpBranchHistory = tmpBranchHistory >> 1;
     }
 
