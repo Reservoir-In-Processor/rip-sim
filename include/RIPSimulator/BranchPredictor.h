@@ -188,7 +188,7 @@ private:
 public:
   PerceptronBranchPredictor() : BranchPredictor() {
     // ここに初期化コードを追加します。
-    Theta = 1.93 * HistoryLength + 14;
+    Theta = std::floor(1.93 * HistoryLength + 14);
     BranchHistory = 0;
     // WeightArrayの動的な初期化
     WeightArray = new signed int *[2 << PerceptronIndexWidth];
@@ -245,7 +245,6 @@ public:
 
   bool Predict(const Address &PC) override {
     unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
-    // TODO: ADD Perceptron prediction
     int tmpBranchHistory = BranchHistory;
 
     y = WeightArray[PerceptronIndex][0];
