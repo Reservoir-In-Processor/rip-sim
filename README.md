@@ -133,3 +133,15 @@ Total stages: 116617
  BP accuracy: 0.88986 (Hit :14050, Miss :1739)
 =========== END STATS =============
 ```
+
+### Perceptron branch predictor
+
+```sh
+$ ./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=perceptron
+break happens
+========== BEGIN STATS ============
+Num Stages=115801
+...
+ BP accuracy: 0.941225 (Hit :14861, Miss :928)
+=========== END STATS =============
+```
