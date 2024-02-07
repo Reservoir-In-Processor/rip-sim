@@ -187,18 +187,17 @@ private:
 
 public:
   PerceptronBranchPredictor() : BranchPredictor() {
-    // ここに初期化コードを追加します。
     Theta = std::floor(1.93 * HistoryLength + 14);
     BranchHistory = 0;
-    // WeightArrayの動的な初期化
+
     WeightArray = new signed int *[2 << PerceptronIndexWidth];
     for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
-      WeightArray[i] = new signed int[HistoryLength];
+      WeightArray[i] = new signed int[HistoryLength + 1]; // 1 for bias term
     }
 
     // WeightArrayの初期化
     for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
-      for (int j = 0; j < HistoryLength; ++j) {
+      for (int j = 0; j < HistoryLength + 1; ++j) {
         WeightArray[i][j] = 0; // 初期値を設定する
       }
     }
@@ -228,7 +227,7 @@ public:
       WeightArray[PerceptronIndex][0] = w;
 
       // update weights
-      for (int i = 1; i < HistoryLength; i++) {
+      for (int i = 1; i < HistoryLength + 1; i++) {
         signed int w = WeightArray[PerceptronIndex][i];
         w = w + cond * (tmpBranchHistory % 2);
         WeightArray[PerceptronIndex][i] = w;
