@@ -177,16 +177,17 @@ public:
 class PerceptronBranchPredictor : public BranchPredictor {
   /*
   Reference:
-  [1] "Dynamic Branch Prediction with Perceptrons," D. A. Jimenez, C.
-  Lin https://www.cs.utexas.edu/~lin/papers/hpca01.pdf
+  [1] "Dynamic Branch Prediction with Perceptrons," D. A. Jimenez, C.  Lin
+  https://www.cs.utexas.edu/~lin/papers/hpca01.pdf
 
   Variables:
   EntryBitwidth   : Bitwidth of the entry               (log2 N in [1])
   HistoryBitwidth : Bitwidth of the history register    (n in [1])
   Theta           : Thresold parameter for the training (\theta in [1])
   BranchHistory   : History register with HistoryBitwidth
-  WeightArray     : Trainable parameters \in Z^(N, n+1) of perceptrons
-  y               : prediction
+  WeightArray     : Trainable parameters \in Z(^(N, n+1) of perceptrons
+  y               : prediction \in Z
+  t               : target \in {-1, 1}
 
   */
 
@@ -198,18 +199,18 @@ private:
   unsigned int BranchHistory;
   signed int **WeightArray;
   signed int y;
+  signed int t;
 
 public:
   PerceptronBranchPredictor() : BranchPredictor() {
     Theta = std::floor(1.93 * HistoryBitwidth + 14); // according to [1]
     BranchHistory = 0;
-    // WeightArrayの動的な初期化
+
+    // Initialization of WeightArray
     WeightArray = new signed int *[2 << EntryBitwidth];
     for (int i = 0; i < (2 << EntryBitwidth); i++) {
       WeightArray[i] = new signed int[HistoryBitwidth + 1]; // 1 for bias term
     }
-
-    // WeightArrayの初期化
     for (int i = 0; i < (2 << EntryBitwidth); i++) {
       for (int j = 0; j < HistoryBitwidth + 1; j++) {
         WeightArray[i][j] = 0;
@@ -234,16 +235,24 @@ public:
     unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     int tmpBranchHistory = BranchHistory;
 
+    DEBUG_ONLY(std::cerr << std::dec << "Training y:" << abs(y)
+                         << " theta:" << Theta << "\n");
+
     if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
+      if (cond == 0) {
+        t = -1;
+      } else {
+        t = 1;
+      }
       // update bias
       signed int w = WeightArray[PerceptronIndex][0];
-      w = w + cond;
+      w = w + t;
       WeightArray[PerceptronIndex][0] = w;
 
       // update weights
       for (int i = 1; i < HistoryBitwidth + 1; i++) {
         signed int w = WeightArray[PerceptronIndex][i];
-        w = w + cond * (tmpBranchHistory % 2);
+        w = w + t * (tmpBranchHistory % 2);
         WeightArray[PerceptronIndex][i] = w;
         tmpBranchHistory = tmpBranchHistory >> 1;
       }
@@ -261,18 +270,18 @@ public:
     int tmpBranchHistory = BranchHistory;
 
     y = WeightArray[PerceptronIndex][0];
-    DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG (BIAS) ====" << 1 << " " << y
-                         << " " << std::bitset<10>(tmpBranchHistory)
-                         << "====\n");
+    DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:0 w:"
+                         << WeightArray[PerceptronIndex][0] << " y:" << y << " "
+                         << std::bitset<10>(tmpBranchHistory) << "====\n");
 
     for (int i = 1; i < HistoryBitwidth + 1; i++) {
       signed int w = WeightArray[PerceptronIndex][i];
 
       y = y + w * (tmpBranchHistory % 2);
 
-      DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ====" << w << " " << y
-                           << " " << std::bitset<10>(tmpBranchHistory)
-                           << "====\n");
+      DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:" << i << " w:" << w
+                           << " y:" << y << " "
+                           << std::bitset<10>(tmpBranchHistory) << "====\n");
 
       tmpBranchHistory = tmpBranchHistory >> 1;
     }
