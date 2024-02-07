@@ -3,7 +3,6 @@
 #include "CommonTypes.h"
 #include "Debug.h"
 #include "Interactive.h"
-#include <cmath>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -174,37 +173,52 @@ public:
   }
 };
 
+// FIXME: add test
 class PerceptronBranchPredictor : public BranchPredictor {
+  /*
+  Reference:
+  [1] "Dynamic Branch Prediction with Perceptrons," D. A. Jimenez, C.
+  Lin https://www.cs.utexas.edu/~lin/papers/hpca01.pdf
+
+  Variables:
+  EntryBitwidth   : Bitwidth of the entry               (log2 N in [1])
+  HistoryBitwidth : Bitwidth of the history register    (n in [1])
+  Theta           : Thresold parameter for the training (\theta in [1])
+  BranchHistory   : History register with HistoryBitwidth
+  WeightArray     : Trainable parameters \in Z^(N, n+1) of perceptrons
+  y               : prediction
+
+  */
+
 private:
   std::map<Address, int> BranchHistoryTable;
-  const int PerceptronIndexWidth =
-      10;                       // DynamicBranchPredictionWithPerceptronsでのN
-  const int HistoryLength = 10; // DynamicBranchPredictionWithPerceptronsでのn
+  const int EntryBitwidth = 10;
+  const int HistoryBitwidth = 10;
   unsigned int Theta;
   unsigned int BranchHistory;
-  signed int **WeightArray; // {PerceptronIndexWidth, HistoryLength}
+  signed int **WeightArray;
   signed int y;
 
 public:
   PerceptronBranchPredictor() : BranchPredictor() {
-    Theta = std::floor(1.93 * HistoryLength + 14);
+    Theta = std::floor(1.93 * HistoryBitwidth + 14); // according to [1]
     BranchHistory = 0;
-
-    WeightArray = new signed int *[2 << PerceptronIndexWidth];
-    for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
-      WeightArray[i] = new signed int[HistoryLength + 1]; // 1 for bias term
+    // WeightArrayの動的な初期化
+    WeightArray = new signed int *[2 << EntryBitwidth];
+    for (int i = 0; i < (2 << EntryBitwidth); i++) {
+      WeightArray[i] = new signed int[HistoryBitwidth + 1]; // 1 for bias term
     }
 
     // WeightArrayの初期化
-    for (int i = 0; i < (2 << PerceptronIndexWidth); ++i) {
-      for (int j = 0; j < HistoryLength + 1; ++j) {
-        WeightArray[i][j] = 0; // 初期値を設定する
+    for (int i = 0; i < (2 << EntryBitwidth); i++) {
+      for (int j = 0; j < HistoryBitwidth + 1; j++) {
+        WeightArray[i][j] = 0;
       }
     }
   }
 
   ~PerceptronBranchPredictor() {
-    for (int i = 0; i < PerceptronIndexWidth; ++i) {
+    for (int i = 0; i < (2 << EntryBitwidth); i++) {
       delete[] WeightArray[i];
     }
     delete[] WeightArray;
@@ -212,12 +226,12 @@ public:
 
   int getBranchHistory() { return BranchHistory; }
   int getBHTIndex(Address PC) {
-    unsigned BHTIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    unsigned BHTIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     return BHTIndex;
   }
 
   void Learn(bool &cond, const Address &PC) override {
-    unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     int tmpBranchHistory = BranchHistory;
 
     if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
@@ -227,7 +241,7 @@ public:
       WeightArray[PerceptronIndex][0] = w;
 
       // update weights
-      for (int i = 1; i < HistoryLength + 1; i++) {
+      for (int i = 1; i < HistoryBitwidth + 1; i++) {
         signed int w = WeightArray[PerceptronIndex][i];
         w = w + cond * (tmpBranchHistory % 2);
         WeightArray[PerceptronIndex][i] = w;
@@ -236,14 +250,14 @@ public:
     }
 
     BranchHistory = (BranchHistory << 1) + cond; // update of Branch Hitory
-    BranchHistory %= 1 << HistoryLength;
+    BranchHistory %= 1 << HistoryBitwidth;
 
     DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" << BranchHistory
                          << "\n");
   }
 
   bool Predict(const Address &PC) override {
-    unsigned PerceptronIndex = getLowerNBits(PC >> 2, PerceptronIndexWidth);
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     int tmpBranchHistory = BranchHistory;
 
     y = WeightArray[PerceptronIndex][0];
@@ -251,7 +265,7 @@ public:
                          << " " << std::bitset<10>(tmpBranchHistory)
                          << "====\n");
 
-    for (int i = 1; i < HistoryLength; i++) {
+    for (int i = 1; i < HistoryBitwidth + 1; i++) {
       signed int w = WeightArray[PerceptronIndex][i];
 
       y = y + w * (tmpBranchHistory % 2);
