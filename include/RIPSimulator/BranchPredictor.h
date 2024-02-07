@@ -234,11 +234,13 @@ public:
   void Learn(bool &cond, const Address &PC) override {
     unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     int tmpBranchHistory = BranchHistory;
+    DEBUG_ONLY(std::cerr << "TRAINING ==== "
+                         << "\n");
 
-    DEBUG_ONLY(std::cerr << std::dec << "Training y:" << abs(y)
-                         << " theta:" << Theta << "\n");
+    if ((((y >= 0) ? 1 : 0) != cond) || (abs(y) <= Theta)) {
+      DEBUG_ONLY(std::cerr << std::dec << "Training y:" << y
+                           << " theta:" << Theta << "\n");
 
-    if ((((y >= 0) ? 1 : -1) != cond) || (abs(y) <= Theta)) {
       if (cond == 0) {
         t = -1;
       } else {
