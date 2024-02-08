@@ -189,6 +189,9 @@ class PerceptronBranchPredictor : public BranchPredictor {
   y               : prediction \in Z
   t               : target \in {-1, 1}
 
+  Hardware budget:
+  Table size: (2^EntryBitwidth) * (HistoryBitwidth + 1) * (Bit per weight)
+
   */
 
 private:
