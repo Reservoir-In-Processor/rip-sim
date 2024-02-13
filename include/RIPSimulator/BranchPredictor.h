@@ -210,22 +210,8 @@ public:
     BranchHistory = 0;
 
     // Initialization of WeightArray
-    WeightArray = new signed int *[2 << EntryBitwidth];
-    for (int i = 0; i < (2 << EntryBitwidth); i++) {
-      WeightArray[i] = new signed int[HistoryBitwidth + 1]; // 1 for bias term
-    }
-    for (int i = 0; i < (2 << EntryBitwidth); i++) {
-      for (int j = 0; j < HistoryBitwidth + 1; j++) {
-        WeightArray[i][j] = 0;
-      }
-    }
-  }
-
-  ~PerceptronBranchPredictor() {
-    for (int i = 0; i < (2 << EntryBitwidth); i++) {
-      delete[] WeightArray[i];
-    }
-    delete[] WeightArray;
+    std::vector<std::vector<int>> WeightArray(
+        2 << (EntryBitwidth - 1), std::vector<int>(HistoryBitwidth + 1, 0));
   }
 
   int getBranchHistory() { return BranchHistory; }
