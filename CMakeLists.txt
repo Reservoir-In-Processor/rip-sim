@@ -75,49 +75,6 @@ endif()
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-find_package(Git)
-if(GIT_FOUND)
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} ls-remote --tags https://github.com/Reservoir-In-Processor/rip-tests.git
-    OUTPUT_VARIABLE GIT_TAGS_OUTPUT
-  )
-  string(REGEX MATCHALL "refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+" GIT_TAGS_LIST ${GIT_TAGS_OUTPUT})
-
-else()
-  message(FATAL_ERROR "Git not found")
-endif()
-set(LATEST_VERSION "0.0.0")
-set(LATEST_GIT_TAG "")
-foreach(TAG_REF IN LISTS GIT_TAGS_LIST)
-  string(REGEX REPLACE ".*/v" "" VERSION ${TAG_REF})
-  if(VERSION VERSION_GREATER LATEST_VERSION)
-    set(LATEST_VERSION ${VERSION})
-    set(LATEST_GIT_TAG "v${VERSION}")
-  endif()
-endforeach()
-
-message(STATUS "Latest Git tag: ${LATEST_GIT_TAG}")
-
-set(PREVIOUS_GIT_TAG "" CACHE STRING "Previously downloaded git tag")
-
-if(NOT "${PREVIOUS_GIT_TAG}" STREQUAL "${LATEST_GIT_TAG}" OR NOT EXISTS "${CMAKE_BINARY_DIR}/rip-tests")
-  message(STATUS "A new test is available: ${LATEST_GIT_TAG}, previously: ${PREVIOUS_GIT_TAG}")
-
-  set(DOWNLOAD_URL "https://github.com/Reservoir-In-Processor/rip-tests/releases/download/${LATEST_GIT_TAG}/rip-tests.zip")
-
-  file(DOWNLOAD ${DOWNLOAD_URL} "${CMAKE_BINARY_DIR}/rip-tests-${LATEST_GIT_TAG}.zip"
-       SHOW_PROGRESS
-  )
-  message(STATUS "${CMAKE_BINARY_DIR}/rip-tests-${LATEST_GIT_TAG}.zip")
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E tar xzf "${CMAKE_BINARY_DIR}/rip-tests-${LATEST_GIT_TAG}.zip"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-
-  set(PREVIOUS_GIT_TAG ${LATEST_GIT_TAG} CACHE STRING "Previously downloaded git tag" FORCE)
-else()
-  message(STATUS "You are already up to date with tag: ${PREVIOUS_GIT_TAG}")
-endif()
 
 enable_testing()
 # enable unit tests
@@ -143,9 +100,15 @@ add_custom_target(rip-unittests
   DEPENDS ${ALL_TESTS}
 )
 
-# file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY rip-tests DESTINATION ${CMAKE_BINARY_DIR})
 
 
+# Add custom target to make dependency for test files
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/rip-tests
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/rip-tests ${CMAKE_BINARY_DIR}/rip-tests
+  DEPENDS ${CMAKE_SOURCE_DIR}/rip-tests
+)
 
 add_custom_target(copy_tests DEPENDS ${CMAKE_BINARY_DIR}/rip-tests)
 
