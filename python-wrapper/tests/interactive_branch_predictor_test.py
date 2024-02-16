@@ -25,4 +25,4 @@ def test_dhrystone_baremetal_interactive_gshare():
             learns.append(res)
         else:
             assert False, "unreachable!"
-    assert pss[-1]["EX"]["PC"] == 0x8084, "end PC unmatched!"
+    assert pss[-1]["EX"]["PC"] == 0x0084, "end PC unmatched!"

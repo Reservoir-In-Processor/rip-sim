@@ -13,4 +13,4 @@ def test_dhrystone_baremetal():
             res["Kind"] == "PipelineStates"
         ), "not interactive branch predictor mode is only pipeline states"
         jsons.append(res)
-    assert jsons[-1]["EX"]["PC"] == 0x8084, "end PC unmatched!"
+    assert jsons[-1]["EX"]["PC"] == 0x0084, "end PC unmatched!"

@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
   DEBUG_ONLY(Stats = std::make_unique<Statistics>(););
 
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(), std::move(Stats),
-                      /*DRAMBase = */ 0x8000,
+                      /*DRAMBase = */ 0x0000,
                       /*SPIValue = */ 1 << 25);
 
   if (Ops.getInteractive())
