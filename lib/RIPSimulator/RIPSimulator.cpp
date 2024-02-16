@@ -90,8 +90,13 @@ void RIPSimulator::memoryaccess(Memory &, PipelineStates &) {
   RegVal Res = MARdVal;
   unsigned Imm = PS.getEXImmVal();
   std::string Mnemo = Inst->getMnemo();
-
-  if (Mnemo == "sw") {
+  // FIXME: dhrystone MMIO
+  if ((unsigned)MARdVal == 0x10000000) {
+    std::cerr << (char)MARdVal;
+  } else if (Mode == ModeKind::Epilogue) {
+    std::cerr << "Epilogue:" << MARdVal << "is written to " << PS.getEXRs2Val()
+              << '\n';
+  } else if (Mnemo == "sw") {
     Mem.writeWord((unsigned)MARdVal, PS.getEXRs2Val());
   } else if (Mnemo == "sh") {
     Mem.writeHalfWord((unsigned)MARdVal, PS.getEXRs2Val());
@@ -250,8 +255,12 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
 
     // Set MPP to 0
     States.setMPP((ModeKind)0);
-    // R-type
-  } else if (Mnemo == "add") {
+
+  } else if (Mnemo == "ext") {
+    return Exception::R0;
+  } else if (Mnemo == "extx") {
+    return Exception::R1;
+  } else if (Mnemo == "add") { // R-type
     // To avoid signed overflow.
     union {
       unsigned un;
@@ -540,6 +549,12 @@ bool RIPSimulator::handleException(Exception &E) {
   if (E == Exception::Breakpoint) {
     std::cerr << "break happens\n";
     return false;
+  } else if (E == Exception::R0) {
+    std::cerr << "ext happens\n";
+    return false;
+  } else if (E == Exception::R1) {
+    std::cerr << "enter epilogue\n";
+    Mode = ModeKind::Epilogue;
   }
   // TODO: move those on exec and write back.
   // PC change should be on exec.

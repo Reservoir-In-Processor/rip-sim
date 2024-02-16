@@ -16,6 +16,7 @@ enum ModeKind {
   Supervisor,
   Hypervisor,
   Machine,
+  Epilogue,
 };
 
 const unsigned CSR_SIZE = 4096;

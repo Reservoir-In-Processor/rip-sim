@@ -41,18 +41,11 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
   case 0b0001011:
     if (Rs2 == 0) {
       // extended instruction. nop on simulator
-      unsigned Imm = 0;
-      DEBUG_ONLY(std::cerr << "EXTX is decoded as nop"
-                           << "\n");
-      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
-                                               Rd, Rs1, Imm);
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("extx")->second,
+                                               0, 0, 0);
     } else if (Rs2 == 1) {
-      // extended instruction. nop on simulator
-      DEBUG_ONLY(std::cerr << "EXT is decoded as nop"
-                           << "\n");
-      unsigned Imm = 0;
-      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("addi")->second,
-                                               Rd, Rs1, Imm);
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("ext")->second,
+                                               0, 0, 0);
     } else {
       DEBUG_ONLY(dumpInstVal(InstVal));
       return nullptr;
