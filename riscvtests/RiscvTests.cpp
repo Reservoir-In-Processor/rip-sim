@@ -24,8 +24,9 @@ std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
 TEST_P(RiscvTests, RiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
-  Simulator Sim(Files, /* DRAMSize = */ 1 << 15);
-  Sim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
+  // if file name contains add.bin
+  Simulator Sim(Files, /* DRAMSize = */ 1 << 15, /*DRAMBase = */ 0x0000);
+  Sim.run(/*StartAddress = */ 0x0000, /*EndAddress = */ 0x0000 + 0x4c);
   const GPRegisters &Res = Sim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }
