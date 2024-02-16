@@ -555,6 +555,7 @@ bool RIPSimulator::handleException(Exception &E) {
   } else if (E == Exception::R1) {
     std::cerr << "enter epilogue\n";
     Mode = ModeKind::Epilogue;
+    return true;
   }
   // TODO: move those on exec and write back.
   // PC change should be on exec.
