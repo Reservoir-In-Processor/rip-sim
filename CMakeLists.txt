@@ -167,7 +167,7 @@ add_custom_target(
 )
 
 add_custom_target(pytest
-    COMMAND python3 -m pytest ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no
+    COMMAND python3 -m pytest ${CMAKE_SOURCE_DIR}/python-wrapper/tests --capture=no --timeout=300
     DEPENDS rip-sim rip-copy-py
 )
 
