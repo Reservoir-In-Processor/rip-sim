@@ -393,6 +393,15 @@ std::optional<Exception> RIPSimulator::exec(PipelineStates &) {
         PS.setInvalid(DE);
         PS.setInvalid(IF);
       }
+      if (Pred && Cond) {
+        States.incBPTP();
+      } else if (Pred && !Cond) {
+        States.incBPFP();
+      } else if (!Pred && Cond) {
+        States.incBPFN();
+      } else if (!Pred && !Cond) {
+        States.incBPTN();
+      }
 
       BP->StatsUpdate(Cond, Pred);
       BP->Learn(Cond, PS.getPCs(EX)); // FIXME: How to pass PS
@@ -699,6 +708,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
 
     PS.fillBubble();
     NumStages++;
+    States.incCYCLE();
 
     // Statistics calculation
     if (Stats) {
@@ -712,7 +722,7 @@ bool RIPSimulator::proceedNStage(unsigned N) {
       }
     }
 
-    DEBUG_ONLY(PS.dump(); dumpGPRegs(););
+    DEBUG_ONLY(PS.dump(); dumpGPRegs(); States.dump());
   }
   return PS.isEmpty();
 }

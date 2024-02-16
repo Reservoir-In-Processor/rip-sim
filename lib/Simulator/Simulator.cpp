@@ -80,11 +80,12 @@ void Simulator::run(std::optional<Address> StartAddress,
     }
     std::string Mnemo = I->getMnemo();
     Stats.addInst(Mnemo);
+    States.incCYCLE();
     if (BTypeKinds.count(Mnemo))
       Stats.addBDistAndReset();
     else
       Stats.incrementBDist();
-    DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
+    DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(); States.dump());
   }
   DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
              std::cerr << "stop on no instruction address="

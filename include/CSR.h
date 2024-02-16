@@ -52,25 +52,37 @@ const CSRAddress PMPADDR0 = 0x3b0;
 // Hardware thread ID.
 const CSRAddress MHARTID = 0xf14;
 
+// Cycle
+const CSRAddress CYCLE = 0xc00;
+
+// Branch predictor statistics
+const CSRAddress BPTP = 0xfc0;
+const CSRAddress BPTN = 0xfc1;
+const CSRAddress BPFP = 0xfc2;
+const CSRAddress BPFN = 0xfc3;
+
 const std::map<std::string, CSRAddress> CSRMap = {
     {"satp", 0x180},    {"mstatus", 0x300}, {"medeleg", 0x302},
     {"mideleg", 0x303}, {"mie", 0x304},     {"mtvec", 0x305},
     {"mepc", 0x341},    {"mcause", 0x342},  {"mtval", 0x343},
-    {"pmpcfg", 0x3a0},  {"pmpaddr", 0x3b0}, {"mhartid", 0xf14},
-};
+    {"pmpcfg", 0x3a0},  {"pmpaddr", 0x3b0}, {"cycle", 0xc00},
+    {"mhartid", 0xf14}, {"bptp", 0xfc0},    {"bptn", 0xfc1},
+    {"bpfp", 0xfc2},    {"bpfn", 0xfc3}};
 
 static std::map<CSRAddress, std::string> CSRNames = {
     {0x180, "satp"},    {0x300, "mstatus"}, {0x302, "medeleg"},
     {0x303, "mideleg"}, {0x304, "mie"},     {0x305, "mtvec"},
     {0x341, "mepc"},    {0x342, "mcause"},  {0x343, "mtval"},
-    {0x3a0, "pmpcfg"},  {0x3b0, "pmpaddr"}, {0xf14, "mhartid"},
-};
+    {0x3a0, "pmpcfg"},  {0x3b0, "pmpaddr"}, {0xc00, "cycle"},
+    {0xf14, "mhartid"}, {0xfc0, "bptp"},    {0xfc1, "bptn"},
+    {0xfc2, "bpfp"},    {0xfc3, "bpfn"}};
 
-// FIXME: for aligning the output text.
-static const std::string CSRABI[12] = {
+// FIXME: for aligning the output text. And the order of the address matters,
+// should be increasing order of the address.
+static const std::string CSRABI[17] = {
     "  satp  ", " mstatus", " medeleg", " mideleg", "   mie  ", "  mtvec ",
-    "  mepc  ", " mcause ", "  mtval ", " pmpcfg ", " pmpaddr", " mhartid",
-};
+    "  mepc  ", " mcause ", "  mtval ", " pmpcfg ", " pmpaddr", "  cycle ",
+    " mhartid", "  bptp  ", "  bptn  ", "  bpfp  ", "  bpfn  "};
 
 class CSRs {
 private:
@@ -135,17 +147,23 @@ public:
   }
 
   /// set MSTATUS MPP bit
-  /// MPP: Machine Privious Priviledge. 12/11-th bits of MSTATUS
+  /// MPP: Machine Previous Privilege. 12/11-th bits of MSTATUS
   void setMPP(ModeKind Val) {
     write(MSTATUS, (read(MSTATUS) & 0xffffe7ff) | ((int)Val << 11));
   }
+
+  void incCYCLE() { write(CYCLE, read(CYCLE) + 1); }
+  void incBPTP() { write(BPTP, read(BPTP) + 1); }
+  void incBPTN() { write(BPTN, read(BPTN) + 1); }
+  void incBPFP() { write(BPFP, read(BPFP) + 1); }
+  void incBPFN() { write(BPFN, read(BPFN) + 1); }
 
   const void dump() const {
     int i = 0;
     for (auto iter = CSRNames.begin(); iter != CSRNames.end(); ++iter) {
       char ValStr[11];
       std::snprintf(ValStr, sizeof(ValStr), "0x%08x", States[iter->first]);
-      std::cerr << 'x' << std::dec << std::left << std::setw(4)
+      std::cerr << 'x' << std::hex << std::left << std::setw(4)
                 << std::setfill(' ') << iter->first << "(" << CSRABI[i] << ")"
                 << ":=" << std::right << std::setw(12) << std::setfill(' ')
                 << ValStr << ", ";
