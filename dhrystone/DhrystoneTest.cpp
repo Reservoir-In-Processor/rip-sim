@@ -63,7 +63,6 @@ TEST(DhrystoneTest, DhryStoneExtended) {
   Sim.dumpGPRegs();
   const Address PC = Sim.getPC();
   EXPECT_EQ(PC, 0x0540) << "PC unmatched!\n";
-  EXPECT_EQ(1, 2) << "intentional fail\n";
 }
 
 TEST(DhrystoneTest, DhryStoneBareMetalExtended) {
@@ -76,5 +75,4 @@ TEST(DhrystoneTest, DhryStoneBareMetalExtended) {
   Sim.dumpGPRegs();
   const Address PC = Sim.getPC();
   EXPECT_EQ(PC, 0x108) << "PC unmatched!\n";
-  EXPECT_EQ(1, 2) << "intentional fail\n";
 }
