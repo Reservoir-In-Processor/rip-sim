@@ -1,10 +1,16 @@
 from rip_simulator.rip_simulator import RIPSimulator, BranchPredKind
 from pathlib import Path
+import glob
 
 
 def test_dhrystone_baremetal_interactive_gshare():
+    matching_files = glob.glob("rip-tests/dhry-baremetal*.bin")
+
+    if matching_files:
+        first_matching_file = matching_files[0]
+
     rsim = RIPSimulator(
-        Path("rip-tests/dhry-baremetal.bin"),
+        Path(first_matching_file),
         BranchPredKind.Interactive,
         output_sim_err=False,
     )
