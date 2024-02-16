@@ -1,0 +1,52 @@
+
+
+name: Trace Tests
+
+on: workflow_dispatch
+
+jobs:
+  dump-fib:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build
+
+    - name: Build
+      run: |
+        cmake -GNinja -Bbuild -DSANITIZE=OFF -DCMAKE_BUILD_TYPE=Debug
+        ninja -Cbuild
+
+    - name: Trace Instruction level for all bin
+      run: |
+        for file in rip-tests/*.bin.rip; do
+            base_name=$(basename "$file" .bin.rip)
+            ./build/bin/simkheiv $file 2> ./${base_name}.trace
+          done
+      
+    - name: Trace Stage level for Dhrystone for all branch predictor
+      run: |
+        for file in rip-tests/dhry*.bin.rip; do
+          base_name=$(basename "$file" .bin.rip)
+          for option in onebit twobit gshare; do
+            ./build/bin/rip-sim -b=$option $file 2> ./${base_name}_${option}.trace
+          done
+        done
+
+    - name: Upload dump
+      uses: actions/upload-artifact@v2
+      with:
+        name: hassy-no-loop-dump.txt
+        path: ./*.trace
+
+
+    # FIXME: valgrind with clnag-14 seems like few problems exist.
+    # https://github.com/google/sanitizers/issues/856
+    # https://hg.mozilla.org/integration/autoland/rev/192810f500b5
+    # - name: Run valgrind
+    #   run: valgrind --leak-check=full --error-exitcode=1 build/asmkheiv tests/addi.s
