@@ -8,7 +8,8 @@
 #include <vector>
 
 std::string testDir = "../rip-tests";
-std::string findTest(std::regex &pattern) {
+std::string findTest(std::string patStr) {
+  std::regex pattern(patStr);
   try {
     for (const auto &entry : std::filesystem::directory_iterator(testDir)) {
       if (entry.is_regular_file()) {
@@ -29,7 +30,7 @@ std::string findTest(std::regex &pattern) {
 }
 
 TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
-  std::string FileName = "../rip-tests/dhry.bin";
+  std::string FileName = findTest("dhry_.*\\.bin");
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the
   // requirements for DRAMSize, DRAMBase, and sp init value?
@@ -50,7 +51,7 @@ TEST(RIPDhrystoneTest, DhryStone) { // FIXME: should it be separated?
 }
 
 TEST(RIPDhrystoneTest, DhryStoneBareMetal) {
-  std::string FileName = "../rip-tests/dhry-baremetal.bin";
+  std::string FileName = findTest("dhry-baremetal_.*\\.bin");
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the
   // requirements
@@ -73,9 +74,7 @@ TEST(RIPDhrystoneTest, DhryStoneBareMetal) {
 }
 
 TEST(RIPDhrystoneTest, DhryStoneExtended) { // FIXME: should it be separated?
-  std::string FileName = "../rip-tests/dhry.bin.rip";
-  std::regex pattern("dhry_.*\\.bin\\.rip");
-  std::string FileName = findTest(pattern);
+  std::string FileName = findTest("dhry_.*\\.bin\\.rip");
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the
   // requirements for DRAMSize, DRAMBase, and sp init value?
@@ -96,8 +95,7 @@ TEST(RIPDhrystoneTest, DhryStoneExtended) { // FIXME: should it be separated?
 }
 
 TEST(RIPDhrystoneTest, DhryStoneBareMetalExtended) {
-  std::regex pattern("dhry-baremetal.*\\.bin\\.rip");
-  std::string FileName = findTest(pattern);
+  std::string FileName = findTest("dhry-baremetal_.*\\.bin\\.rip");
   auto Files = std::ifstream(FileName);
   // FIXME: access on above sp initial value happens, what is the requirements
   // for DRAMSize, DRAMBase, and sp init value?
