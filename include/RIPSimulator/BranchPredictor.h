@@ -198,9 +198,10 @@ private:
   std::map<Address, int> BranchHistoryTable;
   const int EntryBitwidth = 10;
   const int HistoryBitwidth = 10;
+  const int WeightBitwidth = 4;
   unsigned int Theta;
   unsigned int BranchHistory;
-  signed int **WeightArray;
+  std::vector<std::vector<signed int>> WeightArray;
   signed int y;
   signed int t;
 
@@ -210,8 +211,8 @@ public:
     BranchHistory = 0;
 
     // Initialization of WeightArray
-    std::vector<std::vector<int>> WeightArray(
-        2 << (EntryBitwidth - 1), std::vector<int>(HistoryBitwidth + 1, 0));
+    WeightArray.resize(1 << EntryBitwidth,
+                       std::vector<signed int>(HistoryBitwidth + 1, 0));
   }
 
   int getBranchHistory() { return BranchHistory; }
@@ -227,8 +228,7 @@ public:
                          << "\n");
 
     if ((((y >= 0) ? 1 : 0) != cond) || (abs(y) <= Theta)) {
-      DEBUG_ONLY(std::cerr << std::dec << "Training y:" << y
-                           << " theta:" << Theta << "\n");
+      DEBUG_ONLY(std::cerr << "Training y:" << y << " theta:" << Theta << "\n");
 
       if (cond == 0) {
         t = -1;
@@ -236,15 +236,22 @@ public:
         t = 1;
       }
       // update bias
-      signed int w = WeightArray[PerceptronIndex][0];
+      signed int w = WeightArray.at(PerceptronIndex).at(0);
       w = w + t;
-      WeightArray[PerceptronIndex][0] = w;
+      WeightArray.at(PerceptronIndex).at(0) = w;
+      DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << 0 << "]: " << w
+                           << "\n");
 
       // update weights
       for (int i = 1; i < HistoryBitwidth + 1; i++) {
-        signed int w = WeightArray[PerceptronIndex][i];
+        signed int w = WeightArray.at(PerceptronIndex).at(i);
         w = w + t * (tmpBranchHistory % 2);
-        WeightArray[PerceptronIndex][i] = w;
+        w = std::clamp(w, -(1 << (WeightBitwidth - 1)),
+                       (1 << (WeightBitwidth - 1)) - 1);
+        DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << i << "]: " << w
+                             << "\n");
+
+        WeightArray.at(PerceptronIndex).at(i) = w;
         tmpBranchHistory = tmpBranchHistory >> 1;
       }
     }
@@ -260,13 +267,14 @@ public:
     unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
     int tmpBranchHistory = BranchHistory;
 
-    y = WeightArray[PerceptronIndex][0];
+    y = WeightArray.at(PerceptronIndex).at(0);
     DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:0 w:"
-                         << WeightArray[PerceptronIndex][0] << " y:" << y << " "
-                         << std::bitset<10>(tmpBranchHistory) << "====\n");
+                         << WeightArray.at(PerceptronIndex).at(0) << " y:" << y
+                         << " " << std::bitset<10>(tmpBranchHistory)
+                         << "====\n");
 
     for (int i = 1; i < HistoryBitwidth + 1; i++) {
-      signed int w = WeightArray[PerceptronIndex][i];
+      signed int w = WeightArray.at(PerceptronIndex).at(i);
 
       y = y + w * (tmpBranchHistory % 2);
 
