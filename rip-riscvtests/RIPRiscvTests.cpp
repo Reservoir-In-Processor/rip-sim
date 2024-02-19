@@ -25,8 +25,11 @@ std::vector<std::string> getBinFilesWithPrefix(const std::string &directory,
 TEST_P(RIPRiscvTests, RIPRiscvTests) {
   std::string FileName = GetParam();
   auto Files = std::ifstream(FileName);
-  RIPSimulator RSim(Files, /*BP = */ nullptr, /*DRAMSize=*/1 << 15);
-  RSim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
+  RIPSimulator RSim(Files, /*BP = */ nullptr,
+                    /*DRAMSize = */ 1LL << 15,
+                    /* Stats = */ std::make_unique<Statistics>(),
+                    /* DRAMBase = */ 0x0000);
+  RSim.run(/*StartAddress = */ 0x0000, /*EndAddress = */ 0x0000 + 0x4c);
   const GPRegisters &Res = RSim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }
@@ -38,8 +41,11 @@ TEST_P(RIPRiscvTests, RIPBPRiscvTests) { // FIXME: should it be separeted?
   std::unique_ptr<BranchPredictor> bp =
       std::make_unique<OneBitBranchPredictor>();
 
-  RIPSimulator RSim(Files, /*BP = */ std::move(bp), /*DRAMSize=*/1 << 15);
-  RSim.run(/*StartAddress = */ 0x8000, /*EndAddress = */ 0x8000 + 0x4c);
+  RIPSimulator RSim(Files, /*BP = */ std::move(bp),
+                    /*DRAMSize = */ 1LL << 15,
+                    /* Stats = */ std::make_unique<Statistics>(),
+                    /* DRAMBase = */ 0x0000);
+  RSim.run(/*StartAddress = */ 0x0000, /*EndAddress = */ 0x0000 + 0x4c);
   const GPRegisters &Res = RSim.getGPRegs();
   EXPECT_EQ(Res[3], 1) << FileName << " failed\n";
 }

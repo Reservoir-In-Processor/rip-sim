@@ -38,6 +38,20 @@ std::unique_ptr<Instruction> Decoder::decode(unsigned InstVal) {
     }
     break;
 
+  case 0b0001011:
+    if (Rs2 == 0) {
+      // extended instruction. nop on simulator
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("extx")->second,
+                                               0, 0, 0);
+    } else if (Rs2 == 1) {
+      InstPtr = std::make_unique<IInstruction>(ITypeKinds.find("ext")->second,
+                                               0, 0, 0);
+    } else {
+      DEBUG_ONLY(dumpInstVal(InstVal));
+      return nullptr;
+    }
+    break;
+
   case 0b0001111:
     if (Funct3 == 0b000) { // fence
                            // FIXME: Currently mapped to addi x0, x0, 0 (nop)

@@ -174,6 +174,12 @@ std::optional<Exception> IInstruction::exec(Address &PC, GPRegisters &GPRegs,
     // Set MPP to 0
     ResVal &= 0xffffe7ff;
     States.write(MSTATUS, ResVal);
+  } else if (Mnemo == "ext") {
+    PC += 4;
+    return R0;
+  } else if (Mnemo == "extx") {
+    PC += 4;
+    return R1;
   } else {
     assert(false && "unimplemented! or not exist");
     return Exception::IllegalInstruction;
@@ -327,6 +333,19 @@ std::optional<Exception> SInstruction::exec(Address &PC, GPRegisters &GPRegs,
   std::string Mnemo = ST.getMnemo();
 
   int ImmI = signExtend(Imm);
+
+  Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;
+  if ((unsigned)Ad == 0x10000000) { // picorv32 Dhrystone MMIO
+    std::cerr << (char)GPRegs[Rs2.to_ulong()];
+    PC += 4;
+    return std::nullopt;
+  }
+  if (Mode == ModeKind::Epilogue) {
+    std::cerr << "Epilogue:" << GPRegs[Rs2.to_ulong()] << "is written to " << Ad
+              << '\n';
+    PC += 4;
+    return std::nullopt;
+  }
   if (Mnemo == "sb") {
     // FIXME: wrap add?
     Address Ad = GPRegs[Rs1.to_ulong()] + ImmI;

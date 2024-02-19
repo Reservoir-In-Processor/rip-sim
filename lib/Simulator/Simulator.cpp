@@ -32,6 +32,14 @@ void Simulator::run(std::optional<Address> StartAddress,
     }
     // TODO: non-machine mode
     if (auto E = I->exec(PC, GPRegs, Mem, States, Mode)) {
+      if (E == Exception::R0) {
+        std::cerr << "ext called\n";
+        break;
+      } else if (E == Exception::R1) {
+        std::cerr << "extx called\n";
+        Mode = ModeKind::Epilogue;
+        continue;
+      }
       // FIXME: if ecall happens, next address is written, is this correct?
       Address ExceptionPC = PC;
       ModeKind PrevMode = Mode;
@@ -72,11 +80,12 @@ void Simulator::run(std::optional<Address> StartAddress,
     }
     std::string Mnemo = I->getMnemo();
     Stats.addInst(Mnemo);
+    States.incCYCLE();
     if (BTypeKinds.count(Mnemo))
       Stats.addBDistAndReset();
     else
       Stats.incrementBDist();
-    DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(););
+    DEBUG_ONLY(std::cerr << "Regs after:\n"; dumpGPRegs(); States.dump());
   }
   DEBUG_ONLY(std::cerr << "finish with:\n"; dumpGPRegs();
              std::cerr << "stop on no instruction address="

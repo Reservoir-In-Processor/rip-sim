@@ -51,6 +51,8 @@ const std::map<const std::string, const ISBType> ITypeKinds = {
     {"uret",   {"uret",   0b000, 0b1110011}},
     {"sret",   {"sret",   0b000, 0b1110011}},
     {"mret",   {"mret",   0b000, 0b1110011}},
+    {"ext",    {"ext",    0b000, 0b0001011}}, // extended
+    {"extx",   {"extx",   0b000, 0b0001011}},
 };
 
 const std::map<std::string, ISBType> STypeKinds = {

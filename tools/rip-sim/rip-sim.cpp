@@ -53,7 +53,7 @@ private:
 
 public:
   Options()
-      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 10),
+      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 28),
         StartAddress(std::nullopt), EndAddress(std::nullopt) {}
 
   // return true if succeed.
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
   DEBUG_ONLY(Stats = std::make_unique<Statistics>(););
 
   RIPSimulator RipSim(Files, std::move(BP), Ops.getDRAMSize(), std::move(Stats),
-                      /*DRAMBase = */ 0x8000,
+                      /*DRAMBase = */ 0x0000,
                       /*SPIValue = */ 1 << 25);
 
   if (Ops.getInteractive())
