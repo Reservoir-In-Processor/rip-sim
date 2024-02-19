@@ -50,7 +50,7 @@ private:
 
 public:
   Options()
-      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 10),
+      : BPKind(No), Interactive(false), Statistics(false), DRAMSize(1 << 28),
         StartAddress(std::nullopt), EndAddress(std::nullopt) {}
 
   // return true if succeed.
