@@ -133,3 +133,49 @@ Total stages: 116617
  BP accuracy: 0.88986 (Hit :14050, Miss :1739)
 =========== END STATS =============
 ```
+
+### Perceptron branch predictor (EntryBitwidth = 10, HistoryBitwidth = 10, WeightBitwidth = 3)
+
+```sh
+$ ./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=perceptron
+break happens
+========== BEGIN STATS ============
+Num Stages= 116298
+...
+ BP accuracy: 0.917474 (Hit :14486, Miss :1303)
+=========== END STATS =============
+```
+
+### Perceptron branch predictor (EntryBitwidth = 10, HistoryBitwidth = 10, WeightBitwidth = 4)
+
+```sh
+$ ./build/bin/rip-sim rip-tests/dhry.bin --dram-size=268435456 --stats -b=perceptron
+break happens
+========== BEGIN STATS ============
+Num Stages= 115996
+...
+ BP accuracy: 0.931028 (Hit :14700, Miss :1089)
+=========== END STATS =============
+```
+
+### Perceptron branch predictor (EntryBitwidth = 10, HistoryBitwidth = 10, WeightBitwidth = 5)
+
+```sh
+break happens
+========== BEGIN STATS ============
+Num Stages= 115821
+...
+ BP accuracy: 0.940148 (Hit :14844, Miss :945)
+=========== END STATS =============
+```
+
+### Perceptron branch predictor (EntryBitwidth = 10, HistoryBitwidth = 10, WeightBitwidth = 6)
+
+```sh
+break happens
+========== BEGIN STATS ============
+Num Stages= 115797
+...
+ BP accuracy: 0.941352 (Hit :14863, Miss :926)
+=========== END STATS =============
+```

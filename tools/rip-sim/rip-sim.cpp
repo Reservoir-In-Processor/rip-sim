@@ -4,10 +4,11 @@
 #include <iostream>
 #include <string>
 enum BranchPredKind {
-  No,     // no
-  One,    // onebit
-  Two,    // twobit
-  Gshare, // gshare
+  No,         // no
+  One,        // onebit
+  Two,        // twobit
+  Gshare,     // gshare
+  Perceptron, // perceptron
   // TODO: add interactive mode
   Interactive, // interactive
 };
@@ -21,6 +22,8 @@ BranchPredKind BPKindFromStr(std::string &s) {
     return BranchPredKind::Two;
   else if (s == "gshare")
     return BranchPredKind::Gshare;
+  else if (s == "perceptron")
+    return BranchPredKind::Perceptron;
   else if (s == "interactive")
     return BranchPredKind::Interactive;
   else
@@ -67,7 +70,8 @@ public:
       } else if (arg.substr(0, 3) == "-b=") {
         std::string BPStr = arg.substr(3);
         if (BPStr != "no" && BPStr != "onebit" && BPStr != "twobit" &&
-            BPStr != "gshare" && BPStr != "interactive") {
+            BPStr != "gshare" && BPStr != "perceptron" &&
+            BPStr != "interactive") {
           std::cerr << "Invalid option for -b. Allowed options: no, onebit, "
                        "twobit, gshare and interactive.\n";
           return false;
@@ -144,6 +148,8 @@ int main(int argc, char **argv) {
     BP = std::make_unique<TwoBitBranchPredictor>();
   } else if (Ops.getBPKind() == BranchPredKind::Gshare) {
     BP = std::make_unique<GshareBranchPredictor>();
+  } else if (Ops.getBPKind() == BranchPredKind::Perceptron) {
+    BP = std::make_unique<PerceptronBranchPredictor>();
   } else if (Ops.getBPKind() == BranchPredKind::Interactive) {
     BP = std::make_unique<InteractiveBranchPredictor>(std::cout, std::cin);
   } else {

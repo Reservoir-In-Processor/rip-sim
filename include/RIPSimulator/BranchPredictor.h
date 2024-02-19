@@ -174,6 +174,126 @@ public:
 };
 
 // FIXME: add test
+class PerceptronBranchPredictor : public BranchPredictor {
+  /*
+  Reference:
+  [1] "Dynamic Branch Prediction with Perceptrons," D. A. Jimenez, C.  Lin
+  https://www.cs.utexas.edu/~lin/papers/hpca01.pdf
+
+  Variables:
+  EntryBitwidth   : Bitwidth of the entry               (log2 N in [1])
+  HistoryBitwidth : Bitwidth of the history register    (n in [1])
+  Theta           : Thresold parameter for the training (\theta in [1])
+  BranchHistory   : History register with HistoryBitwidth
+  WeightArray     : Trainable parameters \in Z(^(N, n+1) of perceptrons
+  y               : prediction \in Z
+  t               : target \in {-1, 1}
+
+  Hardware budget:
+  Table size: (2^EntryBitwidth) * (HistoryBitwidth + 1) * (Bit per weight)
+
+  */
+
+private:
+  std::map<Address, int> BranchHistoryTable;
+  const int EntryBitwidth = 10;
+  const int HistoryBitwidth = 10;
+  const int WeightBitwidth = 4;
+  unsigned int Theta;
+  unsigned int BranchHistory;
+  std::vector<std::vector<signed int>> WeightArray;
+  signed int y;
+  signed int t;
+
+public:
+  PerceptronBranchPredictor() : BranchPredictor() {
+    Theta = std::floor(1.93 * HistoryBitwidth + 14); // according to [1]
+    BranchHistory = 0;
+
+    // Initialization of WeightArray
+    WeightArray.resize(1 << EntryBitwidth,
+                       std::vector<signed int>(HistoryBitwidth + 1, 0));
+  }
+
+  int getBranchHistory() { return BranchHistory; }
+  int getBHTIndex(Address PC) {
+    unsigned BHTIndex = getLowerNBits(PC >> 2, EntryBitwidth);
+    return BHTIndex;
+  }
+
+  void Learn(bool &cond, const Address &PC) override {
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
+    int tmpBranchHistory = BranchHistory;
+    DEBUG_ONLY(std::cerr << "TRAINING ==== "
+                         << "\n");
+
+    if ((((y >= 0) ? 1 : 0) != cond) || (abs(y) <= Theta)) {
+      DEBUG_ONLY(std::cerr << "Training y:" << y << " theta:" << Theta << "\n");
+
+      if (cond == 0) {
+        t = -1;
+      } else {
+        t = 1;
+      }
+      // update bias
+      signed int w = WeightArray.at(PerceptronIndex).at(0);
+      w = w + t;
+      WeightArray.at(PerceptronIndex).at(0) = w;
+      DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << 0 << "]: " << w
+                           << "\n");
+
+      // update weights
+      for (int i = 1; i < HistoryBitwidth + 1; i++) {
+        signed int w = WeightArray.at(PerceptronIndex).at(i);
+        w = w + t * (tmpBranchHistory % 2);
+        w = std::clamp(w, -(1 << (WeightBitwidth - 1)),
+                       (1 << (WeightBitwidth - 1)) - 1);
+        DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << i << "]: " << w
+                             << "\n");
+
+        WeightArray.at(PerceptronIndex).at(i) = w;
+        tmpBranchHistory = tmpBranchHistory >> 1;
+      }
+    }
+
+    BranchHistory = (BranchHistory << 1) + cond; // update of Branch Hitory
+    BranchHistory %= 1 << HistoryBitwidth;
+
+    DEBUG_ONLY(std::cerr << std::hex << "Branch history: 0x" << BranchHistory
+                         << "\n");
+  }
+
+  bool Predict(const Address &PC) override {
+    unsigned PerceptronIndex = getLowerNBits(PC >> 2, EntryBitwidth);
+    int tmpBranchHistory = BranchHistory;
+
+    y = WeightArray.at(PerceptronIndex).at(0);
+    DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:0 w:"
+                         << WeightArray.at(PerceptronIndex).at(0) << " y:" << y
+                         << " " << std::bitset<10>(tmpBranchHistory)
+                         << "====\n");
+
+    for (int i = 1; i < HistoryBitwidth + 1; i++) {
+      signed int w = WeightArray.at(PerceptronIndex).at(i);
+
+      y = y + w * (tmpBranchHistory % 2);
+
+      DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:" << i << " w:" << w
+                           << " y:" << y << " "
+                           << std::bitset<10>(tmpBranchHistory) << "====\n");
+
+      tmpBranchHistory = tmpBranchHistory >> 1;
+    }
+
+    if (y <= 0) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+};
+
+// FIXME: add test
 class InteractiveBranchPredictor : public BranchPredictor {
 private:
   std::ostream &os;
