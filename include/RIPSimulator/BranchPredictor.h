@@ -95,7 +95,7 @@ public:
 class TwoBitBranchPredictor : public BranchPredictor {
 private:
   std::map<Address, int> BranchHistoryTable;
-  unsigned int BHTIndexWidth = 5; // FIXME: should be argument
+  unsigned int BHTIndexWidth = 10; // FIXME: should be argument
 
 public:
   TwoBitBranchPredictor() : BranchPredictor() {}
@@ -198,7 +198,7 @@ private:
   std::map<Address, int> BranchHistoryTable;
   const int EntryBitwidth = 10;
   const int HistoryBitwidth = 10;
-  const int WeightBitwidth = 4;
+  unsigned int WeightBitwidth;
   unsigned int Theta;
   unsigned int BranchHistory;
   std::vector<std::vector<signed int>> WeightArray;
@@ -208,6 +208,7 @@ private:
 public:
   PerceptronBranchPredictor() : BranchPredictor() {
     Theta = std::floor(1.93 * HistoryBitwidth + 14); // according to [1]
+    WeightBitwidth = std::floor(std::log2(Theta)) + 1;
     BranchHistory = 0;
 
     // Initialization of WeightArray
