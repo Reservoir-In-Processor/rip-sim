@@ -228,7 +228,7 @@ public:
     DEBUG_ONLY(std::cerr << "TRAINING ==== "
                          << "\n");
 
-    if ((((y >= 0) ? 1 : 0) != cond) || (abs(y) <= Theta)) {
+    if (((0 < y) ^ cond) || (abs(y) <= Theta)) {
       DEBUG_ONLY(std::cerr << "Training y:" << y << " theta:" << Theta << "\n");
 
       if (cond == 0) {
@@ -275,9 +275,9 @@ public:
                          << "====\n");
 
     for (int i = 1; i < HistoryBitwidth + 1; i++) {
-      signed int w = WeightArray.at(PerceptronIndex).at(i);
+      signed int w = WeightArray[PerceptronIndex][i];
 
-      y = y + w * (tmpBranchHistory % 2);
+      y = y + w * ((tmpBranchHistory % 2) == 0 ? -1 : 1);
 
       DEBUG_ONLY(std::cerr << std::dec << "FOR DEBUG ==== n:" << i << " w:" << w
                            << " y:" << y << " "
@@ -286,7 +286,7 @@ public:
       tmpBranchHistory = tmpBranchHistory >> 1;
     }
 
-    if (y <= 0) {
+    if (y < 0) {
       return 0;
     } else {
       return 1;
