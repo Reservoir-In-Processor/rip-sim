@@ -237,16 +237,14 @@ public:
         t = 1;
       }
       // update bias
-      signed int w = WeightArray.at(PerceptronIndex).at(0);
-      w = w + t;
-      WeightArray.at(PerceptronIndex).at(0) = w;
-      DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << 0 << "]: " << w
-                           << "\n");
+      WeightArray[PerceptronIndex][0] += t;
+      DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << 0
+                           << "]: " << WeightArray[PerceptronIndex][0] << "\n");
 
       // update weights
       for (int i = 1; i < HistoryBitwidth + 1; i++) {
-        signed int w = WeightArray.at(PerceptronIndex).at(i);
-        w = w + t * (tmpBranchHistory % 2);
+        signed int w = WeightArray[PerceptronIndex][i];
+        w = w + t * ((tmpBranchHistory % 2) == 0 ? -1 : 1);
         w = std::clamp(w, -(1 << (WeightBitwidth - 1)),
                        (1 << (WeightBitwidth - 1)) - 1);
         DEBUG_ONLY(std::cerr << std::dec << "Trained w[" << i << "]: " << w
