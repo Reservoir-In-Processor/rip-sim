@@ -732,10 +732,6 @@ void RIPSimulator::runInteractively(std::optional<Address> StartAddress,
   if (StartAddress)
     PC = *StartAddress;
   while (!proceedNStage(1)) {
-    // FIXME: is this necessary? maybe input is only needed on prediction.
-    std::string buf = "";
-    std::cin >> buf;
-    buf.clear();
     // FIXME: this end address is on IF, should be EX.
     if (EndAddress && PC == *EndAddress)
       break;
